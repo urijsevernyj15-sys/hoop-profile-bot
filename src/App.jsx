@@ -5,12 +5,13 @@ import './App.css'
 const DEFAULT_USER = {
   username: '@player',
   avatarLetter: 'P',
+  avatarUrl: null,
   ovr: 99,
   height: '', weight: '', age: '',
   positions: [],
   sport: '',
   plan: 'free',
-  testsPassed: 2,
+  testsPassed: 0,
   testsTotal: 4,
   theme: 'classic',
   cardTheme: 'classic',
@@ -37,11 +38,12 @@ const POSITIONS = [
   { code: 'C', label: 'Центровой' },
 ]
 
+// Чистая структура категорий — все free-тесты начинают как pending
 const INITIAL_CATEGORIES = [
   {
     id: 'b-iq', icon: '🏀', title: 'Баскетбольный IQ',
     tests: [
-      { id: 'b-iq-base', title: 'Игровое мышление', plan: 'free', status: 'done', score: 52 },
+      { id: 'b-iq-base', title: 'Игровое мышление', plan: 'free', status: 'active', score: null },
       { id: 'b-iq-vision', title: 'Видение площадки', plan: 'pro', status: 'locked', score: null },
       { id: 'b-iq-decision', title: 'Принятие решений', plan: 'pro', status: 'locked', score: null },
     ],
@@ -49,7 +51,7 @@ const INITIAL_CATEGORIES = [
   {
     id: 'shooting', icon: '🎯', title: 'Бросок',
     tests: [
-      { id: 'sht-base', title: 'Базовый бросок', plan: 'free', status: 'done', score: 54 },
+      { id: 'sht-base', title: 'Базовый бросок', plan: 'free', status: 'pending', score: null },
       { id: 'sht-ft', title: 'Точность штрафных', plan: 'pro', status: 'locked', score: null },
       { id: 'sht-move', title: 'Бросок в движении', plan: 'pro', status: 'locked', score: null },
       { id: 'sht-3pt', title: 'Трёхочковые', plan: 'pro', status: 'locked', score: null },
@@ -58,7 +60,7 @@ const INITIAL_CATEGORIES = [
   {
     id: 'dribbling', icon: '⚡', title: 'Дриблинг',
     tests: [
-      { id: 'drbl-base', title: 'Базовый дриблинг', plan: 'free', status: 'active', score: null },
+      { id: 'drbl-base', title: 'Базовый дриблинг', plan: 'free', status: 'pending', score: null },
       { id: 'drbl-pressure', title: 'Дриблинг под давлением', plan: 'pro', status: 'locked', score: null },
       { id: 'drbl-hands', title: 'Скорость рук', plan: 'pro', status: 'locked', score: null },
     ],
@@ -73,6 +75,11 @@ const INITIAL_CATEGORIES = [
     ],
   },
 ]
+
+// Делаем глубокую копию категорий (чтобы не менять оригинал)
+function freshCategories() {
+  return JSON.parse(JSON.stringify(INITIAL_CATEGORIES))
+}
 
 // ============================================================
 // РАСЧЁТ OVR
@@ -240,7 +247,13 @@ function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, onOpenTests }) {
     <>
       <div className="top-bar">
         <div className="profile">
-          <div className="avatar">{user.avatarLetter}</div>
+          <div className="avatar">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt="avatar" className="avatar-img" />
+            ) : (
+              user.avatarLetter
+            )}
+          </div>
           <div className="profile-info">
             <div className="username">
               {user.username}
@@ -530,7 +543,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
   }, [phase, timeLeft])
 
   function handleSave() {
-    // Бросок
     if (hasBlocks) {
       const currentBlock = desc.blocks[blockIndex]
       const inputs = blockInputs[blockIndex] || []
@@ -563,7 +575,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
       return
     }
 
-    // Дриблинг
     if (isDribble) {
       const count = Number(dribbleInputCount)
       if (isNaN(count) || dribbleInputCount === '') {
@@ -615,7 +626,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
       return
     }
 
-    // Атлетизм
     if (isAtlet) {
       const num = Number(atletInput)
       if (isNaN(num) || atletInput === '') {
@@ -662,7 +672,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
       return
     }
 
-    // Fallback
     const num = Number(result)
     if (isNaN(num) || result === '') return
     if (desc && (num < 0 || num > desc.max)) {
@@ -733,7 +742,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
     </div>
   )
 
-  // IQ
   if (isIQ) {
     if (!hasPositions) {
       return (
@@ -799,7 +807,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
     )
   }
 
-  // SAFETY
   if (phase === 'safety') {
     return (
       <>
@@ -877,12 +884,10 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
     )
   }
 
-  // RESULT
   if (phase === 'result' && finalResult) {
     return <ResultView header={header} finalResult={finalResult} onDone={handleResultDone} onRetry={handleResultRetry} />
   }
 
-  // INTRO
   if (phase === 'intro') {
     return (
       <>
@@ -965,7 +970,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
     )
   }
 
-  // TIMER
   if (phase === 'running') {
     return (
       <>
@@ -981,7 +985,6 @@ function TestRunScreen({ testId, testTitle, user, onBack, onSave, onGoHome, onOp
     )
   }
 
-  // INPUT
   if (phase === 'input') {
     if (hasBlocks) {
       const block = desc.blocks[blockIndex]
@@ -1297,7 +1300,13 @@ function CardScreen({ user, onBack, onOpenPro, onChangeCardTheme }) {
           <div className="card-pos">{positionText}</div>
         </div>
         <div className="card-center">
-          <div className="card-avatar">{user.avatarLetter}</div>
+          <div className="card-avatar">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt="avatar" className="avatar-img" />
+            ) : (
+              user.avatarLetter
+            )}
+          </div>
           <div className="card-name">
             {user.username}
             {user.plan === 'pro' && <span className="pro-badge">PRO</span>}
@@ -1393,7 +1402,13 @@ function ProfileScreen({ user, onReset, onOpenPro, onChangeTheme }) {
 
       <div className="profile-card">
         <div className="profile-card-avatar-wrap">
-          <div className="profile-card-avatar">{user.avatarLetter}</div>
+          <div className="profile-card-avatar">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt="avatar" className="avatar-img" />
+            ) : (
+              user.avatarLetter
+            )}
+          </div>
           <div className="profile-card-ring" />
         </div>
         <div className="profile-card-info">
@@ -1596,24 +1611,53 @@ function App() {
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
+  // Telegram WebApp: подтягиваем ник и аватар
+  useEffect(() => {
+    try {
+      const tg = window.Telegram?.WebApp
+      if (!tg) return
+
+      tg.ready()
+      tg.expand()
+
+      const tgUser = tg.initDataUnsafe?.user
+      if (tgUser) {
+        setUser((prev) => ({
+          ...prev,
+          username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
+          avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
+          avatarUrl: tgUser.photo_url || null,
+        }))
+      }
+    } catch (err) {
+      console.warn('Telegram init error:', err)
+    }
+  }, [])
+
+  // Загрузка из localStorage
   useEffect(() => {
     try {
       const r = localStorage.getItem(STORAGE_KEYS.registered)
       const u = localStorage.getItem(STORAGE_KEYS.user)
       if (r === 'true' && u) {
         const parsed = JSON.parse(u)
-        setUser({ ...DEFAULT_USER, ...parsed, categories: parsed.categories || INITIAL_CATEGORIES })
+        setUser({
+          ...DEFAULT_USER,
+          ...parsed,
+          categories: parsed.categories || freshCategories(),
+        })
         setRegistered(true)
       } else {
-        setUser({ ...DEFAULT_USER, categories: INITIAL_CATEGORIES })
+        setUser({ ...DEFAULT_USER, categories: freshCategories() })
       }
     } catch (err) {
       console.warn(err)
-      setUser({ ...DEFAULT_USER, categories: INITIAL_CATEGORIES })
+      setUser({ ...DEFAULT_USER, categories: freshCategories() })
     }
     setLoaded(true)
   }, [])
 
+  // Сохранение в localStorage
   useEffect(() => {
     if (!loaded) return
     try {
@@ -1622,6 +1666,7 @@ function App() {
     } catch (err) { console.warn(err) }
   }, [user, registered, loaded])
 
+  // Применение темы
   useEffect(() => {
     document.body.setAttribute('data-theme', user.theme || 'classic')
   }, [user.theme])
@@ -1634,15 +1679,37 @@ function App() {
   }
 
   function handleRegistration(data) {
-    setUser((prev) => ({ ...prev, ...data, categories: INITIAL_CATEGORIES }))
+    setUser((prev) => ({ ...prev, ...data, categories: freshCategories() }))
     setRegistered(true)
   }
 
+  // Сброс — теперь сбрасывает и IQ, и Бросок
   function handleReset() {
-    if (!window.confirm('Точно сбросить все данные?')) return
+    if (!window.confirm('Точно сбросить все данные? Регистрацию и тесты придётся пройти заново.')) return
     localStorage.removeItem(STORAGE_KEYS.registered)
     localStorage.removeItem(STORAGE_KEYS.user)
-    setUser({ ...DEFAULT_USER, categories: INITIAL_CATEGORIES })
+
+    // Создаём чистую копию категорий — все free-тесты начинают заново
+    const cleanCats = freshCategories()
+
+    // Убедимся, что b-iq-base активен, а остальные free — pending
+    cleanCats[0].tests[0].status = 'active'  // b-iq-base
+    cleanCats[0].tests[0].score = null
+    cleanCats[1].tests[0].status = 'pending' // sht-base
+    cleanCats[1].tests[0].score = null
+    cleanCats[2].tests[0].status = 'pending' // drbl-base
+    cleanCats[2].tests[0].score = null
+    cleanCats[3].tests[0].status = 'pending' // atl-base
+    cleanCats[3].tests[0].score = null
+
+    setUser({
+      ...DEFAULT_USER,
+      // Сохраняем ник и аватар из Telegram, если они есть
+      username: user.username && user.username !== '@player' ? user.username : '@player',
+      avatarLetter: user.avatarLetter || 'P',
+      avatarUrl: user.avatarUrl || null,
+      categories: cleanCats,
+    })
     setRegistered(false)
     setActiveTab('home')
     setShowCard(false)
