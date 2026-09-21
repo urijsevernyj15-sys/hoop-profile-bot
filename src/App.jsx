@@ -38,7 +38,6 @@ const POSITIONS = [
   { code: 'C', label: 'Центровой' },
 ]
 
-// Чистая структура категорий — все free-тесты начинают как pending
 const INITIAL_CATEGORIES = [
   {
     id: 'b-iq', icon: '🏀', title: 'Баскетбольный IQ',
@@ -76,7 +75,6 @@ const INITIAL_CATEGORIES = [
   },
 ]
 
-// Делаем глубокую копию категорий (чтобы не менять оригинал)
 function freshCategories() {
   return JSON.parse(JSON.stringify(INITIAL_CATEGORIES))
 }
@@ -1611,36 +1609,39 @@ function App() {
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
-  // Telegram WebApp: подтягиваем ник и аватар
+  // Telegram WebApp: отладка + подтягивание данных
   useEffect(() => {
-  try {
-    const tg = window.Telegram?.WebApp
-    if (!tg) {
-      console.log('Not in Telegram — using fallback')
-      return
+    try {
+      const tg = window.Telegram?.WebApp
+      const debugInfo = {
+        hasTelegram: !!tg,
+        hasInitData: !!tg?.initData,
+        initDataLength: tg?.initData?.length || 0,
+        user: tg?.initDataUnsafe?.user || null,
+        platform: tg?.platform || 'unknown',
+      }
+      alert('DEBUG:\n' + JSON.stringify(debugInfo, null, 2))
+
+      if (!tg) return
+
+      tg.ready()
+      tg.expand()
+      tg.disableVerticalSwipes?.()
+
+      const tgUser = tg.initDataUnsafe?.user
+      if (tgUser) {
+        setUser((prev) => ({
+          ...prev,
+          username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
+          avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
+          avatarUrl: tgUser.photo_url || null,
+        }))
+      }
+    } catch (err) {
+      alert('ERROR: ' + err.message)
     }
+  }, [])
 
-    tg.ready()
-    tg.expand()
-    tg.disableVerticalSwipes?.()
-
-    const tgUser = tg.initDataUnsafe?.user
-alert('Telegram user: ' + JSON.stringify(tgUser))
-
-    if (tgUser) {
-      setUser((prev) => ({
-        ...prev,
-        username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
-        avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
-        avatarUrl: tgUser.photo_url || null,
-      }))
-    }
-  } catch (err) {
-    console.warn('Telegram init error:', err)
-  }
-}, [])
-
-  // Загрузка из localStorage
   useEffect(() => {
     try {
       const r = localStorage.getItem(STORAGE_KEYS.registered)
@@ -1663,7 +1664,6 @@ alert('Telegram user: ' + JSON.stringify(tgUser))
     setLoaded(true)
   }, [])
 
-  // Сохранение в localStorage
   useEffect(() => {
     if (!loaded) return
     try {
@@ -1672,7 +1672,6 @@ alert('Telegram user: ' + JSON.stringify(tgUser))
     } catch (err) { console.warn(err) }
   }, [user, registered, loaded])
 
-  // Применение темы
   useEffect(() => {
     document.body.setAttribute('data-theme', user.theme || 'classic')
   }, [user.theme])
@@ -1689,28 +1688,23 @@ alert('Telegram user: ' + JSON.stringify(tgUser))
     setRegistered(true)
   }
 
-  // Сброс — теперь сбрасывает и IQ, и Бросок
   function handleReset() {
-    if (!window.confirm('Точно сбросить все данные? Регистрацию и тесты придётся пройти заново.')) return
+    if (!window.confirm('Точно сбросить все данные?')) return
     localStorage.removeItem(STORAGE_KEYS.registered)
     localStorage.removeItem(STORAGE_KEYS.user)
 
-    // Создаём чистую копию категорий — все free-тесты начинают заново
     const cleanCats = freshCategories()
-
-    // Убедимся, что b-iq-base активен, а остальные free — pending
-    cleanCats[0].tests[0].status = 'active'  // b-iq-base
+    cleanCats[0].tests[0].status = 'active'
     cleanCats[0].tests[0].score = null
-    cleanCats[1].tests[0].status = 'pending' // sht-base
+    cleanCats[1].tests[0].status = 'pending'
     cleanCats[1].tests[0].score = null
-    cleanCats[2].tests[0].status = 'pending' // drbl-base
+    cleanCats[2].tests[0].status = 'pending'
     cleanCats[2].tests[0].score = null
-    cleanCats[3].tests[0].status = 'pending' // atl-base
+    cleanCats[3].tests[0].status = 'pending'
     cleanCats[3].tests[0].score = null
 
     setUser({
       ...DEFAULT_USER,
-      // Сохраняем ник и аватар из Telegram, если они есть
       username: user.username && user.username !== '@player' ? user.username : '@player',
       avatarLetter: user.avatarLetter || 'P',
       avatarUrl: user.avatarUrl || null,
