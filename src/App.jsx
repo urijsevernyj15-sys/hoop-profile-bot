@@ -1610,28 +1610,38 @@ function App() {
   const [loaded, setLoaded] = useState(false)
 
   // Telegram WebApp: подтягиваем ник и аватар
-  useEffect(() => {
-    try {
-      const tg = window.Telegram?.WebApp
-      if (!tg) return
+ useEffect(() => {
+  try {
+    const tg = window.Telegram?.WebApp
+    console.log('TG object:', tg)
+    console.log('TG initData:', tg?.initData)
+    console.log('TG user:', tg?.initDataUnsafe?.user)
 
-      tg.ready()
-      tg.expand()
-      tg.disableVerticalSwipes?.()
+    if (!tg) return
 
-      const tgUser = tg.initDataUnsafe?.user
-      if (tgUser) {
-        setUser((prev) => ({
+    tg.ready()
+    tg.expand()
+    tg.disableVerticalSwipes?.()
+
+    const tgUser = tg.initDataUnsafe?.user
+    if (tgUser) {
+      console.log('Setting user from TG:', tgUser)
+      setUser((prev) => {
+        const updated = {
           ...prev,
           username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
           avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
           avatarUrl: tgUser.photo_url || null,
-        }))
-      }
-    } catch (err) {
-      console.warn('Telegram init error:', err)
+        }
+        console.log('New user object:', updated)
+        return updated
+      })
     }
-  }, [])
+  } catch (err) {
+    console.error('Telegram init error:', err)
+  }
+}, [])
+        
 
   useEffect(() => {
     try {
