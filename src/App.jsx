@@ -1625,7 +1625,7 @@ function App() {
     tg.disableVerticalSwipes?.()
 
     const tgUser = tg.initDataUnsafe?.user
-    console.log('Telegram user:', tgUser)
+alert('Telegram user: ' + JSON.stringify(tgUser))
 
     if (tgUser) {
       setUser((prev) => ({
