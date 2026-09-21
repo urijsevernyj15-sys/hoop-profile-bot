@@ -1609,19 +1609,10 @@ function App() {
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
-  // Telegram WebApp: отладка + подтягивание данных
+  // Telegram WebApp: подтягиваем ник и аватар
   useEffect(() => {
     try {
       const tg = window.Telegram?.WebApp
-      const debugInfo = {
-        hasTelegram: !!tg,
-        hasInitData: !!tg?.initData,
-        initDataLength: tg?.initData?.length || 0,
-        user: tg?.initDataUnsafe?.user || null,
-        platform: tg?.platform || 'unknown',
-      }
-      alert('DEBUG:\n' + JSON.stringify(debugInfo, null, 2))
-
       if (!tg) return
 
       tg.ready()
@@ -1638,7 +1629,7 @@ function App() {
         }))
       }
     } catch (err) {
-      alert('ERROR: ' + err.message)
+      console.warn('Telegram init error:', err)
     }
   }, [])
 
