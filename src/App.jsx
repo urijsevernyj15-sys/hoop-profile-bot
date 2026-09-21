@@ -1608,7 +1608,6 @@ function App() {
   const [showPro, setShowPro] = useState(false)
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
-  const [debugInfo, setDebugInfo] = useState(null)
 
   // Загрузка + Telegram в одном useEffect (Telegram применяется ПОСЛЕ localStorage)
   useEffect(() => {
@@ -1630,13 +1629,7 @@ function App() {
 
       // Telegram поверх
       const tg = window.Telegram?.WebApp
-      setDebugInfo({
-        hasTelegram: !!tg,
-        hasInitData: !!tg?.initData,
-        initDataLength: tg?.initData?.length || 0,
-        user: tg?.initDataUnsafe?.user || null,
-        platform: tg?.platform || 'unknown',
-      })
+      
 
       if (tg) {
         tg.ready()
@@ -1788,29 +1781,7 @@ function App() {
 
   return (
     <div className="app">
-      {/* ОТЛАДОЧНАЯ ПЛАШКА — убрать после проверки */}
-      {debugInfo && (
-        <div style={{
-          position: 'fixed',
-          bottom: '120px',
-          left: '8px',
-          right: '8px',
-          background: 'rgba(255, 0, 0, 0.9)',
-          color: '#fff',
-          padding: '8px',
-          fontSize: '10px',
-          zIndex: 9999,
-          borderRadius: '8px',
-          wordBreak: 'break-all',
-          fontFamily: 'monospace',
-          lineHeight: '1.4',
-        }}>
-          TG:{debugInfo.hasTelegram ? '✓' : '✗'} |
-          Init:{debugInfo.initDataLength} |
-          User:{debugInfo.user?.username || 'null'} |
-          Plat:{debugInfo.platform}
-        </div>
-      )}
+      
 
       {showPro ? (
         <ProScreen user={user} onBack={() => setShowPro(false)} />
