@@ -1608,56 +1608,53 @@ function App() {
   const [showPro, setShowPro] = useState(false)
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
+  const [debugInfo, setDebugInfo] = useState(null)
 
-  // Telegram WebApp: подтягиваем ник и аватар
- useEffect(() => {
-  try {
-    const tg = window.Telegram?.WebApp
-    console.log('TG object:', tg)
-    console.log('TG initData:', tg?.initData)
-    console.log('TG user:', tg?.initDataUnsafe?.user)
-
-    if (!tg) return
-
-    tg.ready()
-    tg.expand()
-    tg.disableVerticalSwipes?.()
-
-    const tgUser = tg.initDataUnsafe?.user
-    if (tgUser) {
-      console.log('Setting user from TG:', tgUser)
-      setUser((prev) => {
-        const updated = {
-          ...prev,
-          username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
-          avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
-          avatarUrl: tgUser.photo_url || null,
-        }
-        console.log('New user object:', updated)
-        return updated
-      })
-    }
-  } catch (err) {
-    console.error('Telegram init error:', err)
-  }
-}, [])
-        
-
+  // Загрузка + Telegram в одном useEffect (Telegram применяется ПОСЛЕ localStorage)
   useEffect(() => {
     try {
       const r = localStorage.getItem(STORAGE_KEYS.registered)
       const u = localStorage.getItem(STORAGE_KEYS.user)
+      let baseUser = { ...DEFAULT_USER, categories: freshCategories() }
+      let reg = false
+
       if (r === 'true' && u) {
         const parsed = JSON.parse(u)
-        setUser({
+        baseUser = {
           ...DEFAULT_USER,
           ...parsed,
           categories: parsed.categories || freshCategories(),
-        })
-        setRegistered(true)
-      } else {
-        setUser({ ...DEFAULT_USER, categories: freshCategories() })
+        }
+        reg = true
       }
+
+      // Telegram поверх
+      const tg = window.Telegram?.WebApp
+      setDebugInfo({
+        hasTelegram: !!tg,
+        hasInitData: !!tg?.initData,
+        initDataLength: tg?.initData?.length || 0,
+        user: tg?.initDataUnsafe?.user || null,
+        platform: tg?.platform || 'unknown',
+      })
+
+      if (tg) {
+        tg.ready()
+        tg.expand()
+        tg.disableVerticalSwipes?.()
+        const tgUser = tg.initDataUnsafe?.user
+        if (tgUser) {
+          baseUser = {
+            ...baseUser,
+            username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || baseUser.username),
+            avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
+            avatarUrl: tgUser.photo_url || null,
+          }
+        }
+      }
+
+      setUser(baseUser)
+      setRegistered(reg)
     } catch (err) {
       console.warn(err)
       setUser({ ...DEFAULT_USER, categories: freshCategories() })
@@ -1696,21 +1693,36 @@ function App() {
 
     const cleanCats = freshCategories()
     cleanCats[0].tests[0].status = 'active'
-    cleanCats[0].tests[0].score = null
     cleanCats[1].tests[0].status = 'pending'
-    cleanCats[1].tests[0].score = null
     cleanCats[2].tests[0].status = 'pending'
-    cleanCats[2].tests[0].score = null
     cleanCats[3].tests[0].status = 'pending'
-    cleanCats[3].tests[0].score = null
 
-    setUser({
+    // Telegram данные сохраняем
+    let tgBase = {
       ...DEFAULT_USER,
-      username: user.username && user.username !== '@player' ? user.username : '@player',
-      avatarLetter: user.avatarLetter || 'P',
-      avatarUrl: user.avatarUrl || null,
       categories: cleanCats,
-    })
+    }
+    const tg = window.Telegram?.WebApp
+    if (tg) {
+      const tgUser = tg.initDataUnsafe?.user
+      if (tgUser) {
+        tgBase = {
+          ...tgBase,
+          username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || '@player'),
+          avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
+          avatarUrl: tgUser.photo_url || null,
+        }
+      }
+    } else {
+      tgBase = {
+        ...tgBase,
+        username: user.username && user.username !== '@player' ? user.username : '@player',
+        avatarLetter: user.avatarLetter || 'P',
+        avatarUrl: user.avatarUrl || null,
+      }
+    }
+
+    setUser(tgBase)
     setRegistered(false)
     setActiveTab('home')
     setShowCard(false)
@@ -1776,6 +1788,30 @@ function App() {
 
   return (
     <div className="app">
+      {/* ОТЛАДОЧНАЯ ПЛАШКА — убрать после проверки */}
+      {debugInfo && (
+        <div style={{
+          position: 'fixed',
+          bottom: '120px',
+          left: '8px',
+          right: '8px',
+          background: 'rgba(255, 0, 0, 0.9)',
+          color: '#fff',
+          padding: '8px',
+          fontSize: '10px',
+          zIndex: 9999,
+          borderRadius: '8px',
+          wordBreak: 'break-all',
+          fontFamily: 'monospace',
+          lineHeight: '1.4',
+        }}>
+          TG:{debugInfo.hasTelegram ? '✓' : '✗'} |
+          Init:{debugInfo.initDataLength} |
+          User:{debugInfo.user?.username || 'null'} |
+          Plat:{debugInfo.platform}
+        </div>
+      )}
+
       {showPro ? (
         <ProScreen user={user} onBack={() => setShowPro(false)} />
       ) : runningTestInfo ? (
