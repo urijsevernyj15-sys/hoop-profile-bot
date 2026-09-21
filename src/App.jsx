@@ -1613,26 +1613,32 @@ function App() {
 
   // Telegram WebApp: подтягиваем ник и аватар
   useEffect(() => {
-    try {
-      const tg = window.Telegram?.WebApp
-      if (!tg) return
-
-      tg.ready()
-      tg.expand()
-
-      const tgUser = tg.initDataUnsafe?.user
-      if (tgUser) {
-        setUser((prev) => ({
-          ...prev,
-          username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
-          avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
-          avatarUrl: tgUser.photo_url || null,
-        }))
-      }
-    } catch (err) {
-      console.warn('Telegram init error:', err)
+  try {
+    const tg = window.Telegram?.WebApp
+    if (!tg) {
+      console.log('Not in Telegram — using fallback')
+      return
     }
-  }, [])
+
+    tg.ready()
+    tg.expand()
+    tg.disableVerticalSwipes?.()
+
+    const tgUser = tg.initDataUnsafe?.user
+    console.log('Telegram user:', tgUser)
+
+    if (tgUser) {
+      setUser((prev) => ({
+        ...prev,
+        username: tgUser.username ? `@${tgUser.username}` : (tgUser.first_name || prev.username),
+        avatarLetter: (tgUser.first_name || 'P')[0].toUpperCase(),
+        avatarUrl: tgUser.photo_url || null,
+      }))
+    }
+  } catch (err) {
+    console.warn('Telegram init error:', err)
+  }
+}, [])
 
   // Загрузка из localStorage
   useEffect(() => {
