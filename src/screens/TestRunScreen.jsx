@@ -43,9 +43,9 @@ export default function TestRunScreen({
   const [atletData, setAtletData] = useState(savedProgress?.atletData || {})
   const [atletInput, setAtletInput] = useState(savedProgress?.atletInput || '')
 
-    const isIQ = testId === 'b-iq-base' || testId === 'b-iq-decision'
-    const isDribble = testId === 'drbl-base' || testId === 'drbl-pressure' || testId === 'drbl-hands'
-    const isAtlet = testId === 'atl-base' || testId === 'atl-jump' || testId === 'atl-run' || testId === 'atl-endurance'
+  const isIQ = testId === 'b-iq-base'
+  const isDribble = testId === 'drbl-base' || testId === 'drbl-pressure' || testId === 'drbl-hands'
+  const isAtlet = testId === 'atl-base' || testId === 'atl-jump' || testId === 'atl-run' || testId === 'atl-endurance'
   const hasPositions = user.positions.length > 0
   const desc = getTestDescription(testId, user.positions)
   const hasBlocks = desc && desc.blocks && desc.blocks.length > 0
@@ -149,7 +149,7 @@ export default function TestRunScreen({
         const prevData = dribbleData[prevTask.id]
         if (prevData) {
           setDribbleInputCount(String(prevData.count))
-          setDribbleInputLosses(prevData.losses)
+          setDribbleInputLosses(prevData.losses ?? null)
         }
         setPhase('input')
         return
@@ -212,6 +212,7 @@ export default function TestRunScreen({
   })()
 
   function handleSave() {
+    // ========== БРОСОК ==========
     if (hasBlocks) {
       const currentBlock = desc.blocks[blockIndex]
       const inputs = blockInputs[blockIndex] || []
@@ -245,24 +246,31 @@ export default function TestRunScreen({
       return
     }
 
-        if (isDribble) {
+    // ========== ДРИБЛИНГ ==========
+    if (isDribble) {
       const isBaseDribble = testId === 'drbl-base'
       const count = Number(dribbleInputCount)
+
       if (isNaN(count) || dribbleInputCount === '') {
-        alert('Введи количество отскоков')
+        alert(isBaseDribble ? 'Введи количество отскоков' : 'Введи результат')
         return
       }
       if (count < 0 || count > (desc.max || 200)) {
         alert(`Введи число от 0 до ${desc.max || 200}`)
         return
       }
-     if (isBaseDribble && dribbleInputLosses === null) {
-  alert('Выбери количество потерь')
-  return
-}
+
+      if (isBaseDribble && dribbleInputLosses === null) {
+        alert('Выбери количество потерь')
+        return
+      }
 
       const currentTask = desc.tasks[dribbleTaskIndex]
-      const newData = { ...dribbleData, [currentTask.id]: { count, losses: dribbleInputLosses } }
+      const taskData = isBaseDribble
+        ? { count, losses: dribbleInputLosses }
+        : { count }
+
+      const newData = { ...dribbleData, [currentTask.id]: taskData }
       setDribbleData(newData)
 
       if (dribbleTaskIndex + 1 < desc.tasks.length) {
@@ -275,38 +283,30 @@ export default function TestRunScreen({
         return
       }
 
-      // Финальный расчёт
       const scores = desc.tasks.map((t) => {
         const d = newData[t.id]
         if (!d) return 0
 
         if (isBaseDribble) {
-          // БАЗОВЫЙ: касания минус потери × 3
           const base = Math.min(100, Math.round((d.count / t.norm) * 100))
           const penalty = d.losses * 3
           return Math.max(0, base - penalty)
         }
 
-        // PRO-тесты
         if (t.direction === 'higher') {
-          // Касания (чем больше, тем лучше)
           return Math.min(100, Math.round((d.count / t.norm) * 100))
         }
 
-        // Потери (чем МЕНЬШЕ, тем лучше)
         const losses = d.count
         if (losses === 0) return 100
         if (losses >= t.norm) {
-          // Превысил норму — падает до 0
           return Math.max(0, Math.round(100 - (losses / t.norm) * 50))
         }
-        // Меньше нормы — от 100 до 50
         return Math.round(100 - (losses / t.norm) * 50)
       })
 
       const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
 
-      // Правильный формат разбивки
       setFinalResult({
         score: avg,
         breakdown: desc.tasks.map((t) => {
@@ -332,6 +332,55 @@ export default function TestRunScreen({
       return
     }
 
+    // ========== АТЛЕТИЗМ ==========
+    if (isAtlet) {
+      const num = Number(atletInput)
+      if (isNaN(num) || atletInput === '') {
+        alert('Введи результат')
+        return
+      }
+      const currentTask = desc.tasks[atletIndex]
+
+      if (currentTask.direction === 'higher' && num < 0) {
+        alert('Введи положительное число')
+        return
+      }
+      if (currentTask.direction === 'lower' && (num < 1 || num > 60)) {
+        alert('Введи время от 1 до 60 секунд')
+        return
+      }
+
+      const newData = { ...atletData, [currentTask.id]: num }
+      setAtletData(newData)
+
+      if (atletIndex + 1 < desc.tasks.length) {
+        setAtletIndex(atletIndex + 1)
+        setAtletInput('')
+        setPhase('input')
+        return
+      }
+
+      const scores = desc.tasks.map((t) => {
+        const value = newData[t.id]
+        if (value === undefined) return 0
+        if (t.direction === 'higher') return Math.min(100, Math.round((value / t.norm) * 100))
+        else return Math.min(100, Math.round((t.norm / value) * 100))
+      })
+      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+
+      setFinalResult({
+        score: avg,
+        breakdown: desc.tasks.map((t) => ({
+          label: t.title,
+          value: `${newData[t.id]} ${t.unit}`,
+        })),
+      })
+      setPhase('result')
+      clearTestProgress(testId)
+      return
+    }
+
+    // ========== FALLBACK ==========
     const num = Number(result)
     if (isNaN(num) || result === '') return
     if (desc && (num < 0 || num > desc.max)) {
@@ -393,7 +442,7 @@ export default function TestRunScreen({
     setAtletInput('')
   }
 
-      const header = (
+  const header = (
     <div className="screen-head screen-head-minimal">
       <button className="icon-btn" onClick={onBack}>←</button>
       <button className="icon-btn" onClick={onGoHome}>🏠</button>
@@ -443,7 +492,7 @@ export default function TestRunScreen({
         </>
       )
     }
-        if (phase === 'intro' || phase === 'safety') {
+    if (phase === 'intro' || phase === 'safety') {
       return (
         <>
           {header}
@@ -522,7 +571,6 @@ export default function TestRunScreen({
             </div>
           </div>
 
-          {/* 🎬 Анимация смены вопроса — key меняется при iqIndex */}
           <div key={iqIndex} className="iq-question-enter">
             <div className="iq-question">{currentQ.question}</div>
             <div className="iq-options">
@@ -793,6 +841,7 @@ export default function TestRunScreen({
 
   // ========== INPUT ==========
   if (phase === 'input') {
+    // БРОСОК
     if (hasBlocks) {
       const block = desc.blocks[blockIndex]
       const currentInputs = blockInputs[blockIndex] || []
@@ -811,7 +860,6 @@ export default function TestRunScreen({
       return (
         <>
           {header}
-          {/* 🎬 Анимация смены блока — key меняется */}
           <div className="block-screen" key={`block-${blockIndex}`}>
             <div className="block-enter">
               <div className="segmented-progress">
@@ -869,7 +917,8 @@ export default function TestRunScreen({
       )
     }
 
-        if (isDribble) {
+    // ДРИБЛИНГ
+    if (isDribble) {
       const currentTask = desc.tasks[dribbleTaskIndex]
       const progressSegments = desc.tasks.map((_, i) => i <= dribbleTaskIndex)
       const isBaseDribble = testId === 'drbl-base'
@@ -897,7 +946,6 @@ export default function TestRunScreen({
                 <p className="card-text">{currentTask.technique}</p>
               </div>
 
-              {/* Поле ввода — для всех тестов дриблинга */}
               <div className="card">
                 <div className="tag-pill">Результат</div>
                 <h2 className="card-title">
@@ -915,7 +963,6 @@ export default function TestRunScreen({
                 </label>
               </div>
 
-              {/* Блок потерь (кнопки 0-4) — ТОЛЬКО для drbl-base */}
               {isBaseDribble && (
                 <div className="card">
                   <div className="tag-pill">Потери</div>
@@ -973,6 +1020,7 @@ export default function TestRunScreen({
       )
     }
 
+    // АТЛЕТИЗМ
     if (isAtlet) {
       const currentTask = desc.tasks[atletIndex]
       const allFilled = atletInput !== ''
@@ -1043,6 +1091,7 @@ export default function TestRunScreen({
       )
     }
 
+    // FALLBACK
     return (
       <>
         {header}
