@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { THEMES } from '../data/themes'
+import { THEMES, POSITIONS_FULL } from '../data/themes'
 import { calculateOVR } from '../data/ovr'
 
 export default function CardScreen({ user, onBack, onOpenPro, onChangeCardTheme }) {
   const [showThemePanel, setShowThemePanel] = useState(false)
 
   const allTests = user.categories.flatMap((c) => c.tests)
-  const positionText = user.positions.length > 0 ? user.positions.join(' / ') : '—'
   const ovr = calculateOVR(user.categories, user.positions)
 
   const cardMetrics = [
@@ -16,6 +15,14 @@ export default function CardScreen({ user, onBack, onOpenPro, onChangeCardTheme 
     { code: 'ATL', value: allTests.find((t) => t.id === 'atl-base')?.score ?? null },
   ]
 
+  // Полные названия позиций
+  const primaryPos = user.positions[0]
+    ? POSITIONS_FULL[user.positions[0]] || user.positions[0]
+    : null
+  const secondaryPos = user.positions[1]
+    ? POSITIONS_FULL[user.positions[1]] || user.positions[1]
+    : null
+
   return (
     <>
       <div className="screen-head">
@@ -23,18 +30,41 @@ export default function CardScreen({ user, onBack, onOpenPro, onChangeCardTheme 
           <button className="icon-btn" onClick={onBack}>←</button>
           <h2 className="screen-head-title">Моя карточка</h2>
         </div>
-        <button
-          className="icon-btn pill"
-          onClick={() => setShowThemePanel(true)}
-        >
-          🎨 Тема
-        </button>
+        <div className="card-head-actions">
+          {user.plan === 'pro' ? (
+            <span className="head-plan-pill pro">PRO</span>
+          ) : (
+            <button
+              className="head-plan-pill clickable"
+              onClick={onOpenPro}
+            >
+              FREE
+            </button>
+          )}
+          <button
+            className="icon-btn pill"
+            onClick={() => setShowThemePanel(true)}
+          >
+            🎨 Тема
+          </button>
+        </div>
       </div>
 
       <div className={`player-card card-theme-${user.cardTheme}`}>
         <div className="card-top">
           <div className="card-ovr">{ovr !== null ? ovr : '—'}</div>
-          <div className="card-pos">{positionText}</div>
+          <div className="card-pos-block">
+            {primaryPos ? (
+              <>
+                <div className="card-pos-primary">{primaryPos}</div>
+                {secondaryPos && (
+                  <div className="card-pos-secondary">{secondaryPos}</div>
+                )}
+              </>
+            ) : (
+              <div className="card-pos-primary">—</div>
+            )}
+          </div>
         </div>
 
         <div className="card-center">
@@ -62,17 +92,6 @@ export default function CardScreen({ user, onBack, onOpenPro, onChangeCardTheme 
           ))}
         </div>
       </div>
-
-      {user.plan === 'free' && (
-        <div className="pro-promo card-promo" onClick={onOpenPro}>
-          <div className="pro-promo-icon">✨</div>
-          <div className="pro-promo-text">
-            <div className="pro-promo-title">С PRO-карточкой результаты точнее</div>
-            <div className="pro-promo-sub">Больше тестов, история и тренировки</div>
-          </div>
-          <div className="pro-promo-arrow">→</div>
-        </div>
-      )}
 
       {showThemePanel && (
         <div className="theme-panel-overlay" onClick={() => setShowThemePanel(false)}>

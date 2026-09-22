@@ -25,11 +25,11 @@
   --radius-lg: 26px;
 }
 
-body[data-theme="classic"] { --accent: #FF6B1A; --accent-hover: #FF8533; }
-body[data-theme="nba"]     { --accent: #FF3B3B; --accent-hover: #FF5C5C; }
-body[data-theme="neon"]    { --accent: #8B5CF6; --accent-hover: #A78BFA; }
-body[data-theme="techno"]  { --accent: #00E0FF; --accent-hover: #4DE9FF; }
-body[data-theme="acid"]    { --accent: #B8FF3C; --accent-hover: #CEFF70; }
+body[data-theme="classic"] { --accent: #FF6B1A; --accent-hover: #FF8533; --accent-soft: #E65A00; }
+body[data-theme="nba"]     { --accent: #FF3B3B; --accent-hover: #FF5C5C; --accent-soft: #E02E2E; }
+body[data-theme="neon"]    { --accent: #8B5CF6; --accent-hover: #A78BFA; --accent-soft: #7A4FD6; }
+body[data-theme="techno"]  { --accent: #00E0FF; --accent-hover: #4DE9FF; --accent-soft: #00B8D4; }
+body[data-theme="acid"]    { --accent: #B8FF3C; --accent-hover: #CEFF70; --accent-soft: #95CC30; }
 
 /* ---------- БАЗА ---------- */
 html, body, #root {
@@ -657,22 +657,24 @@ button:active { transform: scale(0.97); }
 }
 
 .metrics {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin-bottom: 20px;
-  justify-content: center;
 }
 
 .metric {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 10px 15px;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   transition: all 0.25s;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .metric.done {
@@ -695,7 +697,36 @@ button:active { transform: scale(0.97); }
 }
 .metric-code { letter-spacing: 0.3px; }
 .metric-value { opacity: 0.9; margin-left: 2px; }
+.metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+
+.metric.done .metric-icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.metric.pending .metric-icon {
+  color: var(--text-dim);
+}
+
+.metric-btn:hover .metric-icon {
+  transform: scale(1.1);
+}
 .check { font-size: 11px; font-weight: 900; }
+.metric.done svg {
+  color: var(--accent);
+}
+
+.metric.pending svg {
+  color: var(--text-dim);
+}
 
 .home-progress {
   padding: 14px 18px;
@@ -948,6 +979,24 @@ button:active { transform: scale(0.97); }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+/* Красивое большое поле для одиночного ввода (дриблинг, атлетизм) */
+.reg-field input[type="number"][autofocus] {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  padding: 22px;
+  letter-spacing: -1px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+}
+
+.reg-field input[type="number"][autofocus]:focus {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--card-elev));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent),
+    0 0 30px color-mix(in srgb, var(--accent) 20%, transparent);
+}
 
 .reg-field input:focus,
 .reg-field select:focus {
@@ -1181,24 +1230,11 @@ button:active { transform: scale(0.97); }
 .category-header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 0;
   flex: 1;
   min-width: 0;
 }
 
-.category-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  font-size: 21px;
-  flex-shrink: 0;
-  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 15%, transparent);
-}
 
 .category-info { flex: 1; min-width: 0; }
 
@@ -1434,10 +1470,18 @@ button:active { transform: scale(0.97); }
 }
 
 .test-run-icon {
-  font-size: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.test-run-icon svg {
+  width: 64px;
+  height: 64px;
 }
 
 .test-run-desc {
@@ -1804,6 +1848,36 @@ button:active { transform: scale(0.97); }
     0 0 30px rgba(255, 228, 160, 0.35);
 }
 
+/* Блок позиций на карточке */
+.card-pos-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.card-pos-primary {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.95;
+  line-height: 1.2;
+}
+
+.card-pos-secondary {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.65;
+  line-height: 1.2;
+}
+
+/* Старый стиль — оставляем на всякий случай (если где-то используется) */
 .card-pos {
   font-size: 13px;
   font-weight: 800;
@@ -2858,7 +2932,7 @@ button:active { transform: scale(0.97); }
 }
 
 .nav-item.active {
-  color: var(--accent);
+  color: var(--accent-soft);
 }
 
 .nav-item.active::before {
@@ -2870,12 +2944,12 @@ button:active { transform: scale(0.97); }
   width: 24px;
   height: 2px;
   border-radius: 1px;
-  background: var(--accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 80%, transparent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-soft) 80%, transparent);
 }
 
 .nav-item.active .nav-icon {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 60%, transparent));
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent-soft) 60%, transparent));
 }
 
 .nav-icon {
@@ -4177,6 +4251,7 @@ button:active { transform: scale(0.97); }
   align-items: flex-end;
   justify-content: center;
   animation: fadeIn 0.25s ease;
+  padding-top: 40px;
 }
 
 .day-modal {
@@ -4189,6 +4264,7 @@ button:active { transform: scale(0.97); }
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   border-top: 1px solid var(--border-soft);
   text-align: center;
+  overflow: hidden;
 }
 
 .day-modal-handle {
@@ -4281,29 +4357,41 @@ button:active { transform: scale(0.97); }
 /* ============================================================
    МОДАЛКА ДНЯ (описание тренировки) — v2
    ============================================================ */
-.day-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 300;
+.day-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 120px);
+  background: var(--card);
+  border-radius: 26px;
+  border: 1px solid var(--border-soft);
+  text-align: center;
+  position: relative;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: fadeIn 0.25s ease;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 40px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.day-modal-large {
+  max-height: calc(100vh - 120px);
+  text-align: left;
 }
 
 .day-modal {
   width: 100%;
   max-width: 480px;
   background: var(--card);
-  border-top-left-radius: 26px;
-  border-top-right-radius: 26px;
-  padding: 14px 22px calc(24px + env(safe-area-inset-bottom, 0px));
+  border-radius: 26px;
+  padding: 20px 22px 24px;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  border-top: 1px solid var(--border-soft);
+  border: 1px solid var(--border-soft);
   text-align: center;
+  position: relative;
+  margin: auto;
+  flex-shrink: 0;
 }
 
 .day-modal-handle {
@@ -4396,10 +4484,14 @@ button:active { transform: scale(0.97); }
 /* ============================================================
    КАЛЕНДАРЬ — ЗАГЛУШКА ДЛЯ FREE
    ============================================================ */
+/* ============================================================
+   КАЛЕНДАРЬ — ЗАГЛУШКА ДЛЯ FREE (с живым фоном)
+   ============================================================ */
+
 .calendar-locked {
   position: relative;
   padding: 36px 24px 28px;
-  background: rgba(16, 16, 20, 0.7);
+  background: rgba(16, 16, 20, 0.4);
   border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -4407,6 +4499,233 @@ button:active { transform: scale(0.97); }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   margin-top: 6px;
+  isolation: isolate;
+}
+
+/* Верхняя светящаяся полоска */
+.calendar-locked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 80%, transparent),
+    transparent);
+  opacity: 0.9;
+  z-index: 5;
+}
+
+/* ============ ЖИВОЙ ФОН — ГРАФИК + СЕТКА ============ */
+
+.locked-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Сетка клеточек — плавное появление */
+.locked-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  opacity: 0;
+  animation: gridFadeIn 1s ease 0.3s forwards;
+}
+
+@keyframes gridFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* График сверху — плавное появление */
+.locked-bg-chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  opacity: 0;
+  animation: chartFadeIn 0.8s ease 0.1s forwards;
+}
+
+@keyframes chartFadeIn {
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* Линия графика — анимация рисования + свечение */
+.locked-bg-chart-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: chartDraw 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+@keyframes chartDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 🌫️ Блюр — размывает фон, чтобы текст читался */
+.locked-bg-blur {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  background: linear-gradient(180deg,
+    rgba(10, 10, 14, 0.4) 0%,
+    rgba(10, 10, 14, 0.7) 50%,
+    rgba(10, 10, 14, 0.85) 100%);
+  pointer-events: none;
+}
+/* Пульсация точек на графике (эффект «живой биржи») */
+.locked-bg-chart circle {
+  animation: chartDotPulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.locked-bg-chart circle:nth-child(1) { animation-delay: 0.4s; }
+.locked-bg-chart circle:nth-child(2) { animation-delay: 0.6s; }
+.locked-bg-chart circle:nth-child(3) { animation-delay: 0.8s; }
+.locked-bg-chart circle:nth-child(4) { animation-delay: 1s; }
+
+@keyframes chartDotPulse {
+  0%, 100% {
+    opacity: 0.7;
+    r: 3;
+  }
+  50% {
+    opacity: 1;
+    r: 4.5;
+  }
+}
+
+/* Контент поверх всего */
+.locked-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- Иконка ---------- */
+.calendar-locked-icon {
+  font-size: 64px;
+  margin-bottom: 14px;
+  position: relative;
+  filter: drop-shadow(0 0 20px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.calendar-locked-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  margin: 0 0 10px;
+  position: relative;
+  line-height: 1.2;
+}
+
+.calendar-locked-sub {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 0 22px;
+  position: relative;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Список фич ---------- */
+.calendar-locked-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  text-align: left;
+  position: relative;
+}
+
+.calendar-locked-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(16, 16, 20, 0.65);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.calendar-locked-feature-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.calendar-locked-feature-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--text);
+}
+
+.calendar-locked-feature-sub {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* ---------- Кнопка ---------- */
+.calendar-locked-cta {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a0a00;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(255, 165, 0, 0.35);
+  transition: all 0.25s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.calendar-locked-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(255, 165, 0, 0.5);
+}
+
+.calendar-locked-cta .arrow {
+  font-size: 18px;
+}
+
+.calendar-locked-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 16px 0 0;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .calendar-locked::before {
@@ -4837,4 +5156,2497 @@ button:active { transform: scale(0.97); }
 .day-chip:hover {
   border-color: var(--accent);
   }
- 
+ /* ============================================================
+   УБИРАЕМ УРОДСКИЕ СТРЕЛКИ У ЧИСЛОВЫХ ПОЛЕЙ
+   ============================================================ */
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Красивое выравнивание цифр */
+input[type="number"] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+/* Улучшенное поле ввода — крупнее, заметнее */
+.multi-input-control input,
+.reg-field input[type="number"] {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.multi-input-control input:focus,
+.reg-field input[type="number"]:focus {
+  transform: scale(1.05);
+}
+/* ============================================================
+   КНОПКА «НАЗАД» И ПЛАШКА «ПРОГРЕСС СОХРАНЁН»
+   ============================================================ */
+
+.back-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.back-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+/* Плашка «Прогресс сохранён» */
+.progress-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin: 0 0 12px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+/* ============================================================
+   ВЫРАВНИВАНИЕ ЭКРАНА ИНТРО ТЕСТА (v2)
+   ============================================================ */
+
+/* Общий контейнер интро-экрана */
+.intro-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 0 40px;
+}
+
+/* Hero-блок: заголовок + подзаголовок */
+.intro-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 20px 0 8px;
+  margin-bottom: 4px;
+}
+
+.intro-hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.intro-hero-icon svg {
+  width: 64px;
+  height: 64px;
+}
+
+.intro-hero-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #fff 0%, color-mix(in srgb, #fff 60%, var(--accent) 40%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.intro-hero-sub {
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 320px;
+}
+
+/* Мета-блоки (Время / Нужно) — ровные, в 2 колонки */
+.intro-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.intro-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+}
+
+.intro-meta-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 50%, transparent), transparent);
+}
+
+.intro-meta-icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.intro-meta-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.intro-meta-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Карточка «Что тебя ждёт» — компактнее */
+.intro-card {
+  padding: 18px 20px;
+}
+
+.intro-card .tag-pill {
+  margin-bottom: 14px;
+}
+
+.intro-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.intro-bullet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.intro-bullet-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* ЕДИНАЯ плашка-подсказка (объединяет 3 старых) */
+.unified-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.unified-hint::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 50%, transparent), transparent);
+}
+
+.unified-hint-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.unified-hint-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Блок действий (кнопки) */
+.intro-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Инлайн-кнопка «Начать» (вместо fixed bottom-cta) */
+.bottom-cta-inline {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bottom-cta-inline:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.bottom-cta-inline:active {
+  transform: scale(0.98);
+}
+
+.bottom-cta-inline:disabled,
+.bottom-cta-inline.disabled {
+  background: var(--card-elev);
+  color: var(--text-mute);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.bottom-cta-inline .arrow {
+  font-size: 18px;
+}
+
+/* Убираем фиксированную кнопку в intro-экране, т.к. используем inline */
+.block-screen .bottom-cta {
+  display: none;
+}
+
+/* Кнопка «Назад» — уже была, но улучшим отступы */
+.back-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+  margin-top: 0;
+}
+
+.back-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+/* Плашка «Прогресс сохранён» */
+.progress-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* Отступы в block-screen */
+.block-screen {
+  padding: 0 0 40px;
+}
+
+.block-screen .intro-actions {
+  margin-top: 6px;
+}
+
+/* Safety-screen — убираем фикс-кнопку и центрируем */
+.safety-screen {
+  padding: 0 0 40px;
+}
+
+.safety-screen .intro-actions {
+  margin-top: 6px;
+}
+/* ============================================================
+   ШАПКА КАРТОЧКИ — кнопки FREE / PRO + Тема
+   ============================================================ */
+
+.card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   ШАПКА КАРТОЧКИ — кнопки FREE / PRO + Тема
+   ============================================================ */
+
+.card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Пилюля FREE — в цвете темы, с мягким свечением */
+.head-plan-pill {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-family: inherit;
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* PRO — золотая (некликабельная) */
+.head-plan-pill.pro {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a0a00;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(255, 165, 0, 0.3);
+}
+
+/* Кликабельная версия — усиливаем свечение при hover */
+.head-plan-pill.clickable {
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.head-plan-pill.clickable:hover {
+  background: color-mix(in srgb, var(--accent) 22%, var(--card-elev));
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 40px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.head-plan-pill.clickable:active {
+  transform: scale(0.96);
+}
+/* ============================================================
+   ЭКРАН «ВЫПОЛНЯЙ УПРАЖНЕНИЕ» — с опциональным таймером
+   ============================================================ */
+
+.running-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 0 40px;
+  min-height: 60vh;
+}
+
+/* Компактный таймер-блок */
+.timer-card {
+  padding: 18px 20px;
+  background: color-mix(in srgb, var(--accent) 10%, rgba(16, 16, 20, 0.7));
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+  animation: timerCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes timerCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.7;
+}
+
+.timer-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.timer-card-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.timer-card-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-card-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.timer-card-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 60%, #fff 40%));
+  border-radius: 3px;
+  transition: width 1s linear;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Центральный контент */
+.running-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 30px 20px;
+  margin: auto 0;
+}
+
+.running-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  color: var(--text);
+  margin: 0;
+  background: linear-gradient(135deg, #fff 0%, color-mix(in srgb, #fff 60%, var(--accent) 40%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.running-sub {
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 320px;
+}
+
+/* Кнопка включения таймера */
+.timer-toggle-btn {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px dashed var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.timer-toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-style: solid;
+}
+
+.timer-toggle-btn:active {
+  transform: scale(0.98);
+}
+
+/* Скрываем старый огромный таймер на всякий случай */
+.test-timer {
+  display: none;
+}
+/* ============================================================
+   КНОПКИ «ГОТОВО» И «НАЗАД» В СПИСКЕ ПОЗИЦИЙ
+   ============================================================ */
+
+/* «Готово» — как плашка, но по центру */
+.position-submit {
+  justify-content: center;
+  margin-top: 8px;
+  background: var(--card-elev);
+  border-color: var(--border-soft);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.position-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Активная — оранжевая с подсветкой (как выбранная позиция) */
+.position-submit.active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
+  border-color: var(--accent);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 35%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.position-submit.active .position-submit-text {
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.position-submit.active:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.position-submit.active:hover .position-submit-text {
+  color: #fff;
+}
+
+/* Текст кнопки «Готово» */
+.position-submit-text {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  text-align: center;
+  width: 100%;
+  transition: color 0.25s;
+}
+
+/* «Назад» — прозрачная, скромная */
+.position-back {
+  justify-content: center;
+  background: transparent;
+  border-color: transparent;
+  margin-top: 4px;
+  transition: all 0.25s;
+}
+
+.position-back:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.position-back-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-align: center;
+  width: 100%;
+  transition: color 0.25s;
+}
+
+.position-back:hover .position-back-text {
+  color: var(--accent);
+}
+/* ============================================================
+   КРАСИВАЯ МОДАЛКА УВЕДОМЛЕНИЙ (InfoModal)
+   ============================================================ */
+
+.info-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: infoFadeIn 0.25s ease;
+}
+
+@keyframes infoFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.info-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px 26px 26px;
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.95);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: infoModalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes infoModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.info-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.info-modal-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 35%, transparent) 0%,
+    transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.info-modal-icon {
+  position: relative;
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 60%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes infoIconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.info-modal-title {
+  position: relative;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.25;
+  margin: 0 0 10px;
+  background: linear-gradient(135deg,
+    #fff 0%,
+    color-mix(in srgb, #fff 70%, var(--accent) 30%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-modal-text {
+  position: relative;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 0 24px;
+}
+
+.info-modal-btn {
+  position: relative;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.info-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.info-modal-btn:active {
+  transform: scale(0.97);
+}
+/* ============================================================
+   ПЛАВНЫЕ ПЕРЕХОДЫ МЕЖДУ ЭКРАНАМИ (Fade + Slide)
+   ============================================================ */
+
+/* Главный контейнер экрана — анимация появления */
+.screen-transition {
+  animation: screenFadeSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+@keyframes screenFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Контейнер с задержкой для stagger-эффекта (появление по частям) */
+.stagger-item {
+  animation: staggerFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.02s; }
+.stagger-item:nth-child(2) { animation-delay: 0.06s; }
+.stagger-item:nth-child(3) { animation-delay: 0.10s; }
+.stagger-item:nth-child(4) { animation-delay: 0.14s; }
+.stagger-item:nth-child(5) { animation-delay: 0.18s; }
+.stagger-item:nth-child(6) { animation-delay: 0.22s; }
+.stagger-item:nth-child(7) { animation-delay: 0.26s; }
+.stagger-item:nth-child(8) { animation-delay: 0.30s; }
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Переход между вопросами IQ — выезжает слева */
+.iq-question-enter {
+  animation: iqQuestionIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes iqQuestionIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Переход между блоками (Бросок, Дриблинг, Атлетика) */
+.block-enter {
+  animation: blockIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes blockIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Плавная смена вкладок нижнего меню */
+.nav-item {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-item .nav-icon svg {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.3s ease;
+}
+
+.nav-item.active .nav-icon svg {
+  transform: scale(1.08);
+}
+
+/* Плавная смена цвета активной вкладки — наведение */
+.nav-item:not(.active):hover .nav-icon svg {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+/* Уважаем «reduce motion» — если пользователь отключил анимации */
+@media (prefers-reduced-motion: reduce) {
+  .screen-transition,
+  .stagger-item,
+  .iq-question-enter,
+  .block-enter {
+    animation: none;
+  }
+}
+/* ============================================================
+   ЭКРАН НАСТРОЕК
+   ============================================================ */
+
+.settings-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 0 40px;
+  animation: settingsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes settingsFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Секция настроек */
+.settings-section {
+  padding: 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.settings-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 40%, transparent),
+    transparent);
+  opacity: 0.6;
+}
+
+.settings-section-danger {
+  border-color: rgba(192, 75, 75, 0.35);
+}
+
+.settings-section-danger::before {
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(192, 75, 75, 0.6),
+    transparent);
+}
+
+/* Шапка секции */
+.settings-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.settings-section-icon {
+  font-size: 22px;
+  line-height: 1;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.settings-section-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  margin-bottom: 3px;
+}
+
+.settings-section-sub {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Кнопка «Изменить» / «Готово» */
+.settings-edit-btn {
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.settings-edit-btn:hover {
+  background: color-mix(in srgb, var(--accent) 20%, var(--card-elev));
+  border-color: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Сетка тем */
+.settings-themes-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.settings-theme-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 4px 12px;
+  background: var(--card-elev);
+  border: 2px solid transparent;
+  border-radius: 15px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-theme-item.active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 24px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.settings-theme-item:hover {
+  transform: translateY(-2px);
+}
+
+.settings-theme-preview {
+  width: 100%;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.settings-theme-icon {
+  font-size: 15px;
+}
+
+.settings-theme-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.settings-theme-item.active .settings-theme-label {
+  color: var(--text);
+}
+
+.settings-theme-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Список позиций в настройках */
+.settings-positions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  animation: settingsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-position-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.settings-position-btn.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-elev));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.settings-position-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.settings-position-code {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text);
+  min-width: 36px;
+  letter-spacing: 0.5px;
+}
+
+.settings-position-btn.active .settings-position-code {
+  color: var(--accent);
+}
+
+.settings-position-label {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.settings-position-btn.active .settings-position-label {
+  color: var(--text);
+}
+
+/* Поля личных данных */
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.settings-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.settings-field-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.settings-field-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-field-label {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 3px;
+}
+
+.settings-field-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.settings-field-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  outline: none;
+  letter-spacing: -0.2px;
+}
+
+.settings-field-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.settings-field-save {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: all 0.25s;
+}
+
+.settings-field-save:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.settings-field-edit {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+
+.settings-field-edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* О приложении */
+.settings-about-text {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* Красная кнопка сброса */
+.settings-reset-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px;
+  background: transparent;
+  border: 1.5px solid rgba(192, 75, 75, 0.4);
+  border-radius: 999px;
+  color: #c04b4b;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.settings-reset-btn:hover {
+  background: rgba(192, 75, 75, 0.1);
+  border-color: #c04b4b;
+  color: #e05a5a;
+  box-shadow: 0 0 24px rgba(192, 75, 75, 0.25);
+}
+
+.settings-reset-btn:active {
+  transform: scale(0.98);
+}
+/* ============================================================
+   БЛОК «О НАС» — подпись и стили текста
+   ============================================================ */
+
+.settings-about-text strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.settings-about-signature {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-soft);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+  letter-spacing: -0.2px;
+  font-style: italic;
+}
+/* ============================================================
+   СВОРАЧИВАЕМЫЕ СЕКЦИИ В НАСТРОЙКАХ
+   ============================================================ */
+
+.settings-collapse-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.2s;
+}
+
+.settings-collapse-head:hover {
+  opacity: 0.85;
+}
+
+.settings-collapse-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-collapse-arrow {
+  font-size: 14px;
+  color: var(--text-dim);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.25s;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.settings-collapse-arrow.open {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+.settings-collapse-body {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  animation: settingsCollapseIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes settingsCollapseIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   СЕКЦИЯ ПОДДЕРЖКИ
+   ============================================================ */
+
+.settings-support-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-support-item:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--card-elev));
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.settings-support-item:active {
+  transform: translateX(1px) scale(0.99);
+}
+
+.settings-support-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.settings-support-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-support-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.settings-support-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-support-arrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.25s;
+}
+
+.settings-support-item:hover .settings-support-arrow {
+  transform: translateX(4px);
+}
+
+.settings-support-note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+}
+.locked-bg-chart-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: chartDraw 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+@keyframes chartDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.locked-bg-chart {
+  opacity: 0;
+  animation: chartFadeIn 0.8s ease forwards;
+}
+
+@keyframes chartFadeIn {
+  to { opacity: 0.9; }
+}
+/* ============================================================
+   ПОДСКАЗКА ДЛЯ СКРЫТОЙ АКТИВАЦИИ PRO
+   ============================================================ */
+
+.tap-hint {
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  animation: tapHintIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+@keyframes tapHintIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* PRO-пилюля теперь кликабельна (для отключения) */
+.head-plan-pill.pro {
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.head-plan-pill.pro:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 165, 0, 0.5);
+}
+/* ============================================================
+   КНОПКА «ОТМЕТИТЬ ВЫПОЛНЕНОЙ» В МОДАЛКЕ ДНЯ
+   ============================================================ */
+
+.day-modal-mark {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 10px;
+  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.day-modal-mark:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.day-modal-mark:active {
+  transform: scale(0.98);
+}
+
+/* Когда уже отмечено — сдержанный стиль */
+.day-modal-mark.done {
+  background: transparent;
+  border-color: var(--border-soft);
+  color: var(--text-dim);
+  box-shadow: none;
+}
+
+.day-modal-mark.done:hover {
+  border-color: #c04b4b;
+  color: #c04b4b;
+  background: rgba(192, 75, 75, 0.08);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Улучшенный день с отметкой */
+.calendar-day.done {
+  background: color-mix(in srgb, var(--accent) 12%, rgba(16, 16, 20, 0.7));
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.calendar-day.done .calendar-day-label {
+  color: var(--accent);
+}
+
+.calendar-day.done .calendar-day-icon {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+/* ============================================================
+   ОНБОРДИНГ КАЛЕНДАРЯ (Настрой тренировки)
+   ============================================================ */
+
+.calendar-onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 16px;
+  animation: settingsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onboarding-icon {
+  font-size: 72px;
+  line-height: 1;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 60%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.onboarding-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin: 0;
+  background: linear-gradient(135deg,
+    #fff 0%,
+    color-mix(in srgb, #fff 60%, var(--accent) 40%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.onboarding-sub {
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 320px;
+}
+
+.onboarding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  padding: 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  margin-top: 8px;
+}
+
+.onboarding-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text);
+  text-align: left;
+  line-height: 1.45;
+}
+
+.onboarding-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.onboarding-cta {
+  width: 100%;
+  max-width: 340px;
+  margin-top: 8px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.onboarding-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.onboarding-cta:active {
+  transform: scale(0.98);
+}
+
+.onboarding-cta .arrow {
+  font-size: 18px;
+}
+
+.onboarding-note {
+  font-size: 12.5px;
+  color: var(--text-mute);
+  margin: 0;
+  font-style: italic;
+}
+/* ============================================================
+   ЭКРАН НАСТРОЕК ТРЕНИРОВОК (чистая версия)
+   ============================================================ */
+
+.training-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 0 180px;
+}
+
+/* Блок настроек */
+.training-block {
+  padding: 22px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.training-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 50%, transparent),
+    transparent);
+}
+
+/* Шапка блока */
+.training-block-head {
+  margin-bottom: 18px;
+}
+
+.training-block-label {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.training-block-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.training-block-sub {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================================
+   ЧИПСЫ ЦЕЛЕЙ И ИНВЕНТАРЯ
+   ============================================================ */
+
+.training-chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.training-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 14px;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+}
+
+.training-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-2px);
+}
+
+.training-chip.active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-chip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: inherit;
+  transition: transform 0.25s;
+}
+
+.training-chip.active .training-chip-icon {
+  transform: scale(1.1);
+}
+
+.training-chip-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   УРОВЕНЬ — карточки
+   ============================================================ */
+
+.training-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.training-level {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 18px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  width: 100%;
+}
+
+.training-level:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.training-level.active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  border-color: var(--accent);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 25%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-level-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+.training-level.active .training-level-name {
+  color: var(--accent);
+}
+
+.training-level-sub {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.training-level-check {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
+  animation: levelCheckIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes levelCheckIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* ============================================================
+   ПАНЕЛЬ СОХРАНЕНИЯ (фиксированная)
+   ============================================================ */
+
+.training-save-bar {
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 448px;
+  z-index: 90;
+  padding: 16px 0 12px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(6, 6, 10, 0.85) 40%,
+    rgba(6, 6, 10, 0.98) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+.training-save-bar .bottom-cta-inline {
+  pointer-events: auto;
+}
+/* ============================================================
+   ДНИ ТРЕНИРОВОК В НАСТРОЙКАХ
+   ============================================================ */
+
+.training-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.training-day-chip {
+  padding: 14px 0;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 12px;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-day-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-2px);
+}
+
+.training-day-chip.active {
+  background: color-mix(in srgb, var(--accent) 18%, var(--card-elev));
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.training-days-hint {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.training-days-hint strong {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+/* ============================================================
+   SVG-ИКОНКИ В КАЛЕНДАРЕ
+   ============================================================ */
+
+.calendar-day-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin: 4px 0;
+  line-height: 1;
+}
+
+.calendar-day-icon svg {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+.calendar-day.rest .calendar-day-icon {
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+.calendar-day.rest .calendar-day-icon svg {
+  filter: none;
+}
+
+.calendar-day-count {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.calendar-day.done .calendar-day-count {
+  color: var(--accent);
+}
+
+/* ============================================================
+   МОДАЛКА ДНЯ СО СПИСКОМ УПРАЖНЕНИЙ
+   ============================================================ */
+
+.day-modal-large {
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+  border-radius: 26px;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  margin: auto;
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  padding: 20px 22px 24px;
+  flex-shrink: 0;
+}
+
+.day-modal-large::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.day-modal-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 20px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.day-modal-icon-svg svg {
+  width: 52px;
+  height: 52px;
+}
+
+.day-modal-large .day-modal-title,
+.day-modal-large .day-modal-day,
+.day-modal-large .day-modal-category {
+  text-align: center;
+}
+
+.day-modal-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.day-modal-exercise {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.day-modal-exercise:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.day-modal-exercise-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.day-modal-exercise-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.day-modal-exercise-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.day-modal-exercise-desc {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.day-modal-exercise-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.day-modal-total {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--accent);
+  text-align: center;
+  letter-spacing: -0.1px;
+}
+/* ============================================================
+   ЗАГЛУШКА «СНАЧАЛА ПРОЙДИ ТЕСТЫ»
+   ============================================================ */
+
+.tests-lock-progress {
+  width: 100%;
+  max-width: 340px;
+  padding: 16px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  margin-top: 8px;
+}
+
+.tests-lock-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tests-lock-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tests-lock-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.tests-lock-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tests-lock-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 60%, #fff 40%));
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Список тестов */
+.tests-lock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+  margin-top: 12px;
+}
+
+.tests-lock-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  transition: all 0.25s;
+}
+
+.tests-lock-item.done {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, rgba(16, 16, 20, 0.7));
+}
+
+.tests-lock-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.tests-lock-item-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.tests-lock-item.done .tests-lock-item-icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+
+.tests-lock-item-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-align: left;
+}
+
+.tests-lock-item.done .tests-lock-item-label {
+  color: var(--text);
+}
+
+.tests-lock-item-status {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text-mute);
+  flex-shrink: 0;
+}
+
+.tests-lock-item.done .tests-lock-item-status {
+  color: var(--accent);
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+/* ============================================================
+   АДАПТАЦИЯ ОНБОРДИНГА
+   ============================================================ */
+
+.calendar-onboarding .onboarding-sub strong {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.calendar-onboarding .onboarding-note strong {
+  color: var(--accent);
+  font-weight: 800;
+}
+/* ============================================================
+   STICKY-СТРУКТУРА МОДАЛКИ ДНЯ
+   ============================================================ */
+
+/* Sticky-шапка сверху */
+.day-modal-header-sticky {
+  padding: 24px 22px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.day-modal-header-sticky::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent),
+    transparent);
+  opacity: 0.5;
+}
+
+/* Скроллируемое тело */
+.day-modal-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.day-modal-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sticky-кнопки внизу */
+.day-modal-footer-sticky {
+  padding: 16px 22px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.day-modal-footer-sticky::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, transparent, var(--card));
+  pointer-events: none;
+}
+/* ============================================================
+   МИНИМАЛЬНАЯ ШАПКА ТЕСТА (только кнопки)
+   ============================================================ */
+
+.screen-head-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+/* ============================================================
+   CONFIRM MODAL — кнопки подтверждения
+   ============================================================ */
+
+.confirm-modal-actions {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.confirm-modal-btn {
+  padding: 14px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  white-space: nowrap;
+}
+
+.confirm-modal-btn.cancel {
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-dim);
+}
+
+.confirm-modal-btn.cancel:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+  background: color-mix(in srgb, #fff 5%, transparent);
+}
+
+.confirm-modal-btn.cancel:active {
+  transform: scale(0.97);
+}
+
+.confirm-modal-btn.confirm {
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  box-shadow:
+    0 6px 24px color-mix(in srgb, var(--accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.confirm-modal-btn.confirm:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 32px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.confirm-modal-btn.danger {
+  background: linear-gradient(135deg, #c04b4b 0%, #e05a5a 100%);
+  color: #fff;
+  box-shadow:
+    0 6px 24px rgba(192, 75, 75, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.confirm-modal-btn.danger:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 32px rgba(192, 75, 75, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.confirm-modal-btn:active {
+  transform: scale(0.97);
+}
+
+/* Красное свечение для danger-модалки */
+.info-modal-glow.danger {
+  background: radial-gradient(circle,
+    rgba(192, 75, 75, 0.4) 0%,
+    transparent 70%);
+}
+
+.info-modal-icon.danger {
+  filter: drop-shadow(0 0 24px rgba(192, 75, 75, 0.7));
+}

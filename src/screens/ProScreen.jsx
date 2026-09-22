@@ -1,4 +1,9 @@
+import { useState } from 'react'
+import InfoModal from '../components/InfoModal'
+
 export default function ProScreen({ user, onBack }) {
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+
   return (
     <>
       <div className="screen-head">
@@ -96,13 +101,23 @@ export default function ProScreen({ user, onBack }) {
       ) : (
         <button
           className="pro-cta"
-          onClick={() => alert('Оплата появится позже')}
+          onClick={() => setShowPaymentModal(true)}
         >
           Оформить PRO
         </button>
       )}
 
       <p className="pro-note">Оплата появится позже</p>
+
+      {showPaymentModal && (
+        <InfoModal
+          icon="✨"
+          title="Оплата скоро появится"
+          text="Мы уже работаем над этим. PRO станет доступен в ближайшее время — следи за обновлениями."
+          buttonText="Понятно"
+          onClose={() => setShowPaymentModal(false)}
+        />
+      )}
     </>
   )
 }

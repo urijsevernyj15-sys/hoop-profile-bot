@@ -1,4 +1,10 @@
 import { calculateOVR } from '../data/ovr'
+import {
+  ShootingIcon,
+  DribblingIcon,
+  AthleticismIcon,
+  IQIcon,
+} from '../components/Icons'
 
 export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, onOpenTests }) {
   const allTests = user.categories.flatMap((c) => c.tests)
@@ -9,10 +15,10 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
   const ovr = calculateOVR(user.categories, user.positions)
 
   const homeMetrics = [
-    { code: 'B-IQ', testId: 'b-iq-base', value: allTests.find((t) => t.id === 'b-iq-base')?.score ?? null },
-    { code: 'SHT', testId: 'sht-base', value: allTests.find((t) => t.id === 'sht-base')?.score ?? null },
-    { code: 'DRBL', testId: 'drbl-base', value: allTests.find((t) => t.id === 'drbl-base')?.score ?? null },
-    { code: 'ATL', testId: 'atl-base', value: allTests.find((t) => t.id === 'atl-base')?.score ?? null },
+    { code: 'B-IQ', testId: 'b-iq-base', value: allTests.find((t) => t.id === 'b-iq-base')?.score ?? null, Icon: IQIcon },
+    { code: 'SHT', testId: 'sht-base', value: allTests.find((t) => t.id === 'sht-base')?.score ?? null, Icon: ShootingIcon },
+    { code: 'DRBL', testId: 'drbl-base', value: allTests.find((t) => t.id === 'drbl-base')?.score ?? null, Icon: DribblingIcon },
+    { code: 'ATL', testId: 'atl-base', value: allTests.find((t) => t.id === 'atl-base')?.score ?? null, Icon: AthleticismIcon },
   ]
 
   return (
@@ -95,17 +101,21 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
         <p className="next-test-desc">Нажми на плашку — откроется тест.</p>
 
         <div className="metrics">
-          {homeMetrics.map((m) => (
-            <button
-              key={m.code}
-              className={`metric metric-btn ${m.value !== null ? 'done' : 'pending'}`}
-              onClick={() => onStartTest(m.testId)}
-            >
-              {m.value !== null && <span className="check">✓</span>}
-              <span className="metric-code">{m.code}</span>
-              <span className="metric-value">{m.value !== null ? m.value : '—'}</span>
-            </button>
-          ))}
+          {homeMetrics.map((m) => {
+            const Icon = m.Icon
+            return (
+              <button
+                key={m.code}
+                className={`metric metric-btn ${m.value !== null ? 'done' : 'pending'}`}
+                onClick={() => onStartTest(m.testId)}
+              >
+                {m.value !== null && <span className="check">✓</span>}
+                <Icon />
+                <span className="metric-code">{m.code}</span>
+                <span className="metric-value">{m.value !== null ? m.value : '—'}</span>
+              </button>
+            )
+          })}
         </div>
 
         <button className="home-link-btn" onClick={onOpenTests}>

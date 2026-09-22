@@ -7,9 +7,17 @@ export const THEMES = [
 ]
 
 export const POSITIONS = [
-  { code: 'PG', label: 'Разыгрывающий' },
-  { code: 'SG', label: 'Атакующий защитник' },
-  { code: 'SF', label: 'Лёгкий форвард' },
-  { code: 'PF', label: 'Тяжёлый форвард' },
-  { code: 'C', label: 'Центровой' },
+  { code: 'PG', label: 'Разыгрывающий', full: 'Point Guard' },
+  { code: 'SG', label: 'Атакующий защитник', full: 'Shooting Guard' },
+  { code: 'SF', label: 'Лёгкий форвард', full: 'Small Forward' },
+  { code: 'PF', label: 'Тяжёлый форвард', full: 'Power Forward' },
+  { code: 'C', label: 'Центровой', full: 'Center' },
 ]
+
+export const POSITIONS_FULL = {
+  PG: 'Point Guard',
+  SG: 'Shooting Guard',
+  SF: 'Small Forward',
+  PF: 'Power Forward',
+  C: 'Center',
+}

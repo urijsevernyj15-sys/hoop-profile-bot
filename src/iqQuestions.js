@@ -1,6 +1,7 @@
 // ============================================================
-// IQ-ТЕСТ
+// IQ-ТЕСТ + ВСЕ PRO-ТЕСТЫ
 // ============================================================
+
 export const IQ_QUESTIONS = {
   PG: [
     { id: 'pg-1', question: 'Счёт равный, 10 секунд до конца. У тебя мяч, партнёр открыт под кольцом, но у тебя тоже хорошая позиция для броска. Что делаешь?', options: [
@@ -304,7 +305,9 @@ export const IQ_QUESTIONS = {
   ],
 }
 
-// Перемешать массив (Fisher–Yates)
+// ============================================================
+// ПЕРЕМЕШИВАНИЕ
+// ============================================================
 function shuffleArray(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -334,15 +337,21 @@ export function getQuestionsForPositions(positions) {
       questions = mixed
     }
   }
-  // Перемешиваем вопросы и варианты ответов
-  return shuffleArray(questions).map((q) => ({
-    ...q,
-    options: shuffleArray(q.options),
-  }))
+  return shuffleArray(questions).map((q) => {
+    const shuffledOptions = shuffleArray(q.options)
+    const relabeledOptions = shuffledOptions.map((opt, idx) => ({
+      ...opt,
+      id: String.fromCharCode(97 + idx),
+    }))
+    return {
+      ...q,
+      options: relabeledOptions,
+    }
+  })
 }
 
 // ============================================================
-// БРОСОК
+// БРОСОК (FREE)
 // ============================================================
 export const SHOOTING_DESCRIPTIONS = {
   PG: {
@@ -351,7 +360,7 @@ export const SHOOTING_DESCRIPTIONS = {
     duration: '~15 минут',
     needs: 'Площадка, мяч, кольцо',
     bullets: ['25 трёхочковых с 5 точек', '25 средних бросков', '10 штрафных'],
-    tip: 'Разомнись перед тестом — 5–10 минут на броски помогут показать лучший результат.',
+    tip: 'Разомнись перед тестом.',
     blocks: [
       { title: 'Трёхочковые', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [15, 25, 20, 25, 15] },
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [25, 20, 10, 20, 25] },
@@ -360,11 +369,11 @@ export const SHOOTING_DESCRIPTIONS = {
   },
   SG: {
     icon: '🎯',
-    description: 'Три блока бросков. Счёт начинается с первого попавшего мяча.',
+    description: 'Три блока бросков.',
     duration: '~15 минут',
     needs: 'Площадка, мяч, кольцо',
-    bullets: ['25 трёхочковых с 5 точек', '25 средних бросков', '10 штрафных'],
-    tip: 'Бросай в одном ритме — не форсируй.',
+    bullets: ['25 трёхочковых', '25 средних', '10 штрафных'],
+    tip: 'Бросай в одном ритме.',
     blocks: [
       { title: 'Трёхочковые', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [20, 20, 10, 20, 30] },
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [15, 30, 15, 30, 10] },
@@ -373,60 +382,306 @@ export const SHOOTING_DESCRIPTIONS = {
   },
   SF: {
     icon: '🎯',
-    description: 'Три блока бросков. Счёт начинается с первого попавшего мяча.',
+    description: 'Три блока бросков.',
     duration: '~12 минут',
     needs: 'Площадка, мяч, кольцо',
-    bullets: ['25 средних бросков', '5 из краски', '10 штрафных'],
-    tip: 'Удели внимание стабильной стойке.',
+    bullets: ['25 средних', '5 из краски', '10 штрафных'],
+    tip: 'Удели внимание стойке.',
     blocks: [
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [20, 20, 10, 20, 30] },
-      { title: 'Из краски', points: ['Из-под кольца (±3 м)'], totalPerPoint: 5, weights: [100] },
+      { title: 'Из краски', points: ['Из-под кольца'], totalPerPoint: 5, weights: [100] },
       { title: 'Штрафные', points: ['Линия штрафных'], totalPerPoint: 10, weights: [100] },
     ],
   },
   PF: {
     icon: '🎯',
-    description: 'Три блока бросков. Счёт начинается с первого попавшего мяча.',
+    description: 'Три блока бросков.',
     duration: '~12 минут',
     needs: 'Площадка, мяч, кольцо',
-    bullets: ['25 средних бросков', '5 из краски', '10 штрафных'],
-    tip: 'Работай над позицией корпуса.',
+    bullets: ['25 средних', '5 из краски', '10 штрафных'],
+    tip: 'Работай над корпусом.',
     blocks: [
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [15, 20, 10, 20, 35] },
-      { title: 'Из краски', points: ['Из-под кольца (±3 м)'], totalPerPoint: 5, weights: [100] },
+      { title: 'Из краски', points: ['Из-под кольца'], totalPerPoint: 5, weights: [100] },
       { title: 'Штрафные', points: ['Линия штрафных'], totalPerPoint: 10, weights: [100] },
     ],
   },
   C: {
     icon: '🎯',
-    description: 'Три блока бросков. Счёт начинается с первого попавшего мяча.',
+    description: 'Три блока бросков.',
     duration: '~12 минут',
     needs: 'Площадка, мяч, кольцо',
-    bullets: ['10 крюков (правой + левой)', '25 средних', '10 штрафных'],
-    tip: 'Крюк — твой главный инструмент.',
+    bullets: ['10 крюков', '25 средних', '10 штрафных'],
+    tip: 'Крюк — твой инструмент.',
     blocks: [
-      { title: 'Крюки из-под кольца', points: ['Правой рукой', 'Левой рукой'], totalPerPoint: 5, weights: [60, 40] },
+      { title: 'Крюки', points: ['Правой', 'Левой'], totalPerPoint: 5, weights: [60, 40] },
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [10, 15, 40, 15, 20] },
       { title: 'Штрафные', points: ['Линия штрафных'], totalPerPoint: 10, weights: [100] },
     ],
   },
   default: {
     icon: '🎯',
-    description: 'Три блока бросков. Счёт начинается с первого попавшего мяча.',
+    description: 'Три блока бросков.',
     duration: '~12 минут',
     needs: 'Площадка, мяч, кольцо',
     bullets: ['25 средних', '5 из краски', '10 штрафных'],
-    tip: 'Разомнись перед тестом.',
+    tip: 'Разомнись.',
     blocks: [
       { title: 'Средние', points: ['Левый угол', 'Левая 45°', 'Центр', 'Правая 45°', 'Правый угол'], totalPerPoint: 5, weights: [20, 20, 20, 20, 20] },
-      { title: 'Из краски', points: ['Из-под кольца (±3 м)'], totalPerPoint: 5, weights: [100] },
+      { title: 'Из краски', points: ['Из-под кольца'], totalPerPoint: 5, weights: [100] },
       { title: 'Штрафные', points: ['Линия штрафных'], totalPerPoint: 10, weights: [100] },
     ],
   },
 }
 
 // ============================================================
-// ДРИБЛИНГ — 3 задания
+// ТОЧНОСТЬ ШТРАФНЫХ (PRO)
+// ============================================================
+export const FT_DESCRIPTIONS = {
+  PG: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + перерыв + 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10 штрафных', 'Перерыв 1 минута', 'Ещё 10 штрафных'],
+    tip: 'Одинаковый ритм.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 8 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 8 },
+    ],
+  },
+  SG: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + 10. Норма — 8 из 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10', 'Перерыв', 'Ещё 10'],
+    tip: 'Для SG штрафные — хлеб.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 8 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 8 },
+    ],
+  },
+  SF: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + 10. Норма — 7 из 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10', 'Перерыв', 'Ещё 10'],
+    tip: 'Играй в одном ритме.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 7 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 7 },
+    ],
+  },
+  PF: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + 10. Норма — 7 из 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10', 'Перерыв', 'Ещё 10'],
+    tip: 'Следи за дыханием.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 7 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 7 },
+    ],
+  },
+  C: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + 10. Норма — 6 из 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10', 'Перерыв', 'Ещё 10'],
+    tip: 'Работай над стабильностью.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 6 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 6 },
+    ],
+  },
+  default: {
+    icon: '🎯',
+    description: '20 штрафных: 10 + 10.',
+    duration: '~10 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['Первые 10', 'Перерыв', 'Ещё 10'],
+    tip: 'Разомнись.',
+    blocks: [
+      { title: 'Первые 10', points: ['Штрафные №1–10'], totalPerPoint: 10, weights: [100], norm: 7 },
+      { title: 'Вторые 10', points: ['Штрафные №11–20'], totalPerPoint: 10, weights: [100], norm: 7 },
+    ],
+  },
+}
+
+// ============================================================
+// БРОСОК В ДВИЖЕНИИ (PRO)
+// ============================================================
+export const MOVE_SHOT_DESCRIPTIONS = {
+  PG: {
+    icon: '🎯',
+    description: '30 бросков в движении: 3 блока по 10.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Остановка на две ноги.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+    ],
+  },
+  SG: {
+    icon: '🎯',
+    description: '30 бросков в движении. Норма — 4 из 5.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Для SG это хлеб.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+    ],
+  },
+  SF: {
+    icon: '🎯',
+    description: '30 бросков в движении. Норма — 3 из 5.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Работай над остановкой.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 4 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+    ],
+  },
+  PF: {
+    icon: '🎯',
+    description: '30 бросков в движении. Норма — 3 из 5.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Играй в контакт.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+    ],
+  },
+  C: {
+    icon: '🎯',
+    description: '30 бросков в движении. Норма — 2 из 5.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Для больших это сложно.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 2 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 2 },
+    ],
+  },
+  default: {
+    icon: '🎯',
+    description: '30 бросков в движении.',
+    duration: '~15 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['10 с левой', '10 из центра', '10 с правой'],
+    tip: 'Разомнись.',
+    blocks: [
+      { title: 'Левая сторона', points: ['Левый фланг (5)', 'Левый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Центр', points: ['Усик (5)', 'Штрафная (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+      { title: 'Правая сторона', points: ['Правый фланг (5)', 'Правый угол (5)'], totalPerPoint: 5, weights: [50, 50], norm: 3 },
+    ],
+  },
+}
+
+// ============================================================
+// ПРОХОДЫ ПОД КОЛЬЦО (PRO) — норма 6/6 для всех
+// ============================================================
+export const DRIVE_DESCRIPTIONS = {
+  PG: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Финиш двумя руками.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+  SG: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Смена скорости.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+  SF: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Используй корпус.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+  PF: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Играй в контакт.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+  C: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Не твой главный инструмент.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+  default: {
+    icon: '🎯',
+    description: '18 проходов: 3 блока по 6.',
+    duration: '~12 минут',
+    needs: 'Площадка, мяч, кольцо',
+    bullets: ['6 справа', '6 по центру', '6 слева'],
+    tip: 'Разомнись.',
+    blocks: [
+      { title: 'Правая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Центр', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+      { title: 'Левая сторона', points: ['Забито из 6'], totalPerPoint: 6, weights: [100], norm: 6 },
+    ],
+  },
+}
+
+// ============================================================
+// ДРИБЛИНГ (FREE) — 3 задания по 30 сек
 // ============================================================
 export const DRIBBLING_DESCRIPTIONS = {
   PG: {
@@ -434,14 +689,14 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
-    tip: 'Работай в одном ритме, не ускоряйся в ущерб контролю.',
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
+    tip: 'В одном ритме.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно, ноги на ширине плеч. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 70', norm: 85 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 60', norm: 75 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 55 },
+      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 70', norm: 85 },
+      { id: 'figure8', title: 'Восьмёрка', technique: 'Восьмёрка вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 60', norm: 75 },
+      { id: 'combo', title: 'Комбо', technique: 'Чередуй: перед собой → под ногой → за спиной. 30 секунд. Считай.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 55 },
     ],
   },
   SG: {
@@ -449,14 +704,14 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
-    tip: 'Работай чисто — контроль важнее скорости.',
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
+    tip: 'Контроль важнее скорости.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 60', norm: 75 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 50', norm: 65 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 40', norm: 45 },
+      { id: 'cross', title: 'Переводы перед собой', technique: '30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 60', norm: 75 },
+      { id: 'figure8', title: 'Восьмёрка', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 50', norm: 65 },
+      { id: 'combo', title: 'Комбо', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 40', norm: 45 },
     ],
   },
   SF: {
@@ -464,14 +719,14 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
-    tip: 'Работай обеими руками равномерно.',
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
+    tip: 'Работай обеими руками.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 55', norm: 70 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 60 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 40 },
+      { id: 'cross', title: 'Переводы перед собой', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 55', norm: 70 },
+      { id: 'figure8', title: 'Восьмёрка', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 60 },
+      { id: 'combo', title: 'Комбо', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 40 },
     ],
   },
   PF: {
@@ -479,14 +734,14 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
-    tip: 'Работай корпусом — мяч держи низко.',
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
+    tip: 'Мяч держи низко.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 55 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 45 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 25', norm: 30 },
+      { id: 'cross', title: 'Переводы перед собой', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 55 },
+      { id: 'figure8', title: 'Восьмёрка', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 45 },
+      { id: 'combo', title: 'Комбо', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 25', norm: 30 },
     ],
   },
   C: {
@@ -494,14 +749,14 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
-    tip: 'Прикрывай мяч корпусом.',
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
+    tip: 'Прикрывай корпусом.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 45 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 30', norm: 35 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 20', norm: 25 },
+      { id: 'cross', title: 'Переводы перед собой', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 45 },
+      { id: 'figure8', title: 'Восьмёрка', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 30', norm: 35 },
+      { id: 'combo', title: 'Комбо', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 20', norm: 25 },
     ],
   },
   default: {
@@ -509,118 +764,610 @@ export const DRIBBLING_DESCRIPTIONS = {
     description: 'Три задания по 30 секунд.',
     duration: '~6 минут',
     needs: 'Площадка, мяч',
-    bullets: ['Переводы перед собой — 30 сек', 'Восьмёрка — 30 сек', 'Перевод перед собой под ногой и за спиной — 30 сек'],
+    bullets: ['Переводы перед собой', 'Восьмёрка', 'Комбо'],
     tip: 'Не смотри на мяч.',
     max: 200,
     hasLosses: true,
     tasks: [
-      { id: 'cross', title: 'Переводы перед собой', technique: 'Встань ровно. Выполняй переводы мяча перед собой 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 55', norm: 70 },
-      { id: 'figure8', title: 'Восьмёрка', technique: 'Встань ровно. Выполняй ведение мяча восьмёркой вокруг ног 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 60 },
-      { id: 'combo', title: 'Перевод перед собой под ногой и за спиной', technique: 'Встань ровно, слегка наклонись. Чередуй переводы: перед собой → под ногой → за спиной. 30 секунд. Считай отскоки и потери.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 40 },
+      { id: 'cross', title: 'Переводы перед собой', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 55', norm: 70 },
+      { id: 'figure8', title: 'Восьмёрка', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 45', norm: 60 },
+      { id: 'combo', title: 'Комбо', technique: '30 секунд.', countLabel: 'Сколько отскоков сделал?', placeholder: 'Например, 35', norm: 40 },
     ],
   },
 }
 
 // ============================================================
-// АТЛЕТИЗМ — 4 упражнения
+// ДРИБЛИНГ ПОД ДАВЛЕНИЕМ (PRO) — 3 раунда по 60 сек, ввод числа
+// ============================================================
+export const PRESSURE_DRIBBLE_DESCRIPTIONS = {
+  PG: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте. Партнёр отбирает. Считается среднее количество потерь.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда по 60 сек', 'Партнёр давит', 'Чем меньше потерь — тем лучше'],
+    tip: 'Работай корпусом, прикрывай мяч.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: 'Партнёр активно отбирает мяч 60 секунд. Считай, сколько раз потерял.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 2', norm: 2, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Отдохни 1 минуту. Второй раунд — 60 сек.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 2', norm: 2, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Отдохни. Финальный раунд — 60 сек.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 1', norm: 2, unit: 'раз', direction: 'lower' },
+    ],
+  },
+  SG: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте. Считается среднее количество потерь.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда по 60 сек', 'Партнёр давит', 'Чем меньше — тем лучше'],
+    tip: 'Контроль важнее скорости.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: '60 секунд с партнёром. Считай потери.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 3', norm: 3, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Отдохни. Второй раунд.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 3', norm: 3, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Финальный.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 2', norm: 3, unit: 'раз', direction: 'lower' },
+    ],
+  },
+  SF: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда', 'Партнёр давит', 'Меньше — лучше'],
+    tip: 'Прикрывай корпусом.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: '60 сек. Считай потери.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 4', norm: 4, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Второй раунд.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 4', norm: 4, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Финальный.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 3', norm: 4, unit: 'раз', direction: 'lower' },
+    ],
+  },
+  PF: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда', 'Партнёр давит', 'Меньше — лучше'],
+    tip: 'Используй тело.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: '60 сек.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 5', norm: 5, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Второй.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 5', norm: 5, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Финальный.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 4', norm: 5, unit: 'раз', direction: 'lower' },
+    ],
+  },
+  C: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда', 'Партнёр давит', 'Меньше — лучше'],
+    tip: 'Не обманывай.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: '60 сек.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 6', norm: 6, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Второй.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 6', norm: 6, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Финальный.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 5', norm: 6, unit: 'раз', direction: 'lower' },
+    ],
+  },
+  default: {
+    icon: '⚡',
+    description: '3 раунда по 1 минуте с партнёром.',
+    duration: '~8 минут',
+    needs: 'Площадка, мяч, партнёр',
+    bullets: ['3 раунда', 'Партнёр давит', 'Меньше — лучше'],
+    tip: 'Не давай зайти в мяч.',
+    max: 30,
+    tasks: [
+      { id: 'press1', title: 'Раунд 1', technique: '60 сек.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 4', norm: 4, unit: 'раз', direction: 'lower' },
+      { id: 'press2', title: 'Раунд 2', technique: 'Второй.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 4', norm: 4, unit: 'раз', direction: 'lower' },
+      { id: 'press3', title: 'Раунд 3', technique: 'Финальный.', inputLabel: 'Сколько раз потерял мяч?', placeholder: 'Например, 3', norm: 4, unit: 'раз', direction: 'lower' },
+    ],
+  },
+}
+
+// ============================================================
+// СКОРОСТЬ РУК (PRO) — 3 задания по 30 сек, ввод касаний
+// ============================================================
+export const HAND_SPEED_DESCRIPTIONS = {
+  PG: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд. Переводы за спиной.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Работай кистью.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: 'Веди правой, переводя за спиной. 30 секунд. Считай касания.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 40', norm: 50, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: 'Отдохни 30 сек. Левая рука. 30 сек.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 35', norm: 45, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: 'Отдохни. Чередуй: правая → левая. 30 сек.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 30', norm: 40, unit: 'раз', direction: 'higher' },
+    ],
+  },
+  SG: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Чем ниже мяч — тем быстрее.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 40', norm: 45, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 35', norm: 40, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 30', norm: 35, unit: 'раз', direction: 'higher' },
+    ],
+  },
+  SF: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Работай над слабой рукой.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 35', norm: 40, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 30', norm: 35, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 25', norm: 30, unit: 'раз', direction: 'higher' },
+    ],
+  },
+  PF: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Контроль важнее.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 30', norm: 35, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 25', norm: 30, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 20', norm: 25, unit: 'раз', direction: 'higher' },
+    ],
+  },
+  C: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Центровые редко это делают.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 25', norm: 30, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 20', norm: 25, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 15', norm: 20, unit: 'раз', direction: 'higher' },
+    ],
+  },
+  default: {
+    icon: '⚡',
+    description: '3 задания по 30 секунд.',
+    duration: '~6 минут',
+    needs: 'Площадка, мяч',
+    bullets: ['Переводы правой', 'Переводы левой', 'Попеременно'],
+    tip: 'Разомнись.',
+    max: 200,
+    tasks: [
+      { id: 'behind-r', title: 'Переводы за спиной (правой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 35', norm: 40, unit: 'раз', direction: 'higher' },
+      { id: 'behind-l', title: 'Переводы за спиной (левой)', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 30', norm: 35, unit: 'раз', direction: 'higher' },
+      { id: 'behind-alt', title: 'Попеременно', technique: '30 секунд.', inputLabel: 'Сколько касаний?', placeholder: 'Например, 25', norm: 30, unit: 'раз', direction: 'higher' },
+    ],
+  },
+}
+
+// ============================================================
+// АТЛЕТИЗМ (FREE) — 4 упражнения
 // ============================================================
 export const ATHLETICISM_DESCRIPTIONS = {
   PG: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
-    tip: 'Отдыхай 1–2 минуты между упражнениями.',
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
+    tip: 'Отдых 1–2 минуты.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Возьмись за турник хватом сверху. Подтягивайся до подбородка над перекладиной. Выполни максимум за один подход без остановки.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 12', norm: 20, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Возьмись за брусья, опускайся до угла 90° в локтях, поднимайся. Выполни максимум за один подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 18', norm: 28, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Упор лёжа, руки на ширине плеч. Опускайся до касания грудью пола, поднимайся. Выполни максимум за один подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 35', norm: 50, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: 'Пробеги 24 метра на максимальной скорости. Замерь время в секундах с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.4', norm: 3.5, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. До подбородка над перекладиной. Максимум за подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 12', norm: 20, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'Опускайся до 90° в локтях, поднимайся. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 18', norm: 28, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'Упор лёжа. Опускайся до касания грудью пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 35', norm: 50, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: 'Пробеги 24 м на максимуме. Замерь время.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.4', norm: 3.5, unit: 'сек', direction: 'lower' },
     ],
   },
   SG: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
     tip: 'Разомнись перед спринтом.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Возьмись за турник хватом сверху. Подтягивайся до подбородка над перекладиной. Максимум за один подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 11', norm: 18, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Опускайся до угла 90° в локтях, поднимайся. Максимум за один подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 16', norm: 25, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Упор лёжа. Опускайся до касания грудью пола. Максимум за один подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 32', norm: 45, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: 'Пробеги 24 метра на максимальной скорости. Замерь время в секундах с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.5', norm: 3.6, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. Максимум.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 11', norm: 18, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'До 90°. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 16', norm: 25, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'До касания грудью пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 32', norm: 45, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 м на максимуме. Замерь время.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.5', norm: 3.6, unit: 'сек', direction: 'lower' },
     ],
   },
   SF: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
     tip: 'Отдыхай между упражнениями.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Хват сверху. Подтягивайся до подбородка над перекладиной. Максимум за подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 10', norm: 16, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Опускайся до 90°, поднимайся. Максимум за подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 15', norm: 23, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Опускайся до касания грудью пола. Максимум за подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 30', norm: 42, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 метра на максимальной скорости. Замерь время с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.6', norm: 3.7, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. Максимум.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 10', norm: 16, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'До 90°. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 15', norm: 23, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'До касания пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 30', norm: 42, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 м. Замерь.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.6', norm: 3.7, unit: 'сек', direction: 'lower' },
     ],
   },
   PF: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
-    tip: 'Следи за техникой, не форсируй.',
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
+    tip: 'Следи за техникой.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Хват сверху. Подтягивайся до подбородка. Максимум за подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 9', norm: 14, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Опускайся до 90°, поднимайся. Максимум за подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 14', norm: 21, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Опускайся до касания грудью пола. Максимум за подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 28', norm: 40, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 метра на максимуме. Замерь время с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.7', norm: 3.8, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. Максимум.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 9', norm: 14, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'До 90°. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 14', norm: 21, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'До касания пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 28', norm: 40, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 м. Замерь.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.7', norm: 3.8, unit: 'сек', direction: 'lower' },
     ],
   },
   C: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
-    tip: 'Отдыхай 2 минуты между упражнениями.',
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
+    tip: 'Отдых 2 минуты.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Хват сверху. Максимум за подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 7', norm: 12, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Опускайся до 90°, поднимайся. Максимум за подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 12', norm: 18, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Опускайся до касания грудью пола. Максимум за подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 25', norm: 35, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 метра на максимуме. Замерь время с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.8', norm: 3.9, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. Максимум.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 7', norm: 12, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'До 90°. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 12', norm: 18, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'До касания пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 25', norm: 35, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 м. Замерь.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.8', norm: 3.9, unit: 'сек', direction: 'lower' },
     ],
   },
   default: {
     icon: '💪',
-    description: 'Четыре упражнения на максимум. Без таймера.',
+    description: 'Четыре упражнения на максимум.',
     duration: '~8 минут',
-    needs: 'Турник, брусья, свободное место, секундомер',
-    bullets: ['Подтягивания — максимум', 'Брусья — максимум', 'Отжимания — максимум', 'Спринт 24 м'],
+    needs: 'Турник, брусья, место, секундомер',
+    bullets: ['Подтягивания', 'Брусья', 'Отжимания', 'Спринт 24 м'],
     tip: 'Отдыхай между упражнениями.',
     max: 200,
     tasks: [
-      { id: 'pullups', title: 'Подтягивания', technique: 'Хват сверху. Максимум за подход.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 10', norm: 15, unit: 'раз', direction: 'higher' },
-      { id: 'dips', title: 'Брусья', technique: 'Опускайся до 90°, поднимайся. Максимум за подход.', inputLabel: 'Сколько раз?', placeholder: 'Например, 15', norm: 22, unit: 'раз', direction: 'higher' },
-      { id: 'pushups', title: 'Отжимания', technique: 'Опускайся до касания грудью пола. Максимум за подход.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 30', norm: 45, unit: 'раз', direction: 'higher' },
-      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 метра на максимуме. Замерь время с точностью до 0.1.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.6', norm: 3.7, unit: 'сек', direction: 'lower' },
+      { id: 'pullups', title: 'Подтягивания', technique: 'Хватом сверху. Максимум.', inputLabel: 'Сколько подтягиваний?', placeholder: 'Например, 10', norm: 15, unit: 'раз', direction: 'higher' },
+      { id: 'dips', title: 'Брусья', technique: 'До 90°. Максимум.', inputLabel: 'Сколько раз?', placeholder: 'Например, 15', norm: 22, unit: 'раз', direction: 'higher' },
+      { id: 'pushups', title: 'Отжимания', technique: 'До касания пола. Максимум.', inputLabel: 'Сколько отжиманий?', placeholder: 'Например, 30', norm: 45, unit: 'раз', direction: 'higher' },
+      { id: 'sprint', title: 'Спринт 24 метра', technique: '24 м. Замерь.', inputLabel: 'Время (сек)', placeholder: 'Например, 3.6', norm: 3.7, unit: 'сек', direction: 'lower' },
     ],
   },
 }
 
+// ============================================================
+// ПРЫЖОК В ДЛИНУ С МЕСТА (PRO) — 3 попытки, замер в см
+// ============================================================
+export const JUMP_DESCRIPTIONS = {
+  PG: {
+    icon: '💪',
+    description: '3 попытки прыжка в длину с места.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Приседай глубоко, выпрыгивай резко.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись. Прыгни с места. Замерь расстояние от старта до пяток.', inputLabel: 'Результат (см)', placeholder: 'Например, 210', norm: 230, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни 1 минуту. Прыгни с максимальной силой.', inputLabel: 'Результат (см)', placeholder: 'Например, 230', norm: 230, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Отдохни. Последняя попытка — максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 240', norm: 230, unit: 'см', direction: 'higher' },
+    ],
+  },
+  SG: {
+    icon: '💪',
+    description: '3 попытки. Норма — 230 см.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Махи руками добавляют 10–15 см.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись. Прыгни с места.', inputLabel: 'Результат (см)', placeholder: 'Например, 220', norm: 230, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни. Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 235', norm: 230, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Последняя попытка.', inputLabel: 'Результат (см)', placeholder: 'Например, 240', norm: 230, unit: 'см', direction: 'higher' },
+    ],
+  },
+  SF: {
+    icon: '💪',
+    description: '3 попытки. Норма — 240 см.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Длинные ноги — преимущество.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись. Прыгни.', inputLabel: 'Результат (см)', placeholder: 'Например, 230', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни. Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 245', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Последняя.', inputLabel: 'Результат (см)', placeholder: 'Например, 250', norm: 240, unit: 'см', direction: 'higher' },
+    ],
+  },
+  PF: {
+    icon: '💪',
+    description: '3 попытки. Норма — 240 см.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Сила ног — оружие.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись.', inputLabel: 'Результат (см)', placeholder: 'Например, 235', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни. Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 245', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Последняя.', inputLabel: 'Результат (см)', placeholder: 'Например, 250', norm: 240, unit: 'см', direction: 'higher' },
+    ],
+  },
+  C: {
+    icon: '💪',
+    description: '3 попытки. Норма — 250 см.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Рост — козырь.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись.', inputLabel: 'Результат (см)', placeholder: 'Например, 240', norm: 250, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 255', norm: 250, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Последняя.', inputLabel: 'Результат (см)', placeholder: 'Например, 260', norm: 250, unit: 'см', direction: 'higher' },
+    ],
+  },
+  default: {
+    icon: '💪',
+    description: '3 попытки прыжка в длину с места.',
+    duration: '~5 минут',
+    needs: 'Свободное место, рулетка',
+    bullets: ['Прыжок 1', 'Прыжок 2', 'Прыжок 3'],
+    tip: 'Приседай глубоко.',
+    max: 400,
+    tasks: [
+      { id: 'jump1', title: 'Прыжок 1', technique: 'Разомнись.', inputLabel: 'Результат (см)', placeholder: 'Например, 230', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 245', norm: 240, unit: 'см', direction: 'higher' },
+      { id: 'jump3', title: 'Прыжок 3', technique: 'Последняя.', inputLabel: 'Результат (см)', placeholder: 'Например, 250', norm: 240, unit: 'см', direction: 'higher' },
+    ],
+  },
+}
+
+// ============================================================
+// ПРЫЖОК В ДЛИНУ С РАЗБЕГА (PRO)
+// ============================================================
+export const RUN_JUMP_DESCRIPTIONS = {
+  PG: {
+    icon: '💪',
+    description: '3 попытки прыжка с разбега.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег ~10 м', 'Прыжок одной ногой', 'Приземление на две'],
+    tip: 'Разбегайся в одном ритме.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег 10 м, отталкивание одной ногой, приземление на две.', inputLabel: 'Результат (см)', placeholder: 'Например, 300', norm: 320, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни. Рабочая попытка.', inputLabel: 'Результат (см)', placeholder: 'Например, 330', norm: 320, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Финальный максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 340', norm: 320, unit: 'см', direction: 'higher' },
+    ],
+  },
+  SG: {
+    icon: '💪',
+    description: '3 попытки. Норма — 320 см.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег 10 м', 'Прыжок', 'Приземление на две'],
+    tip: 'Не тормози перед прыжком.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег 10 м.', inputLabel: 'Результат (см)', placeholder: 'Например, 310', norm: 320, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 325', norm: 320, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 340', norm: 320, unit: 'см', direction: 'higher' },
+    ],
+  },
+  SF: {
+    icon: '💪',
+    description: '3 попытки. Норма — 340 см.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег 10 м', 'Прыжок', 'Приземление'],
+    tip: 'Твоя позиция — прыжки.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег.', inputLabel: 'Результат (см)', placeholder: 'Например, 320', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 345', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 355', norm: 340, unit: 'см', direction: 'higher' },
+    ],
+  },
+  PF: {
+    icon: '💪',
+    description: '3 попытки. Норма — 340 см.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег 10 м', 'Прыжок', 'Приземление'],
+    tip: 'Сильные ноги.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег.', inputLabel: 'Результат (см)', placeholder: 'Например, 320', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 340', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 355', norm: 340, unit: 'см', direction: 'higher' },
+    ],
+  },
+  C: {
+    icon: '💪',
+    description: '3 попытки. Норма — 350 см.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег 10 м', 'Прыжок', 'Приземление'],
+    tip: 'Большие прыгают дальше.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег.', inputLabel: 'Результат (см)', placeholder: 'Например, 330', norm: 350, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 355', norm: 350, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 365', norm: 350, unit: 'см', direction: 'higher' },
+    ],
+  },
+  default: {
+    icon: '💪',
+    description: '3 попытки прыжка с разбега.',
+    duration: '~7 минут',
+    needs: 'Место 10+ м, рулетка',
+    bullets: ['Разбег 10 м', 'Прыжок', 'Приземление'],
+    tip: 'Разбегайся в одном ритме.',
+    max: 500,
+    tasks: [
+      { id: 'run1', title: 'Прыжок 1', technique: 'Разбег.', inputLabel: 'Результат (см)', placeholder: 'Например, 320', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run2', title: 'Прыжок 2', technique: 'Отдохни.', inputLabel: 'Результат (см)', placeholder: 'Например, 340', norm: 340, unit: 'см', direction: 'higher' },
+      { id: 'run3', title: 'Прыжок 3', technique: 'Максимум.', inputLabel: 'Результат (см)', placeholder: 'Например, 355', norm: 340, unit: 'см', direction: 'higher' },
+    ],
+  },
+}
+
+// ============================================================
+// ВЫНОСЛИВОСТЬ — СПРИНТ ОТ КОЛЬЦА ДО КОЛЬЦА (48 М)
+// ============================================================
+export const ENDURANCE_DESCRIPTIONS = {
+  PG: {
+    icon: '💪',
+    description: '5 спринтов от кольца до кольца и обратно (48 м).',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов по 48 м', 'Отдых 1 минута', 'Замер в секундах'],
+    tip: 'Ускорение с первых шагов.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: 'Разомнись. Пробеги 48 м от кольца до кольца и обратно.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.5', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Отдохни 1 минуту. Второй спринт — 48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.0', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Отдохни. Третий — 48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 11.8', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Отдохни. Четвёртый — 48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.2', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный — максимум.', inputLabel: 'Время (сек)', placeholder: 'Например, 11.5', norm: 12, unit: 'сек', direction: 'lower' },
+    ],
+  },
+  SG: {
+    icon: '💪',
+    description: '5 спринтов по 48 м. Норма — 12 сек.',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов', 'Отдых', 'Замер'],
+    tip: 'Быстро бегаешь — быстро играешь.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: '48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.5', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Второй.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.0', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Третий.', inputLabel: 'Время (сек)', placeholder: 'Например, 11.8', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Четвёртый.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.2', norm: 12, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный.', inputLabel: 'Время (сек)', placeholder: 'Например, 11.5', norm: 12, unit: 'сек', direction: 'lower' },
+    ],
+  },
+  SF: {
+    icon: '💪',
+    description: '5 спринтов по 48 м. Норма — 13 сек.',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов', 'Отдых', 'Замер'],
+    tip: 'Работай над стартом.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: '48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.5', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Второй.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.0', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Третий.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.8', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Четвёртый.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.2', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.5', norm: 13, unit: 'сек', direction: 'lower' },
+    ],
+  },
+  PF: {
+    icon: '💪',
+    description: '5 спринтов по 48 м. Норма — 13.5 сек.',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов', 'Отдых', 'Замер'],
+    tip: 'Мощный старт.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: '48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 14.0', norm: 13.5, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Второй.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.5', norm: 13.5, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Третий.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.3', norm: 13.5, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Четвёртый.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.7', norm: 13.5, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.0', norm: 13.5, unit: 'сек', direction: 'lower' },
+    ],
+  },
+  C: {
+    icon: '💪',
+    description: '5 спринтов по 48 м. Норма — 14 сек.',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов', 'Отдых', 'Замер'],
+    tip: 'Удиви всех.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: '48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 14.5', norm: 14, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Второй.', inputLabel: 'Время (сек)', placeholder: 'Например, 14.0', norm: 14, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Третий.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.8', norm: 14, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Четвёртый.', inputLabel: 'Время (сек)', placeholder: 'Например, 14.2', norm: 14, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.5', norm: 14, unit: 'сек', direction: 'lower' },
+    ],
+  },
+  default: {
+    icon: '💪',
+    description: '5 спринтов по 48 м.',
+    duration: '~10 минут',
+    needs: 'Площадка, секундомер',
+    bullets: ['5 спринтов', 'Отдых', 'Замер'],
+    tip: 'Разомнись.',
+    max: 60,
+    tasks: [
+      { id: 'sprint1', title: 'Спринт 1', technique: '48 м.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.5', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint2', title: 'Спринт 2', technique: 'Второй.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.0', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint3', title: 'Спринт 3', technique: 'Третий.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.8', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint4', title: 'Спринт 4', technique: 'Четвёртый.', inputLabel: 'Время (сек)', placeholder: 'Например, 13.2', norm: 13, unit: 'сек', direction: 'lower' },
+      { id: 'sprint5', title: 'Спринт 5', technique: 'Финальный.', inputLabel: 'Время (сек)', placeholder: 'Например, 12.5', norm: 13, unit: 'сек', direction: 'lower' },
+    ],
+  },
+}
+
+// ============================================================
+// ПОЛУЧИТЬ ОПИСАНИЕ ТЕСТА
+// ============================================================
 export function getTestDescription(testId, positions) {
   const main = positions && positions[0] ? positions[0] : 'default'
+
+  // IQ-тесты
+     if (testId === 'b-iq-base') {
+    return {
+      icon: '🧠',
+      description: 'Игровые ситуации из матча. Выбери, как бы ты поступил.',
+      duration: '~15 минут',
+      needs: 'Только телефон',
+      bullets: ['12 игровых ситуаций', 'Выбор из 4 вариантов', 'Автоматический подсчёт баллов'],
+      tip: 'Здесь нет «правильных» ответов — есть лучшие.',
+    }
+  }
+
+  // Бросок
   if (testId === 'sht-base') return SHOOTING_DESCRIPTIONS[main] || SHOOTING_DESCRIPTIONS.default
+  if (testId === 'sht-ft') return FT_DESCRIPTIONS[main] || FT_DESCRIPTIONS.default
+  if (testId === 'sht-move') return MOVE_SHOT_DESCRIPTIONS[main] || MOVE_SHOT_DESCRIPTIONS.default
+  if (testId === 'sht-drive') return DRIVE_DESCRIPTIONS[main] || DRIVE_DESCRIPTIONS.default
+
+  // Дриблинг
   if (testId === 'drbl-base') return DRIBBLING_DESCRIPTIONS[main] || DRIBBLING_DESCRIPTIONS.default
+  if (testId === 'drbl-pressure') return PRESSURE_DRIBBLE_DESCRIPTIONS[main] || PRESSURE_DRIBBLE_DESCRIPTIONS.default
+  if (testId === 'drbl-hands') return HAND_SPEED_DESCRIPTIONS[main] || HAND_SPEED_DESCRIPTIONS.default
+
+  // Атлетизм
   if (testId === 'atl-base') return ATHLETICISM_DESCRIPTIONS[main] || ATHLETICISM_DESCRIPTIONS.default
+  if (testId === 'atl-jump') return JUMP_DESCRIPTIONS[main] || JUMP_DESCRIPTIONS.default
+  if (testId === 'atl-run') return RUN_JUMP_DESCRIPTIONS[main] || RUN_JUMP_DESCRIPTIONS.default
+  if (testId === 'atl-endurance') return ENDURANCE_DESCRIPTIONS[main] || ENDURANCE_DESCRIPTIONS.default
+
   return null
 }

@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { THEMES } from '../data/themes'
+import ConfirmModal from '../components/ConfirmModal'
 
 export default function ProfileScreen({
   user,
-  onReset,
   onOpenPro,
-  onChangeTheme,
   onOpenTrainingSettings,
+  onOpenSettings,
+  onSaveProfile,
 }) {
-  const [showThemePanel, setShowThemePanel] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
+  const [showTapHint, setShowTapHint] = useState(false)
+    const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const allTests = user.categories.flatMap((c) => c.tests)
   const totalDone = allTests.filter((t) => t.status === 'done').length
@@ -16,29 +18,94 @@ export default function ProfileScreen({
   const positionText = user.positions.length > 0 ? user.positions.join(' · ') : '—'
   const progressPercent = totalFree > 0 ? (totalDone / totalFree) * 100 : 0
 
+  // 🎯 Скрытая активация PRO — 5 тапов
+  function handlePlanTap() {
+    if (user.plan === 'pro') {
+      // Если PRO — считаем тапы для отключения
+      const next = tapCount + 1
+      setTapCount(next)
+      setShowTapHint(true)
+
+      if (next >= 5) {
+        onSaveProfile({ plan: 'free' })
+        setTapCount(0)
+        setShowTapHint(false)
+        return
+      }
+
+      setTimeout(() => {
+        setTapCount(0)
+        setShowTapHint(false)
+      }, 2000)
+      return
+    }
+
+    // Если FREE — считаем тапы для активации PRO
+    const next = tapCount + 1
+    setTapCount(next)
+    setShowTapHint(true)
+
+    if (next >= 5) {
+      onSaveProfile({ plan: 'pro' })
+      setTapCount(0)
+      setShowTapHint(false)
+      return
+    }
+
+    setTimeout(() => {
+      setTapCount(0)
+      setShowTapHint(false)
+    }, 2000)
+  }
+
+  function handlePlanClick() {
+    // При обычном клике (1 тап) — открываем PRO-экран только если план FREE
+    if (user.plan === 'free' && tapCount === 0) {
+      onOpenPro()
+    }
+  }
+
   return (
     <div className="profile-screen">
       <div className="profile-head">
         <h1 className="profile-head-title">Профиль</h1>
         <div className="profile-head-right">
-          <button
-            className="icon-btn pill theme-btn"
-            onClick={() => setShowThemePanel(true)}
-          >
-            🎨 Тема
-          </button>
           {user.plan === 'pro' ? (
-            <span className="profile-plan-pill pro">PRO</span>
+            <button
+              className="head-plan-pill pro"
+              onClick={handlePlanTap}
+              title="5 тапов для переключения на FREE"
+            >
+              PRO
+            </button>
           ) : (
             <button
-              className="profile-plan-pill clickable"
-              onClick={onOpenPro}
+              className="head-plan-pill clickable"
+              onClick={handlePlanTap}
+              onDoubleClick={handlePlanClick}
+              title="5 тапов для активации PRO"
             >
               FREE
             </button>
           )}
+          <button
+            className="icon-btn"
+            onClick={onOpenSettings}
+            title="Настройки"
+          >
+            ⚙️
+          </button>
         </div>
       </div>
+
+      {/* Подсказка при тапах */}
+      {showTapHint && (
+        <div className="tap-hint">
+          {user.plan === 'pro'
+            ? `Тапни ещё ${5 - tapCount} раз, чтобы отключить PRO`
+            : `Тапни ещё ${5 - tapCount} раз, чтобы активировать PRO`}
+        </div>
+      )}
 
       <div className="profile-card">
         <div className="profile-card-avatar-wrap">
@@ -172,47 +239,6 @@ export default function ProfileScreen({
           )}
         </div>
       </div>
-
-      <button className="profile-reset" onClick={onReset}>
-        Сбросить и начать заново
-      </button>
-
-      {showThemePanel && (
-        <div className="theme-panel-overlay" onClick={() => setShowThemePanel(false)}>
-          <div className="theme-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="theme-panel-handle" />
-            <h3 className="theme-panel-title">Тема приложения</h3>
-            <p className="theme-panel-sub">Меняет весь интерфейс</p>
-
-            <div className="theme-panel-grid">
-              {THEMES.map((t) => (
-                <button
-                  key={t.id}
-                  className={`theme-panel-item ${user.theme === t.id ? 'active' : ''}`}
-                  onClick={() => onChangeTheme(t.id)}
-                >
-                  <div
-                    className="theme-panel-preview"
-                    style={{ background: t.color }}
-                  />
-                  <span className="theme-panel-icon">{t.icon}</span>
-                  <span className="theme-panel-label">{t.label}</span>
-                  {user.theme === t.id && (
-                    <span className="theme-panel-check">✓</span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <button
-              className="theme-panel-close"
-              onClick={() => setShowThemePanel(false)}
-            >
-              Готово
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

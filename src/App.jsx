@@ -11,6 +11,9 @@ import CalendarScreen from './screens/CalendarScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import ProScreen from './screens/ProScreen'
 import TrainingSettingsScreen from './screens/TrainingSettingsScreen'
+import SettingsScreen from './screens/SettingsScreen'
+
+import { HomeIcon, CalendarIcon, ChartIcon, ProfileIcon } from './components/Icons'
 
 const STORAGE_KEYS = {
   registered: 'hoop_registered',
@@ -24,10 +27,25 @@ function App() {
   const [showCard, setShowCard] = useState(false)
   const [showPro, setShowPro] = useState(false)
   const [showTrainingSettings, setShowTrainingSettings] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [runningTest, setRunningTest] = useState(null)
   const [loaded, setLoaded] = useState(false)
 
-  // Загрузка из localStorage + Telegram
+  // 🎬 Ключ для анимации переходов между экранами
+  const [transitionKey, setTransitionKey] = useState(0)
+
+  // Меняем ключ при любой смене экрана — запускает анимацию
+   useEffect(() => {
+    setTransitionKey((k) => k + 1)
+  }, [
+    activeTab,
+    showCard,
+    showPro,
+    showTrainingSettings,
+    showSettings,
+    runningTest,
+  ])
+
   useEffect(() => {
     try {
       const r = localStorage.getItem(STORAGE_KEYS.registered)
@@ -72,7 +90,6 @@ function App() {
     setLoaded(true)
   }, [])
 
-  // Сохранение в localStorage
   useEffect(() => {
     if (!loaded) return
     try {
@@ -83,16 +100,16 @@ function App() {
     }
   }, [user, registered, loaded])
 
-  // Применение темы
   useEffect(() => {
     document.body.setAttribute('data-theme', user.theme || 'classic')
   }, [user.theme])
 
-  function goToTab(tab) {
+    function goToTab(tab) {
     setActiveTab(tab)
     setShowCard(false)
     setShowPro(false)
     setShowTrainingSettings(false)
+    setShowSettings(false)
     setRunningTest(null)
   }
 
@@ -143,17 +160,21 @@ function App() {
       }
     }
 
-    setUser(tgBase)
+        setUser(tgBase)
     setRegistered(false)
     setActiveTab('home')
     setShowCard(false)
     setShowPro(false)
     setShowTrainingSettings(false)
+    setShowSettings(false)
     setRunningTest(null)
   }
 
   function handleChangeTheme(themeId) {
     setUser((prev) => ({ ...prev, theme: themeId }))
+  }
+    function handleSaveProfile(data) {
+    setUser((prev) => ({ ...prev, ...data }))
   }
 
   function handleChangeCardTheme(themeId) {
@@ -225,7 +246,9 @@ function App() {
   if (!registered) {
     return (
       <div className="app">
-        <RegistrationScreen onComplete={handleRegistration} />
+        <div className="screen-transition" key="registration">
+          <RegistrationScreen onComplete={handleRegistration} />
+        </div>
       </div>
     )
   }
@@ -234,72 +257,86 @@ function App() {
 
   return (
     <div className="app">
-      {showTrainingSettings ? (
-        <TrainingSettingsScreen
-          user={user}
-          onBack={() => setShowTrainingSettings(false)}
-          onSave={handleSaveTrainingSettings}
-        />
-      ) : showPro ? (
-        <ProScreen user={user} onBack={() => setShowPro(false)} />
-      ) : runningTestInfo ? (
-        <TestRunScreen
-          testId={runningTest}
-          testTitle={runningTestInfo.test.title}
-          user={user}
-          onBack={() => setRunningTest(null)}
-          onSave={handleSaveTestResult}
-          onGoHome={() => {
-            setRunningTest(null)
-            setActiveTab('home')
-          }}
-          onOpenProfile={() => {
-            setRunningTest(null)
-            setActiveTab('profile')
-          }}
-        />
-      ) : showCard ? (
-        <CardScreen
-          user={user}
-          onBack={() => setShowCard(false)}
-          onOpenPro={() => setShowPro(true)}
-          onChangeCardTheme={handleChangeCardTheme}
-        />
-      ) : (
-        <>
-          {activeTab === 'home' && (
-            <HomeScreen
-              user={user}
-              onOpenCard={() => setShowCard(true)}
-              onOpenPro={() => setShowPro(true)}
-              onStartTest={(id) => setRunningTest(id)}
-              onOpenTests={() => setActiveTab('test')}
-            />
-          )}
-          {activeTab === 'test' && (
-            <TestsScreen
-              user={user}
-              onOpenPro={() => setShowPro(true)}
-              onStartTest={(id) => setRunningTest(id)}
-            />
-          )}
-          {activeTab === 'calendar' && (
+      {/* 🎬 Анимированный контейнер экрана — key меняется при переходах */}
+      <div className="screen-transition" key={transitionKey}>
+                {showSettings ? (
+          <SettingsScreen
+            user={user}
+            onBack={() => setShowSettings(false)}
+            onChangeTheme={handleChangeTheme}
+            onSaveProfile={handleSaveProfile}
+            onReset={handleReset}
+          />
+        ) : showTrainingSettings ? (
+          <TrainingSettingsScreen
+            user={user}
+            onBack={() => setShowTrainingSettings(false)}
+            onSave={handleSaveTrainingSettings}
+          />
+        ) : showPro ? (
+          <ProScreen user={user} onBack={() => setShowPro(false)} />
+        ) : runningTestInfo ? (
+          <TestRunScreen
+            testId={runningTest}
+            testTitle={runningTestInfo.test.title}
+            user={user}
+            onBack={() => setRunningTest(null)}
+            onSave={handleSaveTestResult}
+            onGoHome={() => {
+              setRunningTest(null)
+              setActiveTab('home')
+            }}
+            onOpenProfile={() => {
+              setRunningTest(null)
+              setActiveTab('profile')
+            }}
+          />
+        ) : showCard ? (
+          <CardScreen
+            user={user}
+            onBack={() => setShowCard(false)}
+            onOpenPro={() => setShowPro(true)}
+            onChangeCardTheme={handleChangeCardTheme}
+          />
+        ) : (
+          <>
+            {activeTab === 'home' && (
+              <HomeScreen
+                user={user}
+                onOpenCard={() => setShowCard(true)}
+                onOpenPro={() => setShowPro(true)}
+                onStartTest={(id) => setRunningTest(id)}
+                onOpenTests={() => setActiveTab('test')}
+              />
+            )}
+            {activeTab === 'test' && (
+              <TestsScreen
+                user={user}
+                onOpenPro={() => setShowPro(true)}
+                onStartTest={(id) => setRunningTest(id)}
+              />
+            )}
+                         {activeTab === 'calendar' && (
             <CalendarScreen
               user={user}
               onOpenPro={() => setShowPro(true)}
+              onSaveProfile={handleSaveProfile}
+              onOpenTrainingSettings={() => setShowTrainingSettings(true)}
+              onOpenTests={() => setActiveTab('test')}
             />
           )}
-          {activeTab === 'profile' && (
+                                {activeTab === 'profile' && (
             <ProfileScreen
               user={user}
-              onReset={handleReset}
               onOpenPro={() => setShowPro(true)}
-              onChangeTheme={handleChangeTheme}
               onOpenTrainingSettings={() => setShowTrainingSettings(true)}
+              onOpenSettings={() => setShowSettings(true)}
+              onSaveProfile={handleSaveProfile}
             />
           )}
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       <nav className="bottom-nav">
         <button
@@ -308,13 +345,16 @@ function App() {
             !showCard &&
             !showPro &&
             !runningTest &&
-            !showTrainingSettings
+            !showTrainingSettings&&
+            !showSettings
               ? 'active'
               : ''
           }`}
           onClick={() => goToTab('calendar')}
         >
-          <span className="nav-icon">📅</span>
+          <span className="nav-icon">
+            <CalendarIcon />
+          </span>
           <span className="nav-label">Календарь</span>
         </button>
 
@@ -324,13 +364,16 @@ function App() {
             !showCard &&
             !showPro &&
             !runningTest &&
-            !showTrainingSettings
+            !showTrainingSettings&&
+            !showSettings
               ? 'active'
               : ''
           }`}
           onClick={() => goToTab('home')}
         >
-          <span className="nav-icon">🏠</span>
+          <span className="nav-icon">
+            <HomeIcon />
+          </span>
           <span className="nav-label">Главная</span>
         </button>
 
@@ -340,13 +383,16 @@ function App() {
             !showCard &&
             !showPro &&
             !runningTest &&
-            !showTrainingSettings
+            !showTrainingSettings&&
+            !showSettings
               ? 'active'
               : ''
           }`}
           onClick={() => goToTab('test')}
         >
-          <span className="nav-icon">🎯</span>
+          <span className="nav-icon">
+            <ChartIcon />
+          </span>
           <span className="nav-label">Тест</span>
         </button>
 
@@ -356,13 +402,16 @@ function App() {
             !showCard &&
             !showPro &&
             !runningTest &&
-            !showTrainingSettings
+            !showTrainingSettings&&
+            !showSettings
               ? 'active'
               : ''
           }`}
           onClick={() => goToTab('profile')}
         >
-          <span className="nav-icon">👤</span>
+          <span className="nav-icon">
+            <ProfileIcon />
+          </span>
           <span className="nav-label">Профиль</span>
         </button>
       </nav>

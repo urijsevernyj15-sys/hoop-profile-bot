@@ -61,7 +61,6 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
                 onClick={() => toggleCategory(cat.id)}
               >
                 <div className="category-header-left">
-                  <span className="category-icon">{cat.icon}</span>
                   <div className="category-info">
                     <div className="category-title">{cat.title}</div>
                     <div className="category-progress">
@@ -83,17 +82,24 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
                 </div>
               </button>
 
-              {isOpen && (
-                <div className="category-tests">
-                  {cat.tests.map((t) => {
-                    const isLocked = t.plan === 'pro'
-                    return (
+                              {isOpen && (
+                  <div className="category-tests">
+                    {cat.tests.map((t) => {
+                      const isLocked = t.plan === 'pro' && user.plan !== 'pro'
+                      return (
                       <button
                         key={t.id}
                         className={`test-item ${t.status} ${isLocked ? 'locked' : ''}`}
-                        onClick={() => {
+                                                onClick={() => {
                           if (isLocked) return onOpenPro()
-                          if (t.status === 'locked') return
+                          if (t.status === 'locked') {
+                            // PRO-тест, у юзера PRO → разблокируем
+                            if (user.plan === 'pro') {
+                              onStartTest(t.id)
+                              return
+                            }
+                            return
+                          }
                           onStartTest(t.id)
                         }}
                       >

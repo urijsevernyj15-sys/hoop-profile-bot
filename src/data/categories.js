@@ -14,6 +14,7 @@ export const DEFAULT_USER = {
   trainingGoals: [],
   trainingGear: [],
   trainingLevel: 'beginner',
+  trainingDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'],
   calendarDone: 0,
 }
 
@@ -22,8 +23,6 @@ export const INITIAL_CATEGORIES = [
     id: 'b-iq', icon: '🏀', title: 'Баскетбольный IQ',
     tests: [
       { id: 'b-iq-base', title: 'Игровое мышление', plan: 'free', status: 'active', score: null },
-      { id: 'b-iq-vision', title: 'Видение площадки', plan: 'pro', status: 'locked', score: null },
-      { id: 'b-iq-decision', title: 'Принятие решений', plan: 'pro', status: 'locked', score: null },
     ],
   },
   {
@@ -32,7 +31,7 @@ export const INITIAL_CATEGORIES = [
       { id: 'sht-base', title: 'Базовый бросок', plan: 'free', status: 'pending', score: null },
       { id: 'sht-ft', title: 'Точность штрафных', plan: 'pro', status: 'locked', score: null },
       { id: 'sht-move', title: 'Бросок в движении', plan: 'pro', status: 'locked', score: null },
-      { id: 'sht-3pt', title: 'Трёхочковые', plan: 'pro', status: 'locked', score: null },
+      { id: 'sht-drive', title: 'Проходы под кольцо', plan: 'pro', status: 'locked', score: null },
     ],
   },
   {
@@ -47,9 +46,9 @@ export const INITIAL_CATEGORIES = [
     id: 'athleticism', icon: '💪', title: 'Атлетизм',
     tests: [
       { id: 'atl-base', title: 'Базовый атлетизм', plan: 'free', status: 'pending', score: null },
-      { id: 'atl-jump', title: 'Прыжок с разбега', plan: 'pro', status: 'locked', score: null },
-      { id: 'atl-endurance', title: 'Выносливость', plan: 'pro', status: 'locked', score: null },
-      { id: 'atl-reaction', title: 'Реакция', plan: 'pro', status: 'locked', score: null },
+      { id: 'atl-jump', title: 'Прыжок в длину с места', plan: 'pro', status: 'locked', score: null },
+      { id: 'atl-run', title: 'Прыжок в длину с разбега', plan: 'pro', status: 'locked', score: null },
+      { id: 'atl-endurance', title: 'Выносливость (спринт)', plan: 'pro', status: 'locked', score: null },
     ],
   },
 ]

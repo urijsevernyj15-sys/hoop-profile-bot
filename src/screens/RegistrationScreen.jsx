@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { POSITIONS } from '../data/themes'
+import InfoModal from '../components/InfoModal'
 
 export default function RegistrationScreen({ onComplete }) {
   const [step, setStep] = useState(1)
@@ -8,6 +9,7 @@ export default function RegistrationScreen({ onComplete }) {
   const [weight, setWeight] = useState('')
   const [age, setAge] = useState('')
   const [positions, setPositions] = useState([])
+  const [soonModal, setSoonModal] = useState(null) // 'football' | 'volleyball' | null
 
   const isStep1Valid = height !== '' && weight !== '' && age !== ''
   const isStep2Valid = positions.length > 0
@@ -37,7 +39,7 @@ export default function RegistrationScreen({ onComplete }) {
 
           <button
             className="sport-btn disabled"
-            onClick={() => alert('Футбол — скоро!')}
+            onClick={() => setSoonModal('football')}
           >
             <span className="sport-icon">⚽</span>
             <span className="sport-label">Футбол</span>
@@ -46,7 +48,7 @@ export default function RegistrationScreen({ onComplete }) {
 
           <button
             className="sport-btn disabled"
-            onClick={() => alert('Волейбол — скоро!')}
+            onClick={() => setSoonModal('volleyball')}
           >
             <span className="sport-icon">🏐</span>
             <span className="sport-label">Волейбол</span>
@@ -93,6 +95,26 @@ export default function RegistrationScreen({ onComplete }) {
             Далее
           </button>
         </div>
+
+        {soonModal === 'football' && (
+          <InfoModal
+            icon="⚽"
+            title="Футбол уже в разработке"
+            text="Мы активно работаем над этим. Футбол появится в одном из ближайших обновлений — следи за новостями."
+            buttonText="Жду!"
+            onClose={() => setSoonModal(null)}
+          />
+        )}
+
+        {soonModal === 'volleyball' && (
+          <InfoModal
+            icon="🏐"
+            title="Волейбол уже в разработке"
+            text="Мы активно работаем над этим. Волейбол появится в одном из ближайших обновлений — следи за новостями."
+            buttonText="Жду!"
+            onClose={() => setSoonModal(null)}
+          />
+        )}
       </div>
     )
   }
@@ -124,21 +146,21 @@ export default function RegistrationScreen({ onComplete }) {
             </button>
           )
         })}
+
+        <button
+          className={`position-btn position-submit ${isStep2Valid ? 'active' : ''}`}
+          onClick={() =>
+            isStep2Valid && onComplete({ sport, height, weight, age, positions })
+          }
+          disabled={!isStep2Valid}
+        >
+          <span className="position-submit-text">Готово</span>
+        </button>
+
+        <button className="position-btn position-back" onClick={() => setStep(1)}>
+          <span className="position-back-text">← Назад</span>
+        </button>
       </div>
-
-      <button
-        className={`reg-submit ${isStep2Valid ? 'active' : ''}`}
-        onClick={() =>
-          isStep2Valid && onComplete({ sport, height, weight, age, positions })
-        }
-        disabled={!isStep2Valid}
-      >
-        Готово
-      </button>
-
-      <button className="reg-back" onClick={() => setStep(1)}>
-        ← Назад
-      </button>
     </div>
   )
 }
