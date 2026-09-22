@@ -7,6 +7,8 @@ import {
   getSelectedProgram,
   getTotalCompleted,
   getWeekCompleted,
+  canStartTraining,
+  getCompletedCount,
 } from '../data/schedule'
 import TrainingCalendar from '../components/TrainingCalendar'
 
@@ -61,6 +63,9 @@ export default function TrainingScreen({
     if (a.plan === 'pro' && b.plan === 'free') return 1
     return 0
   })
+    const canTrain = canStartTraining(user)
+  const completedCount = getCompletedCount(user)
+  const trialUsed = !isPro && completedCount > 0
 
   return (
     <>
@@ -96,7 +101,7 @@ export default function TrainingScreen({
           schedule={weekSchedule}
         />
 
-        {/* Карточка «Сегодня» */}
+               {/* Карточка «Сегодня» */}
         {todayData && todayProgram ? (
           <div
             className="training-today-card"
@@ -111,13 +116,24 @@ export default function TrainingScreen({
             <div className="training-today-reason">
               💡 {todayData.reason}
             </div>
-            <button
-              className="training-today-btn"
-              onClick={() => onOpenProgram(todayData.programId)}
-            >
-              {todayData.done ? 'Перепройти' : 'Начать'}
-              <span className="arrow">→</span>
-            </button>
+
+            {/* FREE — заблокировано после пробной */}
+            {trialUsed && !todayData.done ? (
+              <button
+                className="training-today-btn locked"
+                onClick={() => onOpenProgram('pro')}
+              >
+                🔒 Пробная пройдена — оформи PRO
+              </button>
+            ) : (
+              <button
+                className="training-today-btn"
+                onClick={() => onOpenProgram(todayData.programId)}
+              >
+                {todayData.done ? 'Перепройти' : 'Начать'}
+                <span className="arrow">→</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="training-rest-card">

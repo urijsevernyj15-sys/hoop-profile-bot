@@ -10557,3 +10557,26 @@ input[type="number"] {
   line-height: 1.5;
   text-align: center;
 }
+/* ============================================================
+   ЗАБЛОКИРОВАННАЯ КНОПКА «НАЧАТЬ» (после пробной)
+   ============================================================ */
+
+.training-today-btn.locked {
+  background: rgba(16, 16, 20, 0.6);
+  color: var(--text-dim);
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.training-today-btn.locked:hover {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a0a00;
+  border-color: transparent;
+  border-style: solid;
+  box-shadow: 0 8px 32px rgba(255, 165, 0, 0.5);
+}
+
+.training-today-btn.locked .arrow {
+  display: none;
+}

@@ -320,3 +320,27 @@ export function getWeekCompleted(user, monday) {
 
   return count
 }
+
+// ============================================================
+// ПРОВЕРИТЬ — ДОСТУПНА ЛИ ПРОБНАЯ ТРЕНИРОВКА
+// FREE может пройти ТОЛЬКО 1 тренировку
+// ============================================================
+export function canStartTraining(user) {
+  // PRO — всегда можно
+  if (user.plan === 'pro') return true
+
+  // FREE — проверяем, проходил ли уже
+  const completed = user.completedTrainings || {}
+  const completedCount = Object.values(completed).filter((c) => c.done).length
+
+  // Можно — только если ещё НИ РАЗУ не тренировался
+  return completedCount === 0
+}
+
+// ============================================================
+// СКОЛЬКО ПРОБНЫХ ПРОЙДЕНО (для FREE)
+// ============================================================
+export function getCompletedCount(user) {
+  const completed = user.completedTrainings || {}
+  return Object.values(completed).filter((c) => c.done).length
+}
