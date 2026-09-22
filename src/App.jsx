@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 import { DEFAULT_USER, freshCategories } from './data/categories'
+import { completeTraining } from './data/programs'
 import RegistrationScreen from './screens/RegistrationScreen'
 import HomeScreen from './screens/HomeScreen'
 import TestsScreen from './screens/TestsScreen'
 import TestRunScreen from './screens/TestRunScreen'
 import CardScreen from './screens/CardScreen'
-import CalendarScreen from './screens/CalendarScreen'
+import TrainingScreen from './screens/TrainingScreen'
+import ProgramScreen from './screens/ProgramScreen'
+import ActiveTrainingScreen from './screens/ActiveTrainingScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import ProScreen from './screens/ProScreen'
 import TrainingSettingsScreen from './screens/TrainingSettingsScreen'
@@ -29,13 +32,17 @@ function App() {
   const [showTrainingSettings, setShowTrainingSettings] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [runningTest, setRunningTest] = useState(null)
-  const [loaded, setLoaded] = useState(false)
 
-  // 🎬 Ключ для анимации переходов между экранами
+  // Тренировки
+  const [activeProgramId, setActiveProgramId] = useState(null)
+  const [activeSession, setActiveSession] = useState(null)
+  const [isTraining, setIsTraining] = useState(false)
+  const [showCustomProgram, setShowCustomProgram] = useState(false)
+
+  const [loaded, setLoaded] = useState(false)
   const [transitionKey, setTransitionKey] = useState(0)
 
-  // Меняем ключ при любой смене экрана — запускает анимацию
-   useEffect(() => {
+  useEffect(() => {
     setTransitionKey((k) => k + 1)
   }, [
     activeTab,
@@ -44,6 +51,8 @@ function App() {
     showTrainingSettings,
     showSettings,
     runningTest,
+    activeProgramId,
+    isTraining,
   ])
 
   useEffect(() => {
@@ -104,13 +113,17 @@ function App() {
     document.body.setAttribute('data-theme', user.theme || 'classic')
   }, [user.theme])
 
-    function goToTab(tab) {
+  function goToTab(tab) {
     setActiveTab(tab)
     setShowCard(false)
     setShowPro(false)
     setShowTrainingSettings(false)
     setShowSettings(false)
     setRunningTest(null)
+    setActiveProgramId(null)
+    setActiveSession(null)
+    setIsTraining(false)
+    setShowCustomProgram(false)
   }
 
   function handleRegistration(data) {
@@ -160,7 +173,7 @@ function App() {
       }
     }
 
-        setUser(tgBase)
+    setUser(tgBase)
     setRegistered(false)
     setActiveTab('home')
     setShowCard(false)
@@ -168,17 +181,21 @@ function App() {
     setShowTrainingSettings(false)
     setShowSettings(false)
     setRunningTest(null)
+    setActiveProgramId(null)
+    setActiveSession(null)
+    setIsTraining(false)
   }
 
   function handleChangeTheme(themeId) {
     setUser((prev) => ({ ...prev, theme: themeId }))
   }
-    function handleSaveProfile(data) {
-    setUser((prev) => ({ ...prev, ...data }))
-  }
 
   function handleChangeCardTheme(themeId) {
     setUser((prev) => ({ ...prev, cardTheme: themeId }))
+  }
+
+  function handleSaveProfile(data) {
+    setUser((prev) => ({ ...prev, ...data }))
   }
 
   function handleSaveTrainingSettings(data) {
@@ -241,6 +258,30 @@ function App() {
     setActiveTab('home')
   }
 
+  // Тренировки — старт
+  function handleStartTraining(programId, session) {
+    setActiveProgramId(programId)
+    setActiveSession(session)
+    setIsTraining(true)
+  }
+
+  // Тренировки — завершение
+    function handleCompleteTraining(completedTrainings) {
+    if (!activeProgramId) return
+
+    setUser((prev) => {
+      const newProgress = completeTraining(activeProgramId, prev)
+      return {
+        ...prev,
+        trainingProgress: newProgress,
+        completedTrainings: completedTrainings || prev.completedTrainings || {},
+      }
+    })
+
+    setIsTraining(false)
+    setActiveSession(null)
+  }
+
   if (!loaded) return <div className="app" />
 
   if (!registered) {
@@ -257,9 +298,8 @@ function App() {
 
   return (
     <div className="app">
-      {/* 🎬 Анимированный контейнер экрана — key меняется при переходах */}
       <div className="screen-transition" key={transitionKey}>
-                {showSettings ? (
+        {showSettings ? (
           <SettingsScreen
             user={user}
             onBack={() => setShowSettings(false)}
@@ -298,6 +338,25 @@ function App() {
             onOpenPro={() => setShowPro(true)}
             onChangeCardTheme={handleChangeCardTheme}
           />
+        ) : isTraining && activeSession ? (
+          <ActiveTrainingScreen
+            user={user}
+            programId={activeProgramId}
+            session={activeSession}
+            onBack={() => {
+              setIsTraining(false)
+              setActiveSession(null)
+            }}
+            onComplete={handleCompleteTraining}
+          />
+        ) : activeProgramId ? (
+          <ProgramScreen
+            user={user}
+            programId={activeProgramId}
+            onBack={() => setActiveProgramId(null)}
+            onStartTraining={handleStartTraining}
+            onOpenSettings={() => setShowTrainingSettings(true)}
+          />
         ) : (
           <>
             {activeTab === 'home' && (
@@ -316,24 +375,31 @@ function App() {
                 onStartTest={(id) => setRunningTest(id)}
               />
             )}
-                         {activeTab === 'calendar' && (
-            <CalendarScreen
-              user={user}
-              onOpenPro={() => setShowPro(true)}
-              onSaveProfile={handleSaveProfile}
-              onOpenTrainingSettings={() => setShowTrainingSettings(true)}
-              onOpenTests={() => setActiveTab('test')}
-            />
-          )}
-                                {activeTab === 'profile' && (
-            <ProfileScreen
-              user={user}
-              onOpenPro={() => setShowPro(true)}
-              onOpenTrainingSettings={() => setShowTrainingSettings(true)}
-              onOpenSettings={() => setShowSettings(true)}
-              onSaveProfile={handleSaveProfile}
-            />
-          )}
+            {activeTab === 'training' && (
+              <TrainingScreen
+                user={user}
+                onOpenProgram={(programId) => {
+                  if (programId === 'pro') {
+                    setShowPro(true)
+                  } else {
+                    setActiveProgramId(programId)
+                  }
+                }}
+                onOpenCustomProgram={() => {
+                  // Заглушка пока
+                  alert('Конструктор программ скоро появится!')
+                }}
+              />
+            )}
+                        {activeTab === 'profile' && (
+              <ProfileScreen
+                user={user}
+                onOpenPro={() => setShowPro(true)}
+                onOpenTrainingSettings={() => setShowTrainingSettings(true)}
+                onOpenSettings={() => setShowSettings(true)}
+                onSaveProfile={handleSaveProfile}
+              />
+            )}
           </>
         )}
       </div>
@@ -341,31 +407,27 @@ function App() {
       <nav className="bottom-nav">
         <button
           className={`nav-item ${
-            activeTab === 'calendar' &&
-            !showCard &&
-            !showPro &&
-            !runningTest &&
-            !showTrainingSettings&&
-            !showSettings
+            activeTab === 'training' &&
+            !showCard && !showPro && !runningTest &&
+            !showTrainingSettings && !showSettings &&
+            !activeProgramId && !isTraining
               ? 'active'
               : ''
           }`}
-          onClick={() => goToTab('calendar')}
+          onClick={() => goToTab('training')}
         >
           <span className="nav-icon">
             <CalendarIcon />
           </span>
-          <span className="nav-label">Календарь</span>
+          <span className="nav-label">Тренировки</span>
         </button>
 
         <button
           className={`nav-item ${
             activeTab === 'home' &&
-            !showCard &&
-            !showPro &&
-            !runningTest &&
-            !showTrainingSettings&&
-            !showSettings
+            !showCard && !showPro && !runningTest &&
+            !showTrainingSettings && !showSettings &&
+            !activeProgramId && !isTraining
               ? 'active'
               : ''
           }`}
@@ -380,11 +442,9 @@ function App() {
         <button
           className={`nav-item ${
             activeTab === 'test' &&
-            !showCard &&
-            !showPro &&
-            !runningTest &&
-            !showTrainingSettings&&
-            !showSettings
+            !showCard && !showPro && !runningTest &&
+            !showTrainingSettings && !showSettings &&
+            !activeProgramId && !isTraining
               ? 'active'
               : ''
           }`}
@@ -399,11 +459,9 @@ function App() {
         <button
           className={`nav-item ${
             activeTab === 'profile' &&
-            !showCard &&
-            !showPro &&
-            !runningTest &&
-            !showTrainingSettings&&
-            !showSettings
+            !showCard && !showPro && !runningTest &&
+            !showTrainingSettings && !showSettings &&
+            !activeProgramId && !isTraining
               ? 'active'
               : ''
           }`}

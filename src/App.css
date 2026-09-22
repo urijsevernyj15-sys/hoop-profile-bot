@@ -115,8 +115,8 @@ button:active { transform: scale(0.97); }
 }
 
 @keyframes appEnter {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Три плавающих пятна */
@@ -6986,7 +6986,7 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 8px;
+  padding: 14px 10px;
   background: var(--card-elev);
   border: 1.5px solid var(--border-soft);
   border-radius: 14px;
@@ -6997,6 +6997,41 @@ input[type="number"] {
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
+}
+
+.training-chip:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-2px);
+}
+
+.training-chip.active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-chip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: inherit;
+  transition: transform 0.25s;
+}
+
+.training-chip.active .training-chip-icon {
+  transform: scale(1.1);
+}
+
+.training-chip-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .training-chip:hover {
@@ -7649,4 +7684,2876 @@ input[type="number"] {
 
 .info-modal-icon.danger {
   filter: drop-shadow(0 0 24px rgba(192, 75, 75, 0.7));
+}
+/* ============================================================
+   ЭКРАН ТРЕНИРОВОК — список программ
+   ============================================================ */
+
+.training-program-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0 40px;
+  animation: settingsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-head {
+  margin-bottom: 8px;
+}
+
+.training-head-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  margin: 0 0 6px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 0%, color-mix(in srgb, #fff 60%, var(--accent) 40%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.training-head-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.programs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.program-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 22px 20px 18px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.program-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--program-color),
+    transparent);
+  opacity: 0.7;
+  z-index: 2;
+}
+
+.program-card:hover {
+  border-color: color-mix(in srgb, var(--program-color) 60%, transparent);
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--program-color) 25%, transparent),
+    0 0 60px color-mix(in srgb, var(--program-color) 15%, transparent);
+}
+
+.program-card-glow {
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--program-color) 35%, transparent) 0%,
+    transparent 70%);
+  filter: blur(40px);
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.program-card:hover .program-card-glow {
+  opacity: 0.7;
+}
+
+.program-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.program-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--program-color) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--program-color) 50%, transparent);
+  font-size: 26px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--program-color) 30%, transparent);
+}
+
+.program-card-badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.program-card-badge-new {
+  background: color-mix(in srgb, var(--program-color) 15%, transparent);
+  color: var(--program-color);
+  border: 1px solid color-mix(in srgb, var(--program-color) 45%, transparent);
+}
+
+.program-card-badge-progress {
+  background: linear-gradient(135deg, var(--program-color), color-mix(in srgb, var(--program-color) 70%, #fff 30%));
+  color: #fff;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--program-color) 40%, transparent);
+}
+
+.program-card-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  line-height: 1.15;
+}
+
+.program-card-subtitle {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.program-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.program-card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: -0.1px;
+}
+
+.program-card-meta-icon {
+  font-size: 13px;
+}
+
+.program-card-progress {
+  width: 100%;
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.program-card-progress-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.program-card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--program-color),
+    color-mix(in srgb, var(--program-color) 60%, #fff 40%));
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--program-color) 60%, transparent);
+}
+
+.program-card-progress-text {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.program-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 12px 22px;
+  background: color-mix(in srgb, var(--program-color) 15%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--program-color) 50%, transparent);
+  border-radius: 999px;
+  color: var(--program-color);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.25s;
+}
+
+.program-card:hover .program-card-action {
+  background: var(--program-color);
+  color: #fff;
+  border-color: var(--program-color);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--program-color) 50%, transparent);
+}
+
+.program-card-arrow {
+  font-size: 16px;
+  font-weight: 900;
+  transition: transform 0.25s;
+}
+
+.program-card:hover .program-card-arrow {
+  transform: translateX(4px);
+}
+
+/* Свой план — особый стиль */
+.program-card.custom {
+  border-style: dashed;
+}
+
+.program-card.custom::before {
+  opacity: 0.5;
+}
+/* ============================================================
+   ЭКРАН ПРОГРАММЫ
+   ============================================================ */
+
+.program-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0 40px;
+}
+
+.program-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 24px 26px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--program-color) 22%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.7);
+  border: 1.5px solid color-mix(in srgb, var(--program-color) 45%, transparent);
+  overflow: hidden;
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--program-color) 25%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--program-color) 30%, transparent);
+}
+
+.program-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--program-color), transparent);
+}
+
+.program-hero-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--program-color) 40%, transparent) 0%,
+    transparent 70%);
+  filter: blur(50px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.program-hero-icon {
+  font-size: 72px;
+  line-height: 1;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--program-color) 60%, transparent));
+  position: relative;
+  z-index: 1;
+}
+
+.program-hero-title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0 0 6px;
+  line-height: 1.1;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
+}
+
+.program-hero-sub {
+  font-size: 15px;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.program-hero-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.program-hero-meta-item {
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid color-mix(in srgb, var(--program-color) 40%, transparent);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* Прогресс программы */
+.program-progress-card {
+  padding: 16px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+.program-progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.program-progress-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.program-progress-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.program-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.program-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.program-progress-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* Сегодняшняя тренировка */
+.program-today {
+  padding: 22px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.program-today-head {
+  text-align: center;
+}
+
+.program-today-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.program-today-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  margin: 0;
+  color: var(--text);
+}
+
+.program-today-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.program-today-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--card-elev);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+}
+
+.program-today-stat-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.4px;
+}
+
+.program-today-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.program-start-btn {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--program-color) 0%,
+    color-mix(in srgb, var(--program-color) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--program-color) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.program-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--program-color) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.program-start-btn:active {
+  transform: scale(0.98);
+}
+
+/* Превью упражнений */
+.program-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.program-preview-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--card-elev);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+}
+
+.program-preview-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.program-preview-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.program-preview-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.program-preview-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* Инфо о настройках */
+.program-settings-info {
+  padding: 18px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.program-settings-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+}
+
+.program-settings-info-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.program-settings-info-text {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.program-settings-info-text strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.program-settings-edit {
+  margin-top: 6px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.program-settings-edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+/* ============================================================
+   АКТИВНАЯ ТРЕНИРОВКА v2 — по одному упражнению
+   ============================================================ */
+
+.active-training-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 40px;
+  min-height: 100vh;
+}
+
+/* ============ ШАПКА ============ */
+.active-training-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.active-training-head-info {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.active-training-head-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active-training-head-sub {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.icon-btn.pause {
+  background: color-mix(in srgb, var(--accent) 15%, var(--card-elev));
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.icon-btn.pause:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ============ ТАЙМЕР ============ */
+.active-training-timer {
+  padding: 16px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.active-training-timer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.active-training-timer-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.active-training-timer-value {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.active-training-timer-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.active-training-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff 40%));
+  border-radius: 2px;
+  transition: width 1s linear;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ============ ПРОГРЕСС ============ */
+.active-training-progress {
+  padding: 14px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+.active-training-progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dim);
+}
+
+.active-training-progress-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.active-training-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff 40%));
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ============ КАРТОЧКА УПРАЖНЕНИЯ ============ */
+.active-exercise-card {
+  position: relative;
+  padding: 28px 22px 24px;
+  background: rgba(16, 16, 20, 0.8);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+  animation: exerciseIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes exerciseIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.active-exercise-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.active-exercise-glow {
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 35%, transparent) 0%,
+    transparent 70%);
+  filter: blur(50px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.active-exercise-counter {
+  position: relative;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.active-exercise-section {
+  position: relative;
+  display: inline-block;
+  padding: 5px 14px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+.active-exercise-title {
+  position: relative;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.2;
+  color: var(--text);
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+/* Мета: подходы / повторения / отдых */
+.active-exercise-meta {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.active-exercise-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--card-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.active-exercise-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.active-exercise-meta-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.4px;
+}
+
+/* Техника */
+.active-exercise-technique {
+  position: relative;
+  padding: 16px 18px;
+  background: var(--card-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+
+.active-exercise-technique-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.active-exercise-technique-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Кнопки упражнения */
+.active-exercise-actions {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+}
+
+.active-exercise-details-btn {
+  padding: 16px 12px;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.active-exercise-details-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.active-exercise-done-btn {
+  padding: 16px 20px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow:
+    0 8px 28px color-mix(in srgb, var(--accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.active-exercise-done-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 36px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.active-exercise-done-btn:active {
+  transform: scale(0.97);
+}
+
+.active-exercise-done-btn.done {
+  background: linear-gradient(135deg, #3CCB5A 0%, #2EA84A 100%);
+  box-shadow:
+    0 8px 28px rgba(60, 203, 90, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ============ СЛЕДУЮЩЕЕ ============ */
+.active-next-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.active-next-hint-label {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.active-next-hint-title {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* ============ ЗАВЕРШИТЬ ============ */
+.active-training-actions {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.active-training-finish {
+  width: 100%;
+  padding: 16px 24px;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-dim);
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.active-training-finish:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.active-training-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+/* ============ МОДАЛКА ПАУЗЫ ============ */
+.pause-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s ease;
+}
+
+.pause-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px 26px 26px;
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.98);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: welcomeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pause-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.pause-modal-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+.pause-modal-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.pause-modal-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 0 20px;
+}
+
+.pause-modal-time {
+  font-size: 46px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 24px;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.pause-modal-btn {
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 10px;
+  border: none;
+}
+
+.pause-modal-btn.primary {
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.pause-modal-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.pause-modal-btn.secondary {
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  color: var(--text);
+}
+
+.pause-modal-btn.secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.pause-modal-btn.cancel {
+  background: transparent;
+  border: none;
+  color: var(--text-mute);
+  font-weight: 600;
+  margin-bottom: 0;
+  padding: 10px;
+}
+
+.pause-modal-btn.cancel:hover {
+  color: #c04b4b;
+}
+
+.pause-modal-btn:active {
+  transform: scale(0.97);
+}
+
+
+
+.active-training-exercise {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.25s;
+}
+
+.active-training-exercise.done {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-elev));
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.active-training-exercise-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.active-training-exercise.done .active-training-exercise-num {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.active-training-exercise-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.active-training-exercise-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.active-training-exercise.done .active-training-exercise-title {
+  color: var(--accent);
+}
+
+.active-training-exercise-meta {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.active-training-exercise-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.active-training-exercise-info,
+.active-training-exercise-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.active-training-exercise-info:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.active-training-exercise-check.done {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.active-training-exercise-check:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.active-training-actions {
+  padding: 20px 16px 0;
+}
+
+.active-training-finish {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 80%, #fff 20%));
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow:
+     0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s;
+}
+
+.active-training-finish:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.active-training-finish:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   МОДАЛКА УПРАЖНЕНИЯ
+   ============================================================ */
+
+.exercise-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+}
+
+.exercise-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  padding: 14px 22px calc(24px + env(safe-area-inset-bottom, 0px));
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border-top: 1px solid var(--border-soft);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.exercise-modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.exercise-modal-section {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.exercise-modal-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+  margin: 0 0 20px;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.exercise-modal-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.exercise-modal-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--card-elev);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+}
+
+.exercise-modal-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.exercise-modal-meta-value {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.exercise-modal-block {
+  padding: 14px 16px;
+  background: var(--card-elev);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.exercise-modal-block-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.exercise-modal-block-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.exercise-modal-close {
+  width: 100%;
+  padding: 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: all 0.25s;
+  margin-top: 8px;
+}
+
+.exercise-modal-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+/* /* ============================================================
+   БЕЙДЖ «БЕСПЛАТНО» — ЯРКИЙ
+   ============================================================ */
+
+.program-card-badge-free {
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 80%, #000 20%) 100%);
+  color: #1a0a00;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+    box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 0 40px color-mix(in srgb, var(--accent) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: freeBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes freeBadgePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px color-mix(in srgb, var(--accent) 50%, transparent),
+      0 0 40px color-mix(in srgb, var(--accent) 25%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 28px color-mix(in srgb, var(--accent) 70%, transparent),
+      0 0 60px color-mix(in srgb, var(--accent) 40%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* ============================================================
+   МОДАЛКА ПРИВЕТСТВИЯ ТРЕНИРОВОК
+   ============================================================ */
+
+.welcome-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.welcome-modal {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 26px 24px;
+    background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--accent) 15%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.98);
+  border: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  overflow: hidden;
+    box-shadow:
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 20px 60px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: welcomeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes welcomeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.welcome-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.welcome-modal-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+    background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 40%, transparent) 0%,
+    transparent 70%);
+  filter: blur(50px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.welcome-modal-icon {
+  position: relative;
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 16px;
+    filter: drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 70%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.welcome-modal-title {
+  position: relative;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+.welcome-modal-highlight {
+  color: var(--accent);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--accent) 60%, transparent);
+  font-weight: 900;
+}
+
+.welcome-modal-text {
+  position: relative;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.welcome-modal-accent {
+  color: var(--accent);
+  font-weight: 800;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.welcome-modal-features {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 16px 18px;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.welcome-modal-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.welcome-modal-feature-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.welcome-modal-btn {
+  position: relative;
+  width: 100%;
+  padding: 16px 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 80%, #000 20%) 100%);
+  color: #1a0a00;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+    box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 10px;
+}
+
+.welcome-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.welcome-modal-btn:active {
+  transform: scale(0.97);
+}
+
+.welcome-modal-btn .arrow {
+  font-size: 18px;
+}
+
+.welcome-modal-skip {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.welcome-modal-skip:hover {
+  color: var(--text);
+}
+
+/* ============================================================
+   БЕЙДЖ FREE
+   ============================================================ */
+
+   /* ============================================================
+   КАЛЕНДАРЬ ТРЕНИРОВОК
+   ============================================================ */
+
+.training-calendar {
+  padding: 20px 16px 18px;
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.8);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.training-calendar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 40%, transparent),
+    transparent);
+}
+
+/* Заголовок с навигацией */
+
+/* ============================================================
+   КАРТОЧКА "СЕГОДНЯ"
+   ============================================================ */
+
+.training-today-card {
+  position: relative;
+  padding: 24px 22px 22px;
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--program-color, var(--accent)) 18%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid color-mix(in srgb, var(--program-color, var(--accent)) 50%, transparent);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--program-color, var(--accent)) 20%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--program-color, var(--accent)) 25%, transparent);
+}
+
+.training-today-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--program-color, var(--accent)),
+    transparent);
+}
+
+.training-today-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--program-color, var(--accent));
+  margin-bottom: 8px;
+}
+
+.training-today-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.training-today-reason {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.training-today-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: color-mix(in srgb, var(--program-color, var(--accent)) 25%, var(--card-elev));
+  color: var(--program-color, var(--accent));
+  border: 1.5px solid color-mix(in srgb, var(--program-color, var(--accent)) 50%, transparent);
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--program-color, var(--accent)) 15%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--program-color, var(--accent)) 25%, transparent);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-today-btn:hover {
+  background: var(--program-color, var(--accent));
+  color: #fff;
+  border-color: var(--program-color, var(--accent));
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--program-color, var(--accent)) 50%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.training-today-btn:active {
+  transform: scale(0.98);
+}
+
+.training-today-btn .arrow {
+  font-size: 18px;
+  transition: transform 0.25s;
+}
+
+.training-today-btn:hover .arrow {
+  transform: translateX(4px);
+}
+/* ============================================================
+   РАЗДЕЛИТЕЛЬ "ИЛИ ВЫБЕРИ ПРОГРАММУ"
+   ============================================================ */
+
+.training-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0 16px;
+  color: var(--text-mute);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.training-divider::before,
+.training-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--border-soft),
+    transparent);
+}
+/* ============================================================
+   КНОПКА ОТКРЫТИЯ КАЛЕНДАРЯ
+   ============================================================ */
+
+.training-calendar-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.training-calendar-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 40%, transparent),
+    transparent);
+}
+
+.training-calendar-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-calendar-btn:active {
+  transform: scale(0.98);
+}
+
+.training-calendar-btn-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.training-calendar-btn-text {
+  flex: 1;
+  text-align: left;
+}
+
+.training-calendar-btn-arrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.25s;
+}
+
+.training-calendar-btn:hover .training-calendar-btn-arrow {
+  transform: translateX(4px);
+}
+
+
+/* ============================================================
+   РЕЖИМ ТРЕНИРОВОК (в настройках)
+   ============================================================ */
+
+.training-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.training-mode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 18px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-mode:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.training-mode.active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  border-color: var(--accent);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 25%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-mode-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+.training-mode.active .training-mode-title {
+  color: var(--accent);
+}
+
+.training-mode-sub {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.training-mode-check {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* Выбор программы в ручном режиме */
+.training-modes-programs {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-soft);
+  animation: settingsCollapseIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-modes-programs-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.training-modes-programs-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.training-program-choice {
+  padding: 12px 14px;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.training-program-choice:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-2px);
+}
+
+.training-program-choice.active {
+  background: color-mix(in srgb, var(--accent) 18%, var(--card-elev));
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+/* ============================================================
+   СТАТИСТИКА ТРЕНИРОВОК
+   ============================================================ */
+
+.training-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.training-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.training-stat-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: -0.6px;
+  line-height: 1;
+}
+
+.training-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ============================================================
+   КАРТОЧКА "ОТДЫХ"
+   ============================================================ */
+
+.training-rest-card {
+  padding: 32px 24px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px dashed var(--border-soft);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.training-rest-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.training-rest-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
+}
+
+.training-rest-sub {
+  font-size: 13px;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+/* ============================================================
+   КАЛЕНДАРЬ ИНЛАЙН (раскрывается на странице)
+   ============================================================ */
+
+.calendar-inline {
+  margin-top: 16px;
+  padding: 18px 16px;
+  background: rgba(16, 16, 20, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  animation: calendarIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--accent) 15%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+@keyframes calendarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-inline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent),
+    transparent);
+}
+
+.calendar-inline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+
+.calendar-inline-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.calendar-inline-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.calendar-inline-close:hover {
+  border-color: #c04b4b;
+  color: #c04b4b;
+  background: rgba(192, 75, 75, 0.1);
+}
+
+/* Убираем внутренние тени у календаря внутри inline */
+.calendar-inline .training-calendar {
+  margin-bottom: 0;
+  padding: 14px 12px 12px;
+  background: transparent;
+  border: none;
+}
+
+.calendar-inline .training-calendar::before {
+  display: none;
+}
+/* ============================================================
+   КАЛЕНДАРЬ ТРЕНИРОВОК v2 — КРАСИВЫЙ
+   ============================================================ */
+
+.tc-container {
+  position: relative;
+  padding: 22px 16px 20px;
+  background:
+    /* Верхнее свечение в цвет темы */
+    radial-gradient(ellipse 100% 70% at 50% -20%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+      transparent 65%),
+    /* Нижнее свечение (слабее) */
+    radial-gradient(ellipse 80% 50% at 50% 120%,
+      color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+      transparent 70%),
+    /* Основной градиент */
+    linear-gradient(180deg,
+      rgba(20, 20, 28, 0.95) 0%,
+      rgba(14, 14, 20, 0.98) 100%);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--accent) 12%, transparent),
+    0 4px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+  isolation: isolate;
+}
+
+/* Сетка клеточек */
+.tc-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 20%, transparent 80%);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+/* Верхняя светящаяся полоска с пульсацией */
+.tc-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 60%, #fff 40%),
+    var(--accent),
+    transparent);
+  animation: tcGlow 3s ease-in-out infinite;
+}
+
+@keyframes tcGlow {
+  0%, 100% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+/* Прогресс недели */
+.tc-progress-strip {
+  margin-bottom: 18px;
+}
+
+.tc-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.tc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 60%, #fff 40%));
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.tc-progress-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.tc-progress-done {
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.tc-progress-sep {
+  color: var(--text-mute);
+  font-weight: 500;
+}
+
+.tc-progress-total {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.tc-progress-label {
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Заголовок */
+.tc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.tc-header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tc-month {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.tc-week-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 3px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px;
+}
+
+.tc-today-btn {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 3px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-today-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.tc-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card-elev);
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tc-nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.tc-nav-btn:active {
+  transform: scale(0.95);
+}
+
+/* Дни */
+.tc-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.tc-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px 8px;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.01) 100%),
+    rgba(8, 8, 12, 0.7);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  min-height: 82px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Внутренняя подсветка при hover */
+.tc-day::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: radial-gradient(ellipse 100% 50% at 50% 0%,
+    color-mix(in srgb, var(--day-color) 25%, transparent) 0%,
+    transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.tc-day:hover {
+  border-color: var(--day-color);
+  transform: translateY(-3px);
+  box-shadow:
+    0 6px 20px color-mix(in srgb, var(--day-color) 30%, transparent),
+    0 0 30px color-mix(in srgb, var(--day-color) 15%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--day-color) 25%, transparent);
+}
+
+.tc-day:hover::before {
+  opacity: 1;
+}
+
+.tc-day:hover {
+  border-color: var(--day-color);
+  transform: translateY(-3px);
+  box-shadow:
+    0 6px 20px color-mix(in srgb, var(--day-color) 30%, transparent),
+    0 0 30px color-mix(in srgb, var(--day-color) 15%, transparent);
+}
+
+.tc-day-name {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  line-height: 1;
+}
+
+.tc-day-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--day-color) 15%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--day-color) 40%, transparent);
+}
+
+.tc-day.rest .tc-day-circle {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border-soft);
+}
+
+.tc-day-icon {
+  font-size: 15px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--day-color) 50%, transparent));
+}
+
+.tc-day-rest {
+  font-size: 13px;
+  color: var(--text-mute);
+  opacity: 0.5;
+  font-weight: 700;
+}
+
+.tc-day-number {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+
+.tc-day-status {
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tc-day-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3CCB5A;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(60, 203, 90, 0.6);
+}
+
+.tc-day-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--day-color);
+  box-shadow: 0 0 8px var(--day-color);
+}
+
+/* Сегодня */
+.tc-day.today {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, rgba(8, 8, 12, 0.6));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 0 24px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.tc-day.today .tc-day-name {
+  color: var(--accent);
+}
+
+.tc-day.today .tc-day-number {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+/* Пройдено */
+.tc-day.done {
+  border-color: color-mix(in srgb, #3CCB5A 45%, transparent);
+  background: color-mix(in srgb, #3CCB5A 8%, rgba(8, 8, 12, 0.6));
+}
+
+.tc-day.done .tc-day-circle {
+  background: color-mix(in srgb, #3CCB5A 20%, transparent);
+  border-color: color-mix(in srgb, #3CCB5A 60%, transparent);
+}
+
+.tc-day.done .tc-day-icon {
+  filter: drop-shadow(0 0 8px rgba(60, 203, 90, 0.6));
+}
+
+/* Отдых */
+.tc-day.rest {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tc-day.rest:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border-soft);
+}
+
+/* ============================================================
+   МОДАЛКА ДНЯ
+   ============================================================ */
+
+.tc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s ease;
+}
+
+.tc-modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  padding: 28px 24px 22px;
+  background:
+    radial-gradient(ellipse 90% 100% at 50% 0%,
+      color-mix(in srgb, var(--day-color, var(--accent)) 15%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.98);
+  border: 1.5px solid color-mix(in srgb, var(--day-color, var(--accent)) 45%, transparent);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--day-color, var(--accent)) 25%, transparent),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: welcomeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tc-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--day-color, var(--accent)),
+    transparent);
+}
+
+.tc-modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+
+.tc-modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--day-color, var(--accent)) 60%, transparent));
+}
+
+.tc-modal-date {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--day-color, var(--accent));
+  margin-bottom: 6px;
+}
+
+.tc-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--text);
+  margin: 0 0 14px;
+  line-height: 1.2;
+}
+
+.tc-modal-reason {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+.tc-modal-status {
+  margin-bottom: 18px;
+}
+
+.tc-modal-status-done {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(60, 203, 90, 0.15);
+  border: 1px solid rgba(60, 203, 90, 0.5);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #3CCB5A;
+  letter-spacing: 0.5px;
+}
+
+.tc-modal-status-planned {
+  display: inline-block;
+  padding: 6px 14px;
+  background: color-mix(in srgb, var(--day-color, var(--accent)) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--day-color, var(--accent)) 45%, transparent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--day-color, var(--accent));
+  letter-spacing: 0.5px;
+}
+
+.tc-modal-close {
+  width: 100%;
+  padding: 15px 20px;
+  background: linear-gradient(135deg,
+    var(--day-color, var(--accent)) 0%,
+    color-mix(in srgb, var(--day-color, var(--accent)) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--day-color, var(--accent)) 40%, transparent);
+}
+
+.tc-modal-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--day-color, var(--accent)) 50%, transparent);
+}
+
+.tc-modal-close:active {
+  transform: scale(0.98);
+}
+/* ============================================================
+   БЛОК «КАК СТРОЯТСЯ ТРЕНИРОВКИ»
+   ============================================================ */
+
+.training-explainer {
+  margin-top: 24px;
+  padding: 22px 20px 20px;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.training-explainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 50%, transparent),
+    transparent);
+}
+
+/* Заголовок */
+.training-explainer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.training-explainer-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.training-explainer-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Список */
+.training-explainer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.training-explainer-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.training-explainer-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.training-explainer-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.training-explainer-item-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+
+.training-explainer-item-text {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Подвал — мотивашка */
+.training-explainer-note {
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.5;
+  text-align: center;
 }

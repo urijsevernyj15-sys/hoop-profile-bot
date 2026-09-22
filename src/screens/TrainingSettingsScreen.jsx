@@ -7,22 +7,20 @@ import {
   GoalDefenseIcon,
   GoalPassingIcon,
   GearBallIcon,
-  GearHoopIcon,
-  GearConesIcon,
+  GearTwoBallsIcon,
   GearPartnerIcon,
-  GearWallIcon,
-  GearBarIcon,
-  GearBandIcon,
-  GearChalkIcon,
+  GearConesIcon,
 } from '../components/Icons'
 
 const ALL_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
 export default function TrainingSettingsScreen({ user, onBack, onSave }) {
-  const [goals, setGoals] = useState(user.trainingGoals || [])
+    const [goals, setGoals] = useState(user.trainingGoals || [])
   const [gear, setGear] = useState(user.trainingGear || [])
   const [level, setLevel] = useState(user.trainingLevel || 'beginner')
   const [days, setDays] = useState(user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'])
+  const [mode, setMode] = useState(user.trainingMode || 'manual')
+  const [selectedProgram, setSelectedProgram] = useState(user.selectedProgramId || 'universal')
 
   const GOALS = [
     { id: 'shooting', Icon: GoalShootingIcon, label: 'Бросок' },
@@ -33,15 +31,11 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
     { id: 'passing', Icon: GoalPassingIcon, label: 'Пас' },
   ]
 
-  const GEAR = [
+    const GEAR = [
     { id: 'ball', Icon: GearBallIcon, label: 'Мяч' },
-    { id: 'hoop', Icon: GearHoopIcon, label: 'Кольцо' },
-    { id: 'cones', Icon: GearConesIcon, label: 'Конусы' },
+    { id: 'ball2', Icon: GearTwoBallsIcon, label: 'Два мяча' },
     { id: 'partner', Icon: GearPartnerIcon, label: 'Партнёр' },
-    { id: 'wall', Icon: GearWallIcon, label: 'Стена' },
-    { id: 'bar', Icon: GearBarIcon, label: 'Турник' },
-    { id: 'band', Icon: GearBandIcon, label: 'Резинка' },
-    { id: 'chalk', Icon: GearChalkIcon, label: 'Разметка' },
+    { id: 'cones', Icon: GearConesIcon, label: 'Конусы' },
   ]
 
   const LEVELS = [
@@ -75,12 +69,14 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
     })
   }
 
-  function handleSave() {
+    function handleSave() {
     onSave({
       trainingGoals: goals,
       trainingGear: gear,
       trainingLevel: level,
       trainingDays: days,
+      trainingMode: mode,
+      selectedProgramId: selectedProgram,
     })
   }
 
@@ -132,7 +128,7 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
               Выбери, что у тебя есть. Упражнения подберём под это
             </p>
           </div>
-          <div className="training-chips">
+                    <div className="training-chips">
             {GEAR.map((g) => {
               const Icon = g.Icon
               const isActive = gear.includes(g.id)
@@ -142,7 +138,9 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
                   className={`training-chip ${isActive ? 'active' : ''}`}
                   onClick={() => toggleGear(g.id)}
                 >
-                  <span className="training-chip-icon"><Icon /></span>
+                  <span className="training-chip-icon">
+                    <Icon />
+                  </span>
                   <span className="training-chip-label">{g.label}</span>
                 </button>
               )
@@ -178,6 +176,62 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
             {days.length < 3 && ' — минимум 3 дня'}
             {days.length === 6 && ' — максимум 6 дней'}
           </div>
+        </div>
+                {/* ============ РЕЖИМ ============ */}
+        <div className="training-block">
+          <div className="training-block-head">
+            <div className="training-block-label">Режим</div>
+            <h2 className="training-block-title">Как тренироваться?</h2>
+            <p className="training-block-sub">
+              Выбери одну программу или доверься роботу
+            </p>
+          </div>
+
+          <div className="training-modes">
+            <button
+              className={`training-mode ${mode === 'manual' ? 'active' : ''}`}
+              onClick={() => setMode('manual')}
+            >
+              <div className="training-mode-title">🎯 Одна программа</div>
+              <div className="training-mode-sub">
+                Идёшь по выбранной программе
+              </div>
+              {mode === 'manual' && <span className="training-mode-check">✓</span>}
+            </button>
+
+            <button
+              className={`training-mode ${mode === 'mix' ? 'active' : ''}`}
+              onClick={() => setMode('mix')}
+            >
+              <div className="training-mode-title">🔀 Микс</div>
+              <div className="training-mode-sub">
+                Робот чередует по слабым местам
+              </div>
+              {mode === 'mix' && <span className="training-mode-check">✓</span>}
+            </button>
+          </div>
+
+          {mode === 'manual' && (
+            <div className="training-modes-programs">
+              <div className="training-modes-programs-label">Выбери программу:</div>
+              <div className="training-modes-programs-list">
+                {[
+                  { id: 'sniper', label: '🎯 Снайпер' },
+                  { id: 'playmaker', label: '⚡ Плэймейкер' },
+                  { id: 'beast', label: '💪 Зверь' },
+                  { id: 'universal', label: '🏀 Универсал' },
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    className={`training-program-choice ${selectedProgram === p.id ? 'active' : ''}`}
+                    onClick={() => setSelectedProgram(p.id)}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ============ УРОВЕНЬ ============ */}

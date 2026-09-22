@@ -132,6 +132,84 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
             </div>
           )
         })}
+                {/* ============ КАК СТРОЯТСЯ ТРЕНИРОВКИ ============ */}
+        <div className="training-explainer">
+          <div className="training-explainer-header">
+            <span className="training-explainer-icon">💡</span>
+            <h3 className="training-explainer-title">Как строятся тренировки</h3>
+          </div>
+
+          <div className="training-explainer-list">
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">1</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Учитываем твой уровень
+                </div>
+                <div className="training-explainer-item-text">
+                  Новичок — 3 упражнения, любитель — 5, продвинутый — 7.
+                  Прогрессия каждую неделю.
+                </div>
+              </div>
+            </div>
+
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">2</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Подбираем под позицию
+                </div>
+                <div className="training-explainer-item-text">
+                  Упражнения заточены под PG, SG, SF, PF или C.
+                  Разыгрывающий и центровой тренируются по-разному.
+                </div>
+              </div>
+            </div>
+
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">3</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Учитываем инвентарь
+                </div>
+                <div className="training-explainer-item-text">
+                  Есть только мяч — план подстроится. Есть партнёр — добавим
+                  упражнения в паре.
+                </div>
+              </div>
+            </div>
+
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">4</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Режим «Микс» ищет слабые места
+                </div>
+                <div className="training-explainer-item-text">
+                  Робот анализирует твои тесты и подбирает программы, которые
+                  прокачают слабые навыки.
+                </div>
+              </div>
+            </div>
+
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">5</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Структура — всегда 3 части
+                </div>
+                <div className="training-explainer-item-text">
+                  🔥 Разминка → 🎯 Основная часть → 🧘 Заминка.
+                  Это снижает риск травм и ускоряет прогресс.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="training-explainer-note">
+            💪 Регулярность важнее интенсивности. Лучше 3 короткие тренировки в неделю, чем 1 длинная.
+          </div>
+        </div>
       </div>
     </>
   )
