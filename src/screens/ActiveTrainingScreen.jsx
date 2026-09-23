@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { getProgramById } from '../data/programs'
 import { markTrainingComplete, formatDate } from '../data/schedule'
+import {
+  getActiveTraining,
+  saveActiveTraining,
+  clearActiveTraining,
+} from '../utils/trainingProgress'
 
 export default function ActiveTrainingScreen({
   user,
@@ -9,22 +14,37 @@ export default function ActiveTrainingScreen({
   onBack,
   onComplete,
 }) {
-  const program = getProgramById(programId)
+  const isMix = programId === '__mix__'
+  const program = isMix ? null : getProgramById(programId)
   const exercises = session.exercises
 
-  // Текущее упражнение
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [doneExercises, setDoneExercises] = useState({})
+  // ============================================================
+  // ВОССТАНОВЛЕНИЕ ПРОГРЕССА ИЛИ СТАРТ С НУЛЯ
+  // ============================================================
+  const saved = (() => {
+    const active = getActiveTraining()
+    // Проверяем, что сохранённая тренировка — та же самая
+    if (
+      active &&
+      active.programId === programId &&
+      active.exercisesCount === exercises.length
+    ) {
+      return active
+    }
+    return null
+  })()
+
+  // Текущее упражнение (восстанавливаем из сохранёнки или 0)
+  const [currentIndex, setCurrentIndex] = useState(saved?.currentIndex || 0)
+  const [doneExercises, setDoneExercises] = useState(saved?.doneExercises || {})
 
   // Таймер общий
-  const [elapsed, setElapsed] = useState(0)
+  const [elapsed, setElapsed] = useState(saved?.elapsed || 0)
   const [isPaused, setIsPaused] = useState(false)
 
-  // Модалка паузы
+  // Модалки
   const [showPauseModal, setShowPauseModal] = useState(false)
-    const [showFinishModal, setShowFinishModal] = useState(false)
-
-  // Модалка деталей упражнения
+  const [showFinishModal, setShowFinishModal] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
 
   // Таймер — идёт всё время, кроме паузы
@@ -33,6 +53,24 @@ export default function ActiveTrainingScreen({
     const timer = setInterval(() => setElapsed((e) => e + 1), 1000)
     return () => clearInterval(timer)
   }, [isPaused])
+
+  // ============================================================
+  // АВТОСОХРАНЕНИЕ ПРОГРЕССА
+  // ============================================================
+  useEffect(() => {
+    // Не сохраняем, если тренировка уже завершена (модалка открыта)
+    if (showFinishModal) return
+
+    saveActiveTraining({
+      programId,
+      exercisesCount: exercises.length,
+      currentIndex,
+      doneExercises,
+      elapsed,
+      exercises: exercises,
+      startedAt: saved?.startedAt || Date.now(),
+    })
+  }, [programId, currentIndex, doneExercises, elapsed, exercises, showFinishModal, saved])
 
   const totalExercises = exercises.length
   const doneCount = Object.values(doneExercises).filter(Boolean).length
@@ -53,7 +91,7 @@ export default function ActiveTrainingScreen({
   }
 
   // Отметить текущее и перейти к следующему
-      function handleDone() {
+  function handleDone() {
     if (!currentExercise) return
 
     const newDone = { ...doneExercises, [currentExercise.id]: true }
@@ -62,7 +100,6 @@ export default function ActiveTrainingScreen({
     if (currentIndex + 1 < totalExercises) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 200)
     } else {
-      // Последнее упражнение — пауза + модалка
       setIsPaused(true)
       setShowFinishModal(true)
     }
@@ -77,7 +114,7 @@ export default function ActiveTrainingScreen({
     setCurrentIndex(currentIndex - 1)
   }
 
-  // Завершить тренировку
+  // Завершить тренировку (из основной кнопки)
   function handleFinish() {
     const allDone = doneCount === totalExercises
     if (!allDone) {
@@ -85,10 +122,12 @@ export default function ActiveTrainingScreen({
         return
       }
     }
-    onComplete()
+    // Открываем модалку завершения
+    setIsPaused(true)
+    setShowFinishModal(true)
   }
 
-  // Пауза — открыть модалку
+  // Пауза
   function handlePause() {
     setIsPaused(true)
     setShowPauseModal(true)
@@ -107,29 +146,40 @@ export default function ActiveTrainingScreen({
     handleFinish()
   }
 
-  // Выход с паузы
+  // Выход с паузы (прогресс сохранится автоматически)
   function handleExitFromPause() {
     setShowPauseModal(false)
     setIsPaused(false)
     onBack()
   }
-    // Завершить тренировку — сохранить в историю
-    function handleCompleteTraining() {
+
+  // Финальное завершение (из модалки) — сохраняем в историю
+  function handleCompleteTraining() {
+    console.log('🔍 handleCompleteTraining вызван!', {
+      programId,
+      userPlan: user.plan,
+      doneCount: Object.values(doneExercises).filter(Boolean).length,
+      totalExercises: exercises.length,
+    })
+
     const today = new Date()
     const dateStr = formatDate(today)
 
-    const doneCount = Object.values(doneExercises).filter(Boolean).length
-    const allDone = doneCount === exercises.length
+    const doneCountNow = Object.values(doneExercises).filter(Boolean).length
+    const allDone = doneCountNow === exercises.length
 
     // Для FREE — сохраняем ТОЛЬКО если все упражнения сделаны
     const isPro = user.plan === 'pro'
     if (!isPro && !allDone) {
-      // Не сохраняем — просто выходим
+      // Не сохраняем, но чистим активную сессию
+      clearActiveTraining()
       onComplete(null)
       return
     }
 
     const completed = markTrainingComplete(user, dateStr, programId)
+    // ✅ Очищаем сохранённую тренировку — она завершена
+    clearActiveTraining()
     onComplete(completed)
   }
 
@@ -155,7 +205,7 @@ export default function ActiveTrainingScreen({
 
           <div className="active-training-head-info">
             <div className="active-training-head-title">
-              {program?.icon} {program?.title || 'Тренировка'}
+              {isMix ? '🤖 Микс' : `${program?.icon || ''} ${program?.title || 'Тренировка'}`}
             </div>
             <div className="active-training-head-sub">
               {doneCount} / {totalExercises} упражнений
@@ -199,22 +249,18 @@ export default function ActiveTrainingScreen({
         <div className="active-exercise-card">
           <div className="active-exercise-glow" />
 
-          {/* Номер */}
           <div className="active-exercise-counter">
             {currentIndex + 1} / {totalExercises}
           </div>
 
-          {/* Секция (Разминка / Основная / Заминка) */}
           <div className="active-exercise-section">
             {currentExercise.sectionLabel}
           </div>
 
-          {/* Название */}
           <h2 className="active-exercise-title">
             {currentExercise.title}
           </h2>
 
-          {/* Мета: подходы и повторения */}
           <div className="active-exercise-meta">
             <div className="active-exercise-meta-item">
               <span className="active-exercise-meta-label">Подходы</span>
@@ -222,7 +268,7 @@ export default function ActiveTrainingScreen({
                 {currentExercise.sets}
               </span>
             </div>
-                        <div className="active-exercise-meta-item">
+            <div className="active-exercise-meta-item">
               <span className="active-exercise-meta-label">
                 {currentExercise.reps ? 'Повторения' : 'Время'}
               </span>
@@ -231,20 +277,15 @@ export default function ActiveTrainingScreen({
               </span>
             </div>
             {currentExercise.restBetweenSets && (
-                          <div className="active-exercise-meta-item">
-              <span className="active-exercise-meta-label">
-                {currentExercise.reps ? 'Повторения' : 'Время'}
-              </span>
-              <span className="active-exercise-meta-value">
-                {currentExercise.reps
-                  ? currentExercise.reps
-                  : `${currentExercise.duration} мин`}
-              </span>
-            </div>
+              <div className="active-exercise-meta-item">
+                <span className="active-exercise-meta-label">Отдых</span>
+                <span className="active-exercise-meta-value">
+                  {currentExercise.restBetweenSets} сек
+                </span>
+              </div>
             )}
           </div>
 
-          {/* Техника */}
           <div className="active-exercise-technique">
             <div className="active-exercise-technique-title">📝 Техника</div>
             <p className="active-exercise-technique-text">
@@ -252,7 +293,6 @@ export default function ActiveTrainingScreen({
             </p>
           </div>
 
-          {/* Кнопки */}
           <div className="active-exercise-actions">
             <button
               className="active-exercise-details-btn"
@@ -313,12 +353,12 @@ export default function ActiveTrainingScreen({
             </button>
 
             <button className="pause-modal-btn cancel" onClick={handleExitFromPause}>
-              ← Выйти без сохранения
+              ← Выйти (прогресс сохранится)
             </button>
           </div>
         </div>
       )}
-      
+
       {/* ============ МОДАЛКА ЗАВЕРШЕНИЯ ============ */}
       {showFinishModal && (
         <div className="pause-modal-overlay">
@@ -336,14 +376,14 @@ export default function ActiveTrainingScreen({
               {formatTime(elapsed)}
             </div>
 
-                        <button
+            <button
               className="pause-modal-btn primary"
               onClick={handleCompleteTraining}
             >
               🏆 Завершить
             </button>
 
-                        <button
+            <button
               className="pause-modal-btn cancel"
               onClick={() => {
                 setShowFinishModal(false)
@@ -374,7 +414,7 @@ export default function ActiveTrainingScreen({
                   {currentExercise.sets}
                 </span>
               </div>
-                            <div className="exercise-modal-meta-item">
+              <div className="exercise-modal-meta-item">
                 <span className="exercise-modal-meta-label">
                   {currentExercise.reps ? 'Повторения' : 'Время'}
                 </span>

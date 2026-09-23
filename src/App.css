@@ -1968,11 +1968,16 @@ button:active { transform: scale(0.97); }
    ============================================================ */
 .theme-panel-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 200;
+  z-index: 9999;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -6009,21 +6014,13 @@ input[type="number"] {
 
 /* Главный контейнер экрана — анимация появления */
 .screen-transition {
-  animation: screenFadeSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  animation: screenFadeIn 0.35s ease;
 }
 
-@keyframes screenFadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes screenFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-
 /* Контейнер с задержкой для stagger-эффекта (появление по частям) */
 .stagger-item {
   animation: staggerFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
@@ -11782,4 +11779,1047 @@ input[type="number"] {
   box-shadow:
     0 8px 24px rgba(255, 165, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.single-training-card.rest {
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      rgba(138, 138, 148, 0.15) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border-color: rgba(138, 138, 148, 0.3);
+  box-shadow:
+    0 0 40px rgba(138, 138, 148, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.single-training-card.rest::before {
+  background: linear-gradient(90deg, transparent, #8a8a94, transparent);
+}
+
+.single-training-card.rest .single-training-icon {
+  filter: drop-shadow(0 0 20px rgba(138, 138, 148, 0.5));
+  animation: none;
+}
+
+.single-training-card.rest .single-training-label {
+  background: rgba(138, 138, 148, 0.15);
+  border-color: rgba(138, 138, 148, 0.4);
+  color: #8a8a94;
+}
+
+.single-training-rest-info {
+  position: relative;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius);
+  margin-top: 8px;
+}
+
+.single-training-rest-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.single-training-rest-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+/* ============================================================
+   ПРЕДПРОСМОТР ТРЕНИРОВКИ — РАЗБИВКА НА СЕКЦИИ
+   ============================================================ */
+
+.preview-section {
+  margin-bottom: 20px;
+}
+
+.preview-section:last-child {
+  margin-bottom: 0;
+}
+
+.preview-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.preview-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+}
+/* ============================================================
+   🤖 МИКС — экран робота
+   ============================================================ */
+
+.mix-onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 16px;
+}
+
+.mix-hero {
+  position: relative;
+  padding: 28px 24px 24px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      rgba(139, 92, 246, 0.22) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,
+      rgba(0, 224, 255, 0.12) 0%,
+      transparent 70%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid rgba(139, 92, 246, 0.5);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(139, 92, 246, 0.2),
+    0 0 100px rgba(0, 224, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.mix-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    #8B5CF6,
+    #00E0FF,
+    #8B5CF6,
+    transparent);
+  animation: mixGlow 3s ease-in-out infinite;
+}
+
+@keyframes mixGlow {
+  0%, 100% { opacity: 0.7; filter: brightness(1); }
+  50%      { opacity: 1; filter: brightness(1.4); }
+}
+
+.mix-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.mix-hero-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 24px rgba(139, 92, 246, 0.6))
+          drop-shadow(0 0 40px rgba(0, 224, 255, 0.3));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.mix-hero-label {
+  display: inline-block;
+  padding: 5px 14px;
+  background: linear-gradient(135deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(0, 224, 255, 0.15) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #A78BFA;
+  margin-bottom: 12px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.mix-hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.mix-hero-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.mix-hero-meta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mix-hero-meta-item {
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* Отдых в миксе */
+.mix-rest-card {
+  padding: 32px 24px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1.5px dashed var(--border-soft);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.mix-rest-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.mix-rest-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
+}
+
+.mix-rest-sub {
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+/* Категории сегодня */
+.mix-today-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.mix-today-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.mix-today-cat-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mix-today-cat-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+/* Расписание недели */
+.mix-week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mix-week-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 4%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 2%, transparent) 100%),
+    var(--card-elev);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: var(--radius-sm);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mix-week-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 60%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 40%, transparent) 100%);
+  opacity: 0.4;
+  transition: opacity 0.25s;
+}
+
+.mix-week-item.today {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 15%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 5%, transparent) 100%),
+    var(--card-elev);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.mix-week-item.today::before {
+  opacity: 1;
+  width: 3px;
+}
+
+.mix-week-day {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  min-width: 32px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.mix-week-item.today .mix-week-day {
+  color: var(--accent);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.mix-week-categories {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+
+.mix-week-cat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  font-size: 14px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 20%, transparent);
+  transition: all 0.25s;
+}
+
+.mix-week-item.today .mix-week-cat {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--accent) 40%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.mix-week-rest {
+  font-size: 12px;
+  color: var(--text-mute);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.tag-pill.mix-week-pill {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+/* ============================================================
+   🤖 МИКС — ФИНАЛЬНЫЙ ДИЗАЙН
+   Робот и отдых — фиолетово-голубые (фишка AI)
+   Расписание и кнопки — в цвете темы (var(--accent))
+   ============================================================ */
+
+/* ============================================================
+   1. HERO РОБОТА (фиолетово-голубой)
+   ============================================================ */
+
+.mix-hero {
+  position: relative;
+  padding: 28px 24px 24px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      rgba(139, 92, 246, 0.22) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,
+      rgba(0, 224, 255, 0.12) 0%,
+      transparent 70%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid rgba(139, 92, 246, 0.5);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(139, 92, 246, 0.2),
+    0 0 100px rgba(0, 224, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.mix-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    #8B5CF6,
+    #00E0FF,
+    #8B5CF6,
+    transparent);
+  animation: mixGlow 3s ease-in-out infinite;
+}
+
+@keyframes mixGlow {
+  0%, 100% { opacity: 0.7; filter: brightness(1); }
+  50%      { opacity: 1; filter: brightness(1.4); }
+}
+
+.mix-hero-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 24px rgba(139, 92, 246, 0.6))
+          drop-shadow(0 0 40px rgba(0, 224, 255, 0.3));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.mix-hero-label {
+  display: inline-block;
+  padding: 5px 14px;
+  background: linear-gradient(135deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(0, 224, 255, 0.15) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #A78BFA;
+  margin-bottom: 12px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.mix-hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.mix-hero-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.mix-hero-meta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mix-hero-meta-item {
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* Частицы внутри hero */
+.mix-hero-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mix-hero-particles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #A78BFA;
+  box-shadow: 0 0 8px #8B5CF6, 0 0 16px rgba(139, 92, 246, 0.5);
+  opacity: 0;
+  animation: mixParticle 4s ease-in-out infinite;
+}
+
+.mix-hero-particles span:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+.mix-hero-particles span:nth-child(2) {
+  top: 30%; right: 20%;
+  background: #00E0FF;
+  box-shadow: 0 0 8px #00E0FF, 0 0 16px rgba(0, 224, 255, 0.5);
+  animation-delay: 0.8s;
+}
+.mix-hero-particles span:nth-child(3) { bottom: 25%; left: 25%; animation-delay: 1.6s; }
+.mix-hero-particles span:nth-child(4) {
+  bottom: 35%; right: 15%;
+  background: #00E0FF;
+  box-shadow: 0 0 8px #00E0FF, 0 0 16px rgba(0, 224, 255, 0.5);
+  animation-delay: 2.4s;
+}
+.mix-hero-particles span:nth-child(5) { top: 50%; left: 8%; animation-delay: 3.2s; }
+
+@keyframes mixParticle {
+  0%, 100% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  30%      { opacity: 1; transform: translate(6px, -10px) scale(1.2); }
+  60%      { opacity: 0.7; transform: translate(-4px, -20px) scale(1); }
+}
+
+/* ============================================================
+   КАРТОЧКА ОТДЫХА — в цвете темы
+   ============================================================ */
+
+.mix-rest-card {
+  position: relative;
+  padding: 32px 24px 24px;
+  margin-bottom: 16px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      color-mix(in srgb, var(--accent) 15%, transparent) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
+      transparent 70%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--accent) 12%, transparent),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.mix-rest-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 70%, transparent),
+    transparent);
+}
+
+.mix-rest-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+    transparent 70%);
+  filter: blur(50px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.mix-rest-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+}
+
+.mix-rest-icon-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 25%, transparent) 0%,
+    transparent 70%);
+  animation: restPulse 3s ease-in-out infinite;
+}
+
+@keyframes restPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.15); opacity: 0.9; }
+}
+
+.mix-rest-icon {
+  position: relative;
+  font-size: 56px;
+  line-height: 1;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+.mix-rest-label {
+  display: inline-block;
+  padding: 5px 14px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.mix-rest-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.mix-rest-sub {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.mix-rest-next {
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-sm);
+  position: relative;
+  text-align: left;
+}
+
+.mix-rest-next-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.mix-rest-next-day {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.mix-rest-next-cats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mix-rest-next-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mix-rest-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.mix-rest-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.mix-rest-tip-icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mix-rest-tip-text {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+/* ============================================================
+   3. КАТЕГОРИИ «СЕГОДНЯ» — в цвете темы
+   ============================================================ */
+
+.mix-today-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.mix-today-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card-elev));
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.mix-today-cat-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mix-today-cat-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+/* ============================================================
+   4. РАСПИСАНИЕ НЕДЕЛИ — в цвете темы
+   ============================================================ */
+
+.mix-week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mix-week-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 4%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 2%, transparent) 100%),
+    var(--card-elev);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: var(--radius-sm);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mix-week-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 60%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 40%, transparent) 100%);
+  opacity: 0.4;
+  transition: opacity 0.25s;
+}
+
+.mix-week-item.today {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 15%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 5%, transparent) 100%),
+    var(--card-elev);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.mix-week-item.today::before {
+  opacity: 1;
+  width: 3px;
+}
+
+.mix-week-day {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  min-width: 32px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.mix-week-item.today .mix-week-day {
+  color: var(--accent);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.mix-week-categories {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+
+.mix-week-cat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  font-size: 14px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 20%, transparent);
+  transition: all 0.25s;
+}
+
+.mix-week-item.today .mix-week-cat {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--accent) 40%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.mix-week-rest {
+  font-size: 12px;
+  color: var(--text-mute);
+  font-weight: 600;
+  font-style: italic;
+}
+
+.tag-pill.mix-week-pill {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ============================================================
+   5. ЗАГЛУШКА-ОНБОРДИНГ (когда нет целей)
+   ============================================================ */
+
+.mix-onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 16px;
+}
+/* Кнопка «Начать» в миксе — в цвете темы */
+.mix-start-btn {
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.mix-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* Карточка микса — пройдено */
+.program-today.mix-done {
+  border-color: rgba(60, 203, 90, 0.5);
+  box-shadow:
+    0 0 40px rgba(60, 203, 90, 0.2),
+    inset 0 1px 0 rgba(60, 203, 90, 0.3);
+}
+
+.program-today.mix-done .program-today-label {
+  color: #3CCB5A;
+}
+
+.program-today.mix-done .program-today-title {
+  color: #3CCB5A;
+}
+
+.mix-done-time {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.mix-done-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(60, 203, 90, 0.12);
+  border: 1.5px solid rgba(60, 203, 90, 0.5);
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #3CCB5A;
+  box-shadow: 0 0 20px rgba(60, 203, 90, 0.2);
+}
+
+.mix-done-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3CCB5A;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 0 16px rgba(60, 203, 90, 0.6);
+}
+/* Сворачиваемая карточка «Что в тренировке» */
+.preview-collapse {
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-collapse-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s;
+}
+
+.preview-collapse-head:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.preview-collapse-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-collapse-pill {
+  display: inline-block;
+  padding: 5px 12px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent);
+  white-space: nowrap;
+}
+
+.preview-collapse-count {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-collapse-arrow {
+  font-size: 16px;
+  color: var(--text-dim);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.preview-collapse-arrow.open {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+.preview-collapse-body {
+  padding: 4px 20px 20px;
+  animation: previewSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes previewSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

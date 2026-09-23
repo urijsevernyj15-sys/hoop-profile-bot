@@ -265,7 +265,9 @@ function App() {
     if (!activeProgramId) return
 
     setUser((prev) => {
-      const newProgress = completeTraining(activeProgramId, prev)
+      const newProgress = activeProgramId === '__mix__'
+        ? prev.trainingProgress || {}
+        : completeTraining(activeProgramId, prev)
 
       const newCompleted = completedTrainings === null
         ? prev.completedTrainings || {}
@@ -280,6 +282,7 @@ function App() {
 
     setIsTraining(false)
     setActiveSession(null)
+    setActiveProgramId(null)
   }
 
   if (!loaded) return <div className="app" />
@@ -295,6 +298,14 @@ function App() {
   }
 
   const runningTestInfo = runningTest ? findTest(runningTest) : null
+
+  console.log('🔍 STATE App.jsx:', {
+    isTraining,
+    activeProgramId,
+    hasSession: !!activeSession,
+    activeTab,
+    showCard,
+  })
 
   return (
     <div className="app">
@@ -315,6 +326,16 @@ function App() {
           />
         ) : showPro ? (
           <ProScreen user={user} onBack={() => setShowPro(false)} />
+        ) : showCard ? (
+          <CardScreen
+            user={user}
+            onBack={() => setShowCard(false)}
+            onOpenPro={() => {
+              setShowCard(false)
+              setShowPro(true)
+            }}
+            onChangeCardTheme={handleChangeCardTheme}
+          />
         ) : runningTestInfo ? (
           <TestRunScreen
             testId={runningTest}
@@ -339,6 +360,7 @@ function App() {
             onBack={() => {
               setIsTraining(false)
               setActiveSession(null)
+              setActiveProgramId(null)
             }}
             onComplete={handleCompleteTraining}
           />
@@ -381,14 +403,21 @@ function App() {
             {activeTab === 'training' && (
               <TrainingScreen
                 user={user}
-                onOpenProgram={(programId) => {
-                  if (programId === 'pro') {
-                    setShowPro(true)
-                  } else {
-                    setActiveProgramId(programId)
-                  }
-                }}
+onOpenProgram={(programId, session) => {
+  if (programId === 'pro') {
+    setShowPro(true)
+  } else if (session) {
+    // Если передана session — сразу запускаем тренировку
+    setActiveProgramId(programId)
+    setActiveSession(session)
+    setIsTraining(true)
+  } else {
+    // Иначе — открываем экран программы
+    setActiveProgramId(programId)
+  }
+}}
                 onOpenPro={() => setShowPro(true)}
+                onOpenSettings={() => setShowTrainingSettings(true)}
               />
             )}
             {activeTab === 'profile' && (

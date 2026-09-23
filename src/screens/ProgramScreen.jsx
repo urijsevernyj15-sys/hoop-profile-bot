@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getProgramById, getProgramProgress } from '../data/programs'
 import {
   getTrainingSession,
   getPersonalTraining,
   getTrialSession,
 } from '../data/exercisesData'
-import { canStartNewTraining } from '../data/schedule'
+import { canStartNewTraining, formatRemainingTime } from '../data/schedule'
+import { getActiveTraining, clearActiveTraining } from '../utils/trainingProgress'
 
 export default function ProgramScreen({
   user,
@@ -16,6 +17,31 @@ export default function ProgramScreen({
   onOpenPro,
 }) {
   const [selectedDay, setSelectedDay] = useState(null)
+  const [activeTraining, setActiveTraining] = useState(null)
+
+  // Проверяем, есть ли незавершённая тренировка по этой программе
+  useEffect(() => {
+    const active = getActiveTraining()
+    if (active && active.programId === programId) {
+      setActiveTraining(active)
+    } else {
+      setActiveTraining(null)
+    }
+  }, [programId])
+
+  function handleResume() {
+    if (!activeTraining) return
+    // Передаём восстановленную session в onStartTraining
+    onStartTraining(programId, {
+      exercises: activeTraining.exercises,
+      totalExercises: activeTraining.exercises.length,
+      totalDuration: activeTraining.exercises.reduce(
+        (sum, ex) => sum + (ex.duration || 5),
+        0
+      ),
+      mainCategory: 'resumed',
+    })
+  }
 
   let program = getProgramById(programId)
 
@@ -37,11 +63,17 @@ export default function ProgramScreen({
 
   const progress = getProgramProgress(programId, user)
 
-  // Проверка — заполнены ли настройки (кроме пробной)
+  // Проверка — заполнены ли настройки
+  // Для режима "mix" — нужны цели + инвентарь
+  // Для режима "manual" — достаточно инвентаря (цели не нужны)
+  const isMixMode = user.trainingMode === 'mix'
   const hasGoals = (user.trainingGoals || []).length > 0
   const hasGear = (user.trainingGear || []).length > 0
-  const hasSettings = hasGoals && hasGear
 
+  // Настройки считаются заполненными:
+  // - в миксе: есть и цели, и инвентарь
+  // - в одиночной программе: есть инвентарь (цели не нужны)
+  const hasSettings = isMixMode ? (hasGoals && hasGear) : hasGear
   // Если программа не найдена
   if (!program) {
     return (
@@ -143,6 +175,19 @@ export default function ProgramScreen({
   // Кулдаун (для FREE)
   const cooldown = canStartNewTraining(user)
   const showCooldown = !cooldown.canStart && user.plan !== 'pro'
+
+  // Группируем упражнения по секциям для предпросмотра
+  const groupedExercises = {
+    warmup: todaySession.exercises.filter((ex) => ex.section === 'warmup'),
+    main: todaySession.exercises.filter((ex) => ex.section === 'main'),
+    cooldown: todaySession.exercises.filter((ex) => ex.section === 'cooldown'),
+  }
+
+  const SECTION_META = {
+    warmup:   { label: '🔥 Разминка',       icon: '🔥' },
+    main:     { label: '🎯 Основная часть', icon: '🎯' },
+    cooldown: { label: '🧘 Заминка',        icon: '🧘' },
+  }
 
   return (
     <>
@@ -258,47 +303,74 @@ export default function ProgramScreen({
             </div>
           </div>
 
-          {showCooldown ? (
-            <div className="program-cooldown-block">
-              <div className="program-cooldown-icon">⏳</div>
-              <div className="program-cooldown-title">Кулдаун</div>
-              <div className="program-cooldown-text">
-                Следующая тренировка через{' '}
-                <strong>{formatRemainingTime(cooldown.remainingMs)}</strong>
-              </div>
-              <div className="program-cooldown-hint">
-                Мышцам нужно восстановиться. Кулдаун — 96 часов.
-              </div>
+        {showCooldown ? (
+          <div className="program-cooldown-block">
+            <div className="program-cooldown-icon">⏳</div>
+            <div className="program-cooldown-title">Кулдаун</div>
+            <div className="program-cooldown-text">
+              Следующая тренировка через{' '}
+              <strong>{formatRemainingTime(cooldown.remainingMs)}</strong>
             </div>
-          ) : (
-            <button
-              className="program-start-btn"
-              style={{ '--program-color': program.color }}
-              onClick={() => onStartTraining(programId, todaySession)}
-            >
-              {progress && progress.started && programId !== '__trial__'
-                ? 'Продолжить'
-                : 'Начать тренировку'}
-              <span className="arrow">→</span>
-            </button>
-          )}
+            <div className="program-cooldown-hint">
+              Мышцам нужно восстановиться. Кулдаун — 96 часов.
+            </div>
+          </div>
+        ) : activeTraining ? (
+          <button
+            className="program-start-btn mix-resume-btn"
+            style={{ '--program-color': program.color }}
+            onClick={handleResume}
+          >
+            Продолжить тренировку <span className="arrow">→</span>
+          </button>
+        ) : (
+          <button
+            className="program-start-btn"
+            style={{ '--program-color': program.color }}
+            onClick={() => onStartTraining(programId, todaySession)}
+          >
+            {progress && progress.started && programId !== '__trial__'
+              ? 'Продолжить'
+              : 'Начать тренировку'}
+            <span className="arrow">→</span>
+          </button>
+        )}
         </div>
 
-        {/* Предпросмотр тренировки */}
+        {/* Предпросмотр тренировки — РАЗБИТЫЙ НА СЕКЦИИ */}
         <div className="card intro-card">
           <div className="tag-pill">Что в тренировке</div>
+
           <div className="program-preview-list">
-            {todaySession.exercises.map((ex, i) => (
-              <div key={ex.id} className="program-preview-item">
-                <div className="program-preview-num">{i + 1}</div>
-                <div className="program-preview-body">
-                  <div className="program-preview-title">{ex.title}</div>
-                  <div className="program-preview-meta">
-                    {ex.sectionLabel} · {ex.sets} × {ex.reps || ex.duration + ' мин'}
+            {['warmup', 'main', 'cooldown'].map((sectionKey) => {
+              const sectionExercises = groupedExercises[sectionKey]
+              if (!sectionExercises || sectionExercises.length === 0) return null
+
+              const meta = SECTION_META[sectionKey]
+
+              return (
+                <div key={sectionKey} className="preview-section">
+                  <div className="preview-section-title">
+                    <span>{meta.label}</span>
+                    <span className="preview-section-count">
+                      {sectionExercises.length}
+                    </span>
                   </div>
+
+                  {sectionExercises.map((ex, i) => (
+                    <div key={ex.id} className="program-preview-item">
+                      <div className="program-preview-num">{i + 1}</div>
+                      <div className="program-preview-body">
+                        <div className="program-preview-title">{ex.title}</div>
+                        <div className="program-preview-meta">
+                          {ex.sets} × {ex.reps || ex.duration + ' мин'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 

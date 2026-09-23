@@ -8,6 +8,8 @@ import {
   isTrialUsed,
 } from '../data/schedule'
 import TrainingCalendar from '../components/TrainingCalendar'
+import { getActiveTraining, clearActiveTraining } from '../utils/trainingProgress'
+import MixTrainingScreen from './MixTrainingScreen'
 
 const CATEGORY_META = {
   shooting:    { icon: '🎯', label: 'Бросок' },
@@ -25,9 +27,33 @@ export default function TrainingScreen({
   onOpenProgram,
   onOpenCustomProgram,
   onOpenPro,
+  onOpenSettings,
 }) {
   const isPro = user.plan === 'pro'
   const trialUsed = isTrialUsed(user)
+
+  // Состояние активной (незавершённой) тренировки
+  const [activeTraining, setActiveTraining] = useState(null)
+
+  // Проверяем активную тренировку при монтировании и при возврате на экран
+  useEffect(() => {
+    const active = getActiveTraining()
+    setActiveTraining(active || null)
+  }, [user])
+
+  function handleResumeTraining() {
+    if (!activeTraining) return
+    // Восстанавливаем тренировку через onOpenProgram
+    onOpenProgram(activeTraining.programId, {
+      exercises: activeTraining.exercises,
+      totalExercises: activeTraining.exercises.length,
+      totalDuration: activeTraining.exercises.reduce(
+        (sum, ex) => sum + (ex.duration || 5),
+        0
+      ),
+      mainCategory: 'resumed',
+    })
+  }
 
   // ============ FREE: ЗАГЛУШКА / ПРОБНАЯ ============
   if (!isPro) {
@@ -170,8 +196,20 @@ export default function TrainingScreen({
       </div>
     )
   }
+    // ============ РЕЖИМ МИКС ============
+if (user.trainingMode === 'mix') {
+  return (
+    <MixTrainingScreen
+      user={user}
+      onOpenSettings={onOpenSettings}
+      onStartMixTraining={(session) => onOpenProgram('__mix__', session)}
+      onOpenPro={onOpenPro}
+    />
+  )
+}
 
-  // ============ PRO: полная версия ============
+
+   // ============ PRO: полная версия ============
   const totalCompleted = getTotalCompleted(user)
 
   const today = new Date()
@@ -182,19 +220,19 @@ export default function TrainingScreen({
   const weekSchedule = getWeekSchedule(user, monday)
   const weekCompleted = getWeekCompleted(user, monday)
 
-  // Категория дня
-  const goals = user.trainingGoals || []
-  const categories = goals.length > 0
-    ? goals
-    : ['shooting', 'dribbling', 'drives', 'finishing', 'athleticism', 'iq', 'defense', 'passing']
-
-  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1
-  const mainCategory = categories[dayOfWeek % categories.length]
-  const todayFocus = CATEGORY_META[mainCategory] || { icon: '🏀', label: 'Тренировка' }
+  // Сегодняшняя программа (из расписания)
+  const todayStr = formatDate(today)
+  const todayData = weekSchedule[todayStr]
+  const todayProgramId = todayData?.programId || null
+  const todayProgram = todayProgramId
+    ? PROGRAMS.find((p) => p.id === todayProgramId) || null
+    : null
 
   const hasSettings =
     (user.trainingGoals || []).length > 0 &&
     (user.trainingGear || []).length > 0
+
+  const isTrainingToday = !!todayData
 
   return (
     <>
@@ -226,35 +264,76 @@ export default function TrainingScreen({
           schedule={weekSchedule}
         />
 
-        {/* МОЯ ТРЕНИРОВКА */}
-        <div className="single-training-card">
-          <div className="single-training-glow" />
-
-          <div className="single-training-icon">🏀</div>
-          <div className="single-training-label">
-            СЕГОДНЯ · {todayFocus.icon} {todayFocus.label.toUpperCase()}
-          </div>
-          <h2 className="single-training-title">Моя тренировка</h2>
-          <p className="single-training-sub">
-            {hasSettings
-              ? `Персональный план: ${todayFocus.label}`
-              : 'Сначала настрой цели и инвентарь'}
-          </p>
-
-          {!hasSettings && (
-            <div className="single-training-warning">
-              ⚠️ Настрой тренировку — выбери цели, инвентарь, уровень
-            </div>
-          )}
-
-          <button
-            className="single-training-btn"
-            onClick={() => onOpenProgram('universal')}
+        {/* СЕГОДНЯ: ТРЕНИРОВКА ИЛИ ОТДЫХ */}
+        {todayProgram ? (
+          <div
+            className="single-training-card"
+            style={{ '--program-color': todayProgram.color }}
           >
-            {hasSettings ? 'Начать тренировку' : 'Настроить и начать'}
-            <span className="arrow">→</span>
-          </button>
-        </div>
+            <div className="single-training-glow" />
+
+            <div className="single-training-icon">{todayProgram.icon}</div>
+            <div className="single-training-label">
+              СЕГОДНЯ · {todayProgram.title.toUpperCase()}
+            </div>
+            <h2 className="single-training-title">Моя тренировка</h2>
+            <p className="single-training-sub">
+              {todayData.reason || `Программа «${todayProgram.title}»`}
+            </p>
+
+            {activeTraining && activeTraining.programId === todayProgram.id ? (
+              <button
+                className="single-training-btn mix-resume-btn"
+                onClick={handleResumeTraining}
+              >
+                Продолжить тренировку
+                <span className="arrow">→</span>
+              </button>
+            ) : (
+              <button
+                className="single-training-btn"
+                style={{ '--program-color': todayProgram.color }}
+                onClick={() => onOpenProgram(todayProgram.id)}
+              >
+                Начать тренировку
+                <span className="arrow">→</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="single-training-card rest">
+            <div className="single-training-glow" />
+
+            <div className="single-training-icon">😴</div>
+            <div className="single-training-label">СЕГОДНЯ · ОТДЫХ</div>
+            <h2 className="single-training-title">Восстановление</h2>
+            <p className="single-training-sub">
+              Сегодня не тренировочный день. Мышцы восстанавливаются.
+            </p>
+
+            <div className="single-training-rest-info">
+              <div className="single-training-rest-label">
+                Следующая тренировка
+              </div>
+              <div className="single-training-rest-value">
+                {(() => {
+                  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+                  const trainingDays = user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт']
+                  for (let i = 1; i <= 7; i++) {
+                    const nextDate = new Date(today)
+                    nextDate.setDate(today.getDate() + i)
+                    const nextIdx = nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1
+                    const nextDayName = dayNames[nextIdx]
+                    if (trainingDays.includes(nextDayName)) {
+                      return `${nextDayName}, ${nextDate.getDate()}`
+                    }
+                  }
+                  return '—'
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Программы */}
         <div className="training-divider">

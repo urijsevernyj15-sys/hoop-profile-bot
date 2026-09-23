@@ -35,11 +35,8 @@ export function isTrainingDay(user, date) {
 
 // ============================================================
 // ОПРЕДЕЛИТЬ СЛАБЫЕ МЕСТА (по тестам)
-// Возвращает: { shooting: 0.7, dribbling: 0.4, ... } — приоритет 0-1
-// Чем НИЖЕ балл — тем выше приоритет
 // ============================================================
 export function getWeakCategories(user) {
-  // Маппинг тестов на категории
   const TEST_TO_CATEGORY = {
     'sht-base': 'shooting',
     'sht-ft': 'shooting',
@@ -70,7 +67,6 @@ export function getWeakCategories(user) {
     categoriesCount[cat] += 1
   })
 
-  // Среднее по каждой категории
   const averages = {}
   Object.keys(categories).forEach((cat) => {
     averages[cat] = categories[cat] / categoriesCount[cat]
@@ -81,19 +77,14 @@ export function getWeakCategories(user) {
 
 // ============================================================
 // ОПРЕДЕЛИТЬ ПРОГРАММУ ДЛЯ КОНКРЕТНОГО ДНЯ
-// Логика:
-// 1. Если пользователь выбрал ОДНУ программу — она и есть
-// 2. Если режим "микс" — робот чередует по слабым местам
 // ============================================================
 export function getProgramForDay(user, date) {
-  // Проверяем — тренировочный ли день
   if (!isTrainingDay(user, date)) {
     return null
   }
 
-  const mode = user.trainingMode || 'manual' // 'manual' или 'mix'
+  const mode = user.trainingMode || 'manual'
 
-  // === РЕЖИМ "РУЧНОЙ" — одна программа ===
   if (mode === 'manual') {
     const selectedId = user.selectedProgramId || 'universal'
     return {
@@ -102,10 +93,7 @@ export function getProgramForDay(user, date) {
     }
   }
 
-  // === РЕЖИМ "МИКС" — робот выбирает ===
   const weakCategories = getWeakCategories(user)
-
-  // Доступные программы (кроме custom)
   const availablePrograms = PROGRAMS.filter(
     (p) => p.id !== 'custom' && p.plan !== undefined
   )
@@ -117,16 +105,13 @@ export function getProgramForDay(user, date) {
     }
   }
 
-  // Считаем приоритет каждой программы
   const programScores = availablePrograms.map((program) => {
     let score = 0
     let count = 0
 
-    // Для каждой категории программы смотрим балл
     program.mainCategories.forEach((cat) => {
       const catScore = weakCategories[cat]
       if (catScore !== undefined) {
-        // Чем НИЖЕ балл — тем ВЫШЕ приоритет
         score += (100 - catScore)
         count++
       }
@@ -136,25 +121,20 @@ export function getProgramForDay(user, date) {
     return { program, score: avgScore }
   })
 
-  // Сортируем по убыванию (слабые места — выше)
   programScores.sort((a, b) => b.score - a.score)
 
-  // Берём тренировочный день по счёту и чередуем
   const dayIdx = getDayIndex(date)
   const trainingDays = user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт']
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-  // На каком месте этот день среди тренировочных
   const trainingDayNames = dayNames.filter((d) => trainingDays.includes(d))
   const position = trainingDayNames.indexOf(dayNames[dayIdx])
 
   if (position === -1) return null
 
-  // Чередуем из топ-3 приоритетных
   const topPrograms = programScores.slice(0, 3)
   const selected = topPrograms[position % topPrograms.length]
 
-  // Формируем объяснение
   const reason = getReasonText(selected.program, weakCategories)
 
   return {
@@ -164,7 +144,7 @@ export function getProgramForDay(user, date) {
 }
 
 // ============================================================
-// ТЕКСТ ОБЪЯСНЕНИЯ — почему выбрана эта программа
+// ТЕКСТ ОБЪЯСНЕНИЯ
 // ============================================================
 function getReasonText(program, weakCategories) {
   const reasons = []
@@ -238,7 +218,6 @@ export function markTrainingDone(user, date, programId) {
 
 // ============================================================
 // ПОЛУЧИТЬ РЕЖИМ ТРЕНИРОВОК
-// 'manual' — одна программа, 'mix' — робот чередует
 // ============================================================
 export function getTrainingMode(user) {
   return user.trainingMode || 'manual'
@@ -258,7 +237,13 @@ export function getSelectedProgram(user) {
 export function getProgramByMode(user, date) {
   const mode = getTrainingMode(user)
 
+  // Ручной режим — одна программа
   if (mode === 'manual') {
+    // ⚠️ ГЛАВНЫЙ ФИКС: проверяем, тренировочный ли день
+    if (!isTrainingDay(user, date)) {
+      return null
+    }
+
     const programId = getSelectedProgram(user)
     const program = getProgramById(programId)
     return {
@@ -269,8 +254,26 @@ export function getProgramByMode(user, date) {
     }
   }
 
-  // Режим МИКС — робот чередует
-  return getProgramForDay(user, date)
+  // Режим «Микс» — чередуем программы по тренировочным дням
+  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+  const dayIdx = date.getDay() === 0 ? 6 : date.getDay() - 1
+  const dayName = dayNames[dayIdx]
+
+  const trainingDays = user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт']
+
+  if (!trainingDays.includes(dayName)) return null
+
+  const trainingDayNames = dayNames.filter((d) => trainingDays.includes(d))
+  const position = trainingDayNames.indexOf(dayName)
+
+  const programs = ['sniper', 'playmaker', 'beast', 'slasher']
+  const programId = programs[position % programs.length]
+  const program = getProgramById(programId)
+
+  return {
+    programId,
+    reason: `Программа «${program?.title || programId}» — день ${position + 1} тренировочной недели`,
+  }
 }
 
 // ============================================================
@@ -323,17 +326,13 @@ export function getWeekCompleted(user, monday) {
 
 // ============================================================
 // ПРОВЕРИТЬ — ДОСТУПНА ЛИ ПРОБНАЯ ТРЕНИРОВКА
-// FREE может пройти ТОЛЬКО 1 тренировку
 // ============================================================
 export function canStartTraining(user) {
-  // PRO — всегда можно
   if (user.plan === 'pro') return true
 
-  // FREE — проверяем, проходил ли уже
   const completed = user.completedTrainings || {}
   const completedCount = Object.values(completed).filter((c) => c.done).length
 
-  // Можно — только если ещё НИ РАЗУ не тренировался
   return completedCount === 0
 }
 
@@ -344,11 +343,6 @@ export function getCompletedCount(user) {
   const completed = user.completedTrainings || {}
   return Object.values(completed).filter((c) => c.done).length
 }
-
-// ============================================================
-// ПРОВЕРИТЬ — ДОСТУПНА ЛИ ПРОБНАЯ ТРЕНИРОВКА
-// FREE — только 1 тренировка
-// ============================================================
 
 // ============================================================
 // КУЛДАУН ТРЕНИРОВКИ — 96 ЧАСОВ (4 дня)
@@ -370,8 +364,8 @@ export function getLastTrainingTime(user) {
 
 // ============================================================
 // МОЖНО ЛИ НАЧАТЬ ТРЕНИРОВКУ?
+// Кулдаун убран
 // ============================================================
-// Кулдаун убран — вместо этого пробная одноразовая
 export function canStartNewTraining(user) {
   return { canStart: true, nextAvailable: null }
 }
@@ -389,9 +383,9 @@ export function isTrialUsed(user) {
 export function markTrialCompleted(user) {
   return { ...user, trialCompleted: true }
 }
+
 // ============================================================
 // ФОРМАТ ОСТАВШЕГОСЯ ВРЕМЕНИ
-// "3 дня 12 часов" / "45 мин" и т.д.
 // ============================================================
 export function formatRemainingTime(ms) {
   const totalSeconds = Math.floor(ms / 1000)
@@ -408,7 +402,6 @@ export function formatRemainingTime(ms) {
   return `${minutes} ${declOfNum(minutes, ['минута', 'минуты', 'минут'])}`
 }
 
-// Склонение
 function declOfNum(n, titles) {
   const cases = [2, 0, 1, 1, 1, 2]
   return titles[(n % 100 > 4 && n % 100 < 20) ? 2 : cases[(n % 10 < 5) ? n % 10 : 5]]

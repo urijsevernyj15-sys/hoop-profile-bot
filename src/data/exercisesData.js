@@ -3130,17 +3130,17 @@ export function getTrainingSession({
   const plan = isTrial
     ? { warmup: 2, main: 4, cooldown: 1 }
     : ({
-        beginner:     { warmup: 1, main: 1, cooldown: 1 },
-        intermediate: { warmup: 2, main: 2, cooldown: 1 },
-        advanced:     { warmup: 2, main: 4, cooldown: 1 },
-      }[level] || { warmup: 1, main: 1, cooldown: 1 })
+        beginner:     { warmup: 1, main: 3, cooldown: 1 },
+        intermediate: { warmup: 2, main: 5, cooldown: 1 },
+        advanced:     { warmup: 2, main: 7, cooldown: 1 },
+      }[level] || { warmup: 1, main: 3, cooldown: 1 })
 
   // Категории для основной части:
-  // 1) Если выбраны цели — берём только их
-  // 2) Иначе — берём из программы
-  let mainCategories = goals.length > 0
-    ? goals
-    : (program && program.mainCategories) || ['shooting']
+  // В режиме "manual" — всегда из программы (цели игнорируем)
+  // В режиме "mix" — из целей пользователя (но эта функция для manual)
+  let mainCategories = (program && program.mainCategories && program.mainCategories.length > 0)
+    ? program.mainCategories
+    : (goals.length > 0 ? goals : ['shooting'])
 
   // Чередуем по дням
   const mainCategory = mainCategories[dayIndex % mainCategories.length]
@@ -3227,10 +3227,10 @@ export function getPersonalTraining(user) {
 
   // План по уровню
   const plan = ({
-    beginner:     { warmup: 1, main: 1, cooldown: 1 },
-    intermediate: { warmup: 2, main: 2, cooldown: 1 },
-    advanced:     { warmup: 2, main: 4, cooldown: 1 },
-  }[level] || { warmup: 1, main: 1, cooldown: 1 })
+    beginner:     { warmup: 1, main: 3, cooldown: 1 },
+    intermediate: { warmup: 2, main: 5, cooldown: 1 },
+    advanced:     { warmup: 2, main: 7, cooldown: 1 },
+  }[level] || { warmup: 1, main: 3, cooldown: 1 })
 
   const warmup = getExercisesByFilter({
     type: 'warmup',
@@ -3343,5 +3343,174 @@ export function getTrialSession() {
     totalExercises: exercises.length,
     mainCategory: 'mixed',
     isTrial: true,
+  }
+}
+// ============================================================
+// 🤖 МИКС — робот собирает тренировки по целям пользователя
+// ============================================================
+
+const ALL_DAYS_MIX = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
+/**
+ * Раскидать цели по тренировочным дням
+ * Возвращает массив: [{ day, categories: ['shooting', 'dribbling'] }, ...]
+ */
+export function getMixWeekPlan(user) {
+  const goals = user.trainingGoals || []
+  const trainingDays = user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт']
+
+  // Если целей нет — вернём пустой план
+  if (goals.length === 0) {
+    return trainingDays.map((day) => ({ day, categories: [] }))
+  }
+
+  // Порядок тренировочных дней (по неделе)
+  const orderedTrainingDays = ALL_DAYS_MIX.filter((d) => trainingDays.includes(d))
+
+  // Сколько категорий в день
+  const categoriesPerDay = Math.ceil(goals.length / orderedTrainingDays.length)
+
+  // Раскидываем цели по слотам
+  const slots = []
+  let goalIndex = 0
+  for (let i = 0; i < orderedTrainingDays.length; i++) {
+    const dayCategories = []
+    for (let j = 0; j < categoriesPerDay; j++) {
+      dayCategories.push(goals[goalIndex % goals.length])
+      goalIndex++
+    }
+    slots.push(dayCategories)
+  }
+
+  // Собираем финальный план
+  return orderedTrainingDays.map((day, i) => ({
+    day,
+    categories: slots[i],
+  }))
+}
+
+/**
+ * Получить список категорий для конкретного дня недели (в миксе)
+ */
+export function getMixCategoriesForDay(user, date) {
+  const plan = getMixWeekPlan(user)
+
+  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+  const dayIdx = date.getDay() === 0 ? 6 : date.getDay() - 1
+  const todayName = dayNames[dayIdx]
+
+  const dayPlan = plan.find((p) => p.day === todayName)
+  return dayPlan ? dayPlan.categories : []
+}
+
+/**
+ * Собрать тренировку «Микс» для конкретного дня
+ */
+export function getMixTraining(user, date = new Date()) {
+  const categories = getMixCategoriesForDay(user, date)
+
+  // Если сегодня не тренировочный день или категорий нет
+  if (categories.length === 0) {
+    return {
+      exercises: [],
+      totalDuration: 0,
+      totalExercises: 0,
+      categoriesToday: [],
+      isRestDay: true,
+    }
+  }
+
+  const gear = user.trainingGear || []
+  const level = user.trainingLevel || 'beginner'
+  const position = user.positions?.[0] || null
+
+  // План по уровню (всего основных упражнений)
+  const totalMain = {
+    beginner: 3,
+    intermediate: 5,
+    advanced: 7,
+  }[level] || 3
+
+  // Делим основные упражнения между категориями
+  const mainPerCategory = []
+  if (categories.length === 1) {
+    mainPerCategory.push(totalMain)
+  } else if (categories.length === 2) {
+    const first = Math.ceil(totalMain * 0.6)
+    const second = totalMain - first
+    mainPerCategory.push(first, second)
+  } else {
+    const perCat = Math.floor(totalMain / categories.length)
+    const remainder = totalMain % categories.length
+    for (let i = 0; i < categories.length; i++) {
+      mainPerCategory.push(perCat + (i < remainder ? 1 : 0))
+    }
+  }
+
+  // Собираем основные упражнения
+  let mainExercises = []
+  categories.forEach((category, idx) => {
+    const count = mainPerCategory[idx]
+    const exercises = getExercisesByFilter({
+      category,
+      type: 'main',
+      level,
+      position,
+      gear,
+      count,
+    })
+    mainExercises = [...mainExercises, ...exercises]
+  })
+
+  // Fallback — если мало, добираем
+  if (mainExercises.length < totalMain) {
+    const extra = getExercisesByFilter({
+      type: 'main',
+      level,
+      position,
+      gear,
+      count: totalMain - mainExercises.length + 5,
+    }).filter((ex) => !mainExercises.some((m) => m.id === ex.id))
+
+    mainExercises = [...mainExercises, ...extra].slice(0, totalMain)
+  }
+
+  // Разминка и заминка
+  const warmupPlan = {
+    beginner: 1,
+    intermediate: 2,
+    advanced: 2,
+  }[level] || 1
+
+  const warmup = getExercisesByFilter({
+    type: 'warmup',
+    level,
+    position,
+    gear,
+    count: warmupPlan,
+  })
+
+  const cooldown = getExercisesByFilter({
+    type: 'cooldown',
+    level,
+    position,
+    gear,
+    count: 1,
+  })
+
+  const exercises = [
+    ...warmup.map((ex) => ({ ...ex, section: 'warmup', sectionLabel: '🔥 Разминка' })),
+    ...mainExercises.map((ex) => ({ ...ex, section: 'main', sectionLabel: '🎯 Основная часть' })),
+    ...cooldown.map((ex) => ({ ...ex, section: 'cooldown', sectionLabel: '🧘 Заминка' })),
+  ]
+
+  const totalDuration = exercises.reduce((sum, ex) => sum + (ex.duration || 5), 0)
+
+  return {
+    exercises,
+    totalDuration,
+    totalExercises: exercises.length,
+    categoriesToday: categories,
+    isRestDay: false,
   }
 }

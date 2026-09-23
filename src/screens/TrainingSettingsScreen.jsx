@@ -82,7 +82,16 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
     })
   }
 
-  const canSave = goals.length > 0 && gear.length > 0 && days.length >= 3
+const canSave = (() => {
+  // Инвентарь и дни обязательны всегда
+  if (gear.length === 0) return false
+  if (days.length < 3) return false
+
+  // Для микса — обязательно должны быть цели
+  if (mode === 'mix' && goals.length === 0) return false
+
+  return true
+})()
 
   return (
     <>
@@ -152,34 +161,36 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
           )}
         </div>
 
-        {/* ============ ЦЕЛИ ============ */}
-        <div className="training-block">
-          <div className="training-block-head">
-            <div className="training-block-label">Что прокачать</div>
-            <h2 className="training-block-title">Твои цели</h2>
-            <p className="training-block-sub">
-              Выбери навыки — на них будем делать упор в плане недели
-            </p>
+        {/* ============ ЦЕЛИ (только для режима Микс) ============ */}
+        {mode === 'mix' && (
+          <div className="training-block">
+            <div className="training-block-head">
+              <div className="training-block-label">Что прокачать</div>
+              <h2 className="training-block-title">Твои цели</h2>
+              <p className="training-block-sub">
+                Робот будет собирать тренировки по этим целям
+              </p>
+            </div>
+            <div className="training-chips">
+              {GOALS.map((g) => {
+                const Icon = g.Icon
+                const isActive = goals.includes(g.id)
+                return (
+                  <button
+                    key={g.id}
+                    className={`training-chip ${isActive ? 'active' : ''}`}
+                    onClick={() => toggleGoal(g.id)}
+                  >
+                    <span className="training-chip-icon">
+                      <Icon />
+                    </span>
+                    <span className="training-chip-label">{g.label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <div className="training-chips">
-            {GOALS.map((g) => {
-              const Icon = g.Icon
-              const isActive = goals.includes(g.id)
-              return (
-                <button
-                  key={g.id}
-                  className={`training-chip ${isActive ? 'active' : ''}`}
-                  onClick={() => toggleGoal(g.id)}
-                >
-                  <span className="training-chip-icon">
-                    <Icon />
-                  </span>
-                  <span className="training-chip-label">{g.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        )}
 
         {/* ============ ИНВЕНТАРЬ ============ */}
         <div className="training-block">
