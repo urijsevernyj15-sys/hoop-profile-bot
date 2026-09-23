@@ -10580,3 +10580,1183 @@ input[type="number"] {
 .training-today-btn.locked .arrow {
   display: none;
 }
+/* ============================================================
+   ЗАБЛОКИРОВАННАЯ КНОПКА «НАЧАТЬ»
+   ============================================================ */
+
+.training-today-btn.locked {
+  background: rgba(16, 16, 20, 0.6);
+  color: var(--text-dim);
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.training-today-btn.locked:hover {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a0a00;
+  border-color: transparent;
+  border-style: solid;
+  box-shadow: 0 8px 32px rgba(255, 165, 0, 0.5);
+}
+
+.training-today-btn.locked .arrow {
+  display: none;
+}
+
+/* ============================================================
+   ПЛАШКА «ПРОБНАЯ ПРОЙДЕНА»
+   ============================================================ */
+
+.trial-used-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg,
+    rgba(255, 215, 0, 0.08) 0%,
+    rgba(255, 165, 0, 0.04) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.35);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.trial-used-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #FFD700, transparent);
+  opacity: 0.6;
+}
+
+.trial-used-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.trial-used-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.trial-used-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 3px;
+  letter-spacing: -0.2px;
+}
+
+.trial-used-text {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.trial-used-btn {
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a0a00;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(255, 165, 0, 0.35);
+}
+
+.trial-used-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 165, 0, 0.5);
+}
+
+.trial-used-btn:active {
+  transform: scale(0.96);
+}
+/* Базовый стиль бейджа */
+.program-card-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Бейдж FREE — ярко-зелёный */
+.program-card-badge-free {
+  background: linear-gradient(135deg, #B8FF3C 0%, #95CC30 100%);
+  color: #0a1a00;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 20px rgba(184, 255, 60, 0.6),
+    0 0 40px rgba(184, 255, 60, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(184, 255, 60, 0.6),
+      0 0 40px rgba(184, 255, 60, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(184, 255, 60, 0.8),
+      0 0 60px rgba(184, 255, 60, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+/* ============================================================
+   БЕЙДЖИ PRO / FREE / ПРОЙДЕНА
+   ============================================================ */
+
+.program-card-badge-locked {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a0a00;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border: none;
+  box-shadow:
+    0 0 16px rgba(255, 165, 0, 0.5),
+    0 0 32px rgba(255, 165, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.program-card-badge-free {
+  background: linear-gradient(135deg, #B8FF3C 0%, #95CC30 100%);
+  color: #0a1a00;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border: none;
+  box-shadow:
+    0 0 16px rgba(184, 255, 60, 0.5),
+    0 0 32px rgba(184, 255, 60, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* ============================================================
+   ОНБОРДИНГ ПРОГРАММЫ (первый заход)
+   ============================================================ */
+
+.program-onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 40px 24px;
+  animation: settingsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.program-onboarding-icon {
+  font-size: 72px;
+  line-height: 1;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 60%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.program-onboarding-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin: 0;
+  background: linear-gradient(135deg,
+    #fff 0%,
+    color-mix(in srgb, #fff 60%, var(--accent) 40%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.program-onboarding-sub {
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 340px;
+}
+
+.program-onboarding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  margin-top: 8px;
+  text-align: left;
+}
+
+.program-onboarding-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.program-onboarding-item-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.program-onboarding-item-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.program-onboarding-item-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.program-onboarding-btn {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 8px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.program-onboarding-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.program-onboarding-btn:active {
+  transform: scale(0.98);
+}
+
+.program-onboarding-btn .arrow {
+  font-size: 18px;
+}
+
+.program-onboarding-note {
+  font-size: 12.5px;
+  color: var(--text-mute);
+  margin: 0;
+  font-style: italic;
+}
+/* ============================================================
+   ЕДИНАЯ ТРЕНИРОВКА "МОЯ ТРЕНИРОВКА"
+   ============================================================ */
+
+.single-training-card {
+  position: relative;
+  padding: 28px 24px 24px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  overflow: hidden;
+  text-align: center;
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.single-training-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.single-training-card.cooldown {
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      rgba(255, 165, 0, 0.15) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border-color: rgba(255, 165, 0, 0.4);
+  box-shadow:
+    0 0 60px rgba(255, 165, 0, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.single-training-card.cooldown::before {
+  background: linear-gradient(90deg, transparent, #FFA500, transparent);
+}
+
+.single-training-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+    transparent 70%);
+  filter: blur(50px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.single-training-card.cooldown .single-training-glow {
+  background: radial-gradient(circle,
+    rgba(255, 165, 0, 0.3) 0%,
+    transparent 70%);
+}
+
+.single-training-icon {
+  position: relative;
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 60%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.single-training-card.cooldown .single-training-icon {
+  filter: drop-shadow(0 0 24px rgba(255, 165, 0, 0.6));
+  animation: none;
+}
+
+.single-training-label {
+  position: relative;
+  display: inline-block;
+  padding: 5px 14px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.single-training-card.cooldown .single-training-label {
+  background: rgba(255, 165, 0, 0.15);
+  border-color: rgba(255, 165, 0, 0.45);
+  color: #FFA500;
+}
+
+.single-training-title {
+  position: relative;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  margin: 0 0 8px;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.single-training-sub {
+  position: relative;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0 0 20px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.single-training-warning {
+  position: relative;
+  padding: 12px 16px;
+  background: rgba(255, 180, 0, 0.1);
+  border: 1px solid rgba(255, 180, 0, 0.35);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #FFB400;
+  margin-bottom: 16px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.single-training-btn {
+  position: relative;
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.single-training-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.single-training-btn:active {
+  transform: scale(0.98);
+}
+
+.single-training-btn .arrow {
+  font-size: 18px;
+}
+
+/* Таймер кулдауна */
+.single-training-timer {
+  position: relative;
+  padding: 20px;
+  background: rgba(255, 165, 0, 0.08);
+  border: 1.5px solid rgba(255, 165, 0, 0.35);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.single-training-timer-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #FFA500;
+  margin-bottom: 8px;
+}
+
+.single-training-timer-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #FFA500;
+  letter-spacing: -1px;
+  text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.single-training-info {
+  position: relative;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  text-align: left;
+}
+/* ============================================================
+   ПЛАШКА КУЛДАУНА В ПРОГРАММЕ
+   ============================================================ */
+
+.program-cooldown-block {
+  padding: 24px 20px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      rgba(255, 165, 0, 0.15) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid rgba(255, 165, 0, 0.45);
+  border-radius: var(--radius);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.program-cooldown-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #FFA500, transparent);
+}
+
+.program-cooldown-icon {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.6));
+}
+
+.program-cooldown-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: #FFA500;
+  margin-bottom: 12px;
+}
+
+.program-cooldown-text {
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.program-cooldown-text strong {
+  color: #FFA500;
+  font-weight: 900;
+  text-shadow: 0 0 16px rgba(255, 165, 0, 0.5);
+}
+
+.program-cooldown-hint {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+/* ============================================================
+   ПРОБНАЯ ТРЕНИРОВКА — КРАСИВЫЙ ЭКРАН
+   ============================================================ */
+
+.training-trial-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0 40px;
+  animation: settingsFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-trial-card {
+  position: relative;
+  padding: 32px 24px 26px;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%,
+      color-mix(in srgb, var(--accent) 22%, transparent) 0%,
+      transparent 60%),
+    rgba(16, 16, 20, 0.85);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-align: center;
+  box-shadow:
+    0 0 80px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 12px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.training-trial-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent),
+    transparent);
+}
+
+.training-trial-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 40%, transparent) 0%,
+    transparent 70%);
+  filter: blur(60px);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: trialGlow 4s ease-in-out infinite;
+}
+
+@keyframes trialGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+.training-trial-icon {
+  position: relative;
+  font-size: 72px;
+  line-height: 1;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 70%, transparent));
+  animation: infoIconFloat 3s ease-in-out infinite;
+}
+
+.training-trial-label {
+  position: relative;
+  display: inline-block;
+  padding: 6px 16px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.training-trial-title {
+  position: relative;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  margin: 0 0 12px;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.training-trial-sub {
+  position: relative;
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 auto 24px;
+  max-width: 320px;
+}
+
+/* Список упражнений */
+.training-trial-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.training-trial-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.training-trial-info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Кнопка "Начать" */
+.training-trial-btn {
+  position: relative;
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg,
+    var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 80%, #fff 20%) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 0 60px color-mix(in srgb, var(--accent) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 14px;
+}
+
+.training-trial-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 80px color-mix(in srgb, var(--accent) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.training-trial-btn:active {
+  transform: scale(0.98);
+}
+
+.training-trial-btn .arrow {
+  font-size: 18px;
+}
+
+.training-trial-note {
+  position: relative;
+  font-size: 12.5px;
+  color: var(--text-mute);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* Кнопка "Оформить PRO" */
+.training-trial-pro-btn {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a0a00;
+  border: none;
+  border-radius: 999px;
+  font-size: 15.5px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 8px 32px rgba(255, 165, 0, 0.5),
+    0 0 60px rgba(255, 165, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-trial-pro-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(255, 165, 0, 0.6),
+    0 0 80px rgba(255, 165, 0, 0.35);
+}
+
+.training-trial-pro-btn:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   ЗАГЛУШКА "ТРЕНИРОВКИ ТОЛЬКО В PRO" (после пробной)
+   ============================================================ */
+
+.training-locked {
+  position: relative;
+  padding: 40px 24px 32px;
+  background: rgba(16, 16, 20, 0.4);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-top: 6px;
+  isolation: isolate;
+}
+
+.training-locked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 80%, transparent),
+    transparent);
+  opacity: 0.9;
+  z-index: 5;
+}
+
+.training-locked-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.training-locked-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+}
+
+.training-locked-chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  opacity: 0;
+  animation: chartFadeIn 0.8s ease 0.1s forwards;
+}
+
+.training-locked-chart-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: chartDraw 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+.training-locked-blur {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  background: linear-gradient(180deg,
+    rgba(10, 10, 14, 0.4) 0%,
+    rgba(10, 10, 14, 0.75) 50%,
+    rgba(10, 10, 14, 0.9) 100%);
+  pointer-events: none;
+}
+
+.training-locked-content {
+  position: relative;
+  z-index: 2;
+}
+
+.training-locked-icon {
+  font-size: 72px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 30px color-mix(in srgb, var(--accent) 60%, transparent));
+}
+
+.training-locked-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.training-locked-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 auto 22px;
+  max-width: 340px;
+}
+
+.training-locked-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  text-align: left;
+  padding: 18px 20px;
+  background: rgba(16, 16, 20, 0.65);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.training-locked-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.training-locked-feature-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.training-locked-cta {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a0a00;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 8px 32px rgba(255, 165, 0, 0.5),
+    0 0 60px rgba(255, 165, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-locked-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(255, 165, 0, 0.6),
+    0 0 80px rgba(255, 165, 0, 0.35);
+}
+
+.training-locked-cta:active {
+  transform: scale(0.98);
+}
+
+.training-locked-cta .arrow {
+  font-size: 18px;
+}
+/* ============================================================
+   ЖИВОЙ ФОН ДЛЯ ПРОБНОЙ (как на бирже)
+   ============================================================ */
+
+.trial-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* График */
+.trial-bg-chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 65%;
+  opacity: 0;
+  animation: trialChartFadeIn 0.8s ease 0.1s forwards;
+}
+
+@keyframes trialChartFadeIn {
+  to { opacity: 0.85; }
+}
+
+/* Линия рисуется */
+.trial-bg-chart-line {
+  stroke-dasharray: 1500;
+  stroke-dashoffset: 1500;
+  animation: trialChartDraw 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+@keyframes trialChartDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Точки пульсируют */
+.trial-chart-dot {
+  opacity: 0;
+  animation: trialDotPulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.trial-chart-dot:nth-child(1) { animation-delay: 0.5s; }
+.trial-chart-dot:nth-child(2) { animation-delay: 0.7s; }
+.trial-chart-dot:nth-child(3) { animation-delay: 0.9s; }
+.trial-chart-dot:nth-child(4) { animation-delay: 1.1s; }
+
+@keyframes trialDotPulse {
+  0%, 100% {
+    opacity: 0.6;
+    r: 3;
+  }
+  50% {
+    opacity: 1;
+    r: 5;
+  }
+}
+
+/* Сетка клеточек */
+.trial-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 100%);
+  opacity: 0;
+  animation: trialGridFadeIn 1s ease 0.4s forwards;
+}
+
+@keyframes trialGridFadeIn {
+  to { opacity: 1; }
+}
+
+/* Блюр поверх графика */
+.trial-bg-blur {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  background: linear-gradient(180deg,
+    rgba(10, 10, 14, 0.15) 0%,
+    rgba(10, 10, 14, 0.55) 45%,
+    rgba(10, 10, 14, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Убрать старый glow — теперь есть график */
+.training-trial-glow {
+  display: none;
+}
+
+/* Контент поверх фона */
+.training-trial-card > *:not(.trial-bg):not(.trial-bg-blur) {
+  position: relative;
+  z-index: 2;
+}
+/* ============================================================
+   ФОКУС ПРОГРАММЫ — чипсы внутри карточки
+   ============================================================ */
+
+.program-focus-inline {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.program-focus-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.program-focus-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.program-focus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-elev));
+  border: 1.5px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.program-focus-chip:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--card-elev));
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.program-focus-chip-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 900;
+  flex-shrink: 0;
+}

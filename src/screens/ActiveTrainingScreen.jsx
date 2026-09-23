@@ -114,14 +114,22 @@ export default function ActiveTrainingScreen({
     onBack()
   }
     // Завершить тренировку — сохранить в историю
-  function handleCompleteTraining() {
+    function handleCompleteTraining() {
     const today = new Date()
     const dateStr = formatDate(today)
 
-    // Помечаем тренировку выполненной
-    const completed = markTrainingComplete(user, dateStr, programId)
+    const doneCount = Object.values(doneExercises).filter(Boolean).length
+    const allDone = doneCount === exercises.length
 
-    // Отправляем наверх (в App) — там сохранится в user
+    // Для FREE — сохраняем ТОЛЬКО если все упражнения сделаны
+    const isPro = user.plan === 'pro'
+    if (!isPro && !allDone) {
+      // Не сохраняем — просто выходим
+      onComplete(null)
+      return
+    }
+
+    const completed = markTrainingComplete(user, dateStr, programId)
     onComplete(completed)
   }
 

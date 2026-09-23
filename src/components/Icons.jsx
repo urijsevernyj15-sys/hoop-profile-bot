@@ -294,3 +294,29 @@ export function GearConesIcon() {
     </svg>
   )
 }
+
+// ========== ИКОНКА ПРОХОДОВ ==========
+
+export function GoalDrivesIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12H17" />
+      <path d="M13 6L19 12L13 18" />
+      <circle cx="5" cy="19" r="2" />
+    </svg>
+  )
+}
+
+// ========== ИКОНКА ЗАВЕРШЕНИЙ ==========
+
+export function GoalFinishingIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 4V10" />
+      <path d="M5 4H15" />
+      <path d="M15 4V10" />
+      <path d="M2 10H18" />
+      <circle cx="12" cy="14" r="3" />
+    </svg>
+  )
+}

@@ -204,39 +204,29 @@ export default function ProfileScreen({
 
       <div
         className={`training-card ${user.plan === 'pro' ? 'unlocked' : 'locked'}`}
-        onClick={user.plan === 'pro' ? onOpenTrainingSettings : onOpenPro}
+        onClick={onOpenTrainingSettings}
       >
         <div className="training-card-glow" />
         <div className="training-card-top">
           <div className="training-card-icon">
             <span>⚙️</span>
           </div>
-          <div className="training-card-badge">
+                    <div className="training-card-badge">
             {user.plan === 'pro' ? (
               <span className="training-card-pill pro">PRO</span>
             ) : (
-              <span className="training-card-pill locked">🔒 PRO</span>
+              <span className="training-card-pill">Настройки</span>
             )}
           </div>
         </div>
 
         <div className="training-card-title">Настройки тренировок</div>
-        <div className="training-card-desc">
-          {user.plan === 'pro'
-            ? 'Цели, инвентарь и уровень нагрузки — план собирается под тебя'
-            : 'Выбери цели, инвентарь и уровень. Доступно в PRO-версии'}
+                <div className="training-card-desc">
+          Выбери цели, инвентарь и уровень — план соберётся под тебя
         </div>
 
-        <div className="training-card-action">
-          {user.plan === 'pro' ? (
-            <>
-              Открыть <span className="training-card-arrow">→</span>
-            </>
-          ) : (
-            <>
-              Разблокировать <span className="training-card-arrow">→</span>
-            </>
-          )}
+                <div className="training-card-action">
+          Открыть <span className="training-card-arrow">→</span>
         </div>
       </div>
     </div>

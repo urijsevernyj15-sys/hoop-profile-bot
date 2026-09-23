@@ -266,15 +266,21 @@ function App() {
   }
 
   // Тренировки — завершение
-    function handleCompleteTraining(completedTrainings) {
+      function handleCompleteTraining(completedTrainings) {
     if (!activeProgramId) return
 
     setUser((prev) => {
       const newProgress = completeTraining(activeProgramId, prev)
+
+      // Если completedTrainings === null — не сохраняем (FREE не завершил)
+      const newCompleted = completedTrainings === null
+        ? prev.completedTrainings || {}
+        : completedTrainings || prev.completedTrainings || {}
+
       return {
         ...prev,
         trainingProgress: newProgress,
-        completedTrainings: completedTrainings || prev.completedTrainings || {},
+        completedTrainings: newCompleted,
       }
     })
 
@@ -349,6 +355,14 @@ function App() {
             }}
             onComplete={handleCompleteTraining}
           />
+                ) : activeProgramId === '__trial__' ? (
+          <ProgramScreen
+            user={user}
+            programId="__trial__"
+            onBack={() => setActiveProgramId(null)}
+            onStartTraining={handleStartTraining}
+            onOpenSettings={() => setShowTrainingSettings(true)}
+          />
         ) : activeProgramId ? (
           <ProgramScreen
             user={user}
@@ -375,7 +389,7 @@ function App() {
                 onStartTest={(id) => setRunningTest(id)}
               />
             )}
-            {activeTab === 'training' && (
+                        {activeTab === 'training' && (
               <TrainingScreen
                 user={user}
                 onOpenProgram={(programId) => {
@@ -386,9 +400,9 @@ function App() {
                   }
                 }}
                 onOpenCustomProgram={() => {
-                  // Заглушка пока
-                  alert('Конструктор программ скоро появится!')
+                  alert('Конструктор скоро появится!')
                 }}
+                onOpenPro={() => setShowPro(true)}
               />
             )}
                         {activeTab === 'profile' && (

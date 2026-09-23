@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { getProgramById, getProgramProgress } from '../data/programs'
-import { getTrainingSession } from '../data/exercisesData'
+import { getTrainingSession, getPersonalTraining, getTrialSession } from '../data/exercisesData'
+import { canStartNewTraining, formatRemainingTime } from '../data/schedule'
 
 export default function ProgramScreen({
   user,
@@ -11,18 +12,113 @@ export default function ProgramScreen({
 }) {
   const [selectedDay, setSelectedDay] = useState(null)
 
-  const program = getProgramById(programId)
+    let program = getProgramById(programId)
+
+  // Для пробной — фейковая программа
+  if (!program && programId === '__trial__') {
+    program = {
+      id: '__trial__',
+      title: 'Пробная тренировка',
+      subtitle: 'Знакомство с PRO',
+      description: 'Одна тренировка, чтобы понять, что тебя ждёт в PRO.',
+      icon: '🎁',
+      color: '#FF6B1A',
+      duration: '1 раз',
+      daysPerWeek: 1,
+      difficulty: 'Разная',
+      focus: ['Бросок', 'Дриблинг', 'Проход', 'Атлетизм'],
+    }
+  }
+
   const progress = getProgramProgress(programId, user)
 
-  if (!program) {
+  // Проверка — заполнены ли настройки
+  const hasGoals = (user.trainingGoals || []).length > 0
+  const hasGear = (user.trainingGear || []).length > 0
+  const hasSettings = hasGoals && hasGear
+    // Кулдаун для FREE
+  const cooldown = canStartNewTraining(user)
+
+    // Для __trial__ создаём фейковую программу
+  const displayProgram = programId === '__trial__'
+    ? {
+        id: '__trial__',
+        title: 'Пробная тренировка',
+        subtitle: 'Знакомство с PRO',
+        description: 'Одна тренировка, чтобы понять, что тебя ждёт в PRO.',
+        icon: '🎁',
+        color: 'var(--accent)',
+        duration: '1 раз',
+        daysPerWeek: 1,
+        difficulty: 'Разная',
+        focus: ['Бросок', 'Дриблинг', 'Проход', 'Атлетизм'],
+      }
+    : program
+
+  if (!displayProgram) {
     return (
       <>
         <div className="screen-head screen-head-minimal">
           <button className="icon-btn" onClick={onBack}>←</button>
-          <button className="icon-btn">🏠</button>
         </div>
         <div className="test-run">
           <p className="test-run-desc">Программа не найдена.</p>
+        </div>
+      </>
+    )
+  }
+
+   // Если настройки не заполнены — показываем онбординг (кроме пробной)
+  if (!hasSettings && programId !== '__trial__') {
+    return (
+      <>
+        <div className="screen-head screen-head-minimal">
+          <button className="icon-btn" onClick={onBack}>←</button>
+        </div>
+
+        <div className="program-onboarding">
+          <div className="program-onboarding-icon">⚙️</div>
+          <h1 className="program-onboarding-title">Настрой тренировку</h1>
+          <p className="program-onboarding-sub">
+            Прежде чем начать, ответь на 3 вопроса. Программа подстроится под тебя.
+          </p>
+
+          <div className="program-onboarding-list">
+            <div className="program-onboarding-item">
+              <span className="program-onboarding-item-num">1</span>
+              <div>
+                <div className="program-onboarding-item-title">Какие цели?</div>
+                <div className="program-onboarding-item-sub">
+                  Бросок, дриблинг, атлетизм, IQ, защита, пас, проходы, завершения
+                </div>
+              </div>
+            </div>
+            <div className="program-onboarding-item">
+              <span className="program-onboarding-item-num">2</span>
+              <div>
+                <div className="program-onboarding-item-title">Что есть под рукой?</div>
+                <div className="program-onboarding-item-sub">
+                  Мяч, два мяча, партнёр, конусы
+                </div>
+              </div>
+            </div>
+            <div className="program-onboarding-item">
+              <span className="program-onboarding-item-num">3</span>
+              <div>
+                <div className="program-onboarding-item-title">Какой уровень?</div>
+                <div className="program-onboarding-item-sub">
+                  Новичок, любитель или продвинутый
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button className="program-onboarding-btn" onClick={onOpenSettings}>
+            Настроить и начать
+            <span className="arrow">→</span>
+          </button>
+
+          <p className="program-onboarding-note">Займёт 1 минуту</p>
         </div>
       </>
     )
@@ -38,20 +134,35 @@ export default function ProgramScreen({
   const currentDay = progress?.currentDay || 1
   const currentWeek = progress?.currentWeek || 1
 
-  // Получаем тренировку для сегодняшнего дня
-  const todaySession = getTrainingSession({
-    program,
-    level,
-    position,
-    gear,
-    dayIndex: currentDay - 1,
-  })
+  // Пробная тренировка — для FREE без пройденных
+  const isTrial =
+    user.plan !== 'pro' &&
+    (!user.completedTrainings || Object.keys(user.completedTrainings).length === 0)
+
+  // Получаем тренировку
+     // Определяем, какую сессию показывать
+  let todaySession
+  if (programId === '__trial__') {
+    todaySession = getTrialSession()
+  } else if (programId === 'universal') {
+    todaySession = getPersonalTraining(user)
+  } else {
+    todaySession = getTrainingSession({
+      program,
+      user,
+      isTrial,
+      dayIndex: currentDay - 1,
+    })
+  }
 
   return (
     <>
-      <div className="screen-head screen-head-minimal">
+      
+            <div className="screen-head screen-head-minimal">
         <button className="icon-btn" onClick={onBack}>←</button>
-        <button className="icon-btn" onClick={onOpenSettings}>⚙️</button>
+        {programId !== '__trial__' && (
+          <button className="icon-btn" onClick={onOpenSettings}>⚙️</button>
+        )}
       </div>
 
       <div className="program-screen">
@@ -100,26 +211,25 @@ export default function ProgramScreen({
           </div>
         )}
 
-        {/* Описание */}
+                {/* Описание + Фокус — объединено */}
         <div className="card intro-card">
           <div className="tag-pill">О программе</div>
           <p className="card-text">{program.description}</p>
-        </div>
 
-        {/* Фокус */}
-        {program.focus && program.focus.length > 0 && (
-          <div className="card intro-card">
-            <div className="tag-pill">На что упор</div>
-            <div className="intro-bullets">
-              {program.focus.map((f, i) => (
-                <div key={i} className="intro-bullet">
-                  <span className="intro-bullet-check">✓</span>
-                  <span>{f}</span>
-                </div>
-              ))}
+          {program.focus && program.focus.length > 0 && (
+            <div className="program-focus-inline">
+              <div className="program-focus-label">На что упор</div>
+              <div className="program-focus-chips">
+                {program.focus.map((f, i) => (
+                  <div key={i} className="program-focus-chip">
+                    <span className="program-focus-chip-check">✓</span>
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Сегодняшняя тренировка */}
         <div className="program-today">
@@ -149,6 +259,8 @@ export default function ProgramScreen({
               <span className="program-today-stat-value">
                 {todaySession.mainCategory === 'shooting' ? '🎯' :
                  todaySession.mainCategory === 'dribbling' ? '⚡' :
+                 todaySession.mainCategory === 'drives' ? '🚀' :
+                 todaySession.mainCategory === 'finishing' ? '🏀' :
                  todaySession.mainCategory === 'athleticism' ? '💪' :
                  todaySession.mainCategory === 'iq' ? '🧠' :
                  todaySession.mainCategory === 'defense' ? '🛡️' : '🎁'}
@@ -157,14 +269,28 @@ export default function ProgramScreen({
             </div>
           </div>
 
-          <button
-            className="program-start-btn"
-            style={{ '--program-color': program.color }}
-            onClick={() => onStartTraining(programId, todaySession)}
-          >
-            {progress && progress.started ? 'Продолжить' : 'Начать тренировку'}
-            <span className="arrow">→</span>
-          </button>
+                    {!cooldown.canStart && user.plan !== 'pro' ? (
+            <div className="program-cooldown-block">
+              <div className="program-cooldown-icon">⏳</div>
+              <div className="program-cooldown-title">Кулдаун</div>
+              <div className="program-cooldown-text">
+                Следующая тренировка через{' '}
+                <strong>{formatRemainingTime(cooldown.remainingMs)}</strong>
+              </div>
+              <div className="program-cooldown-hint">
+                Мышцам нужно восстановиться. Кулдаун — 96 часов.
+              </div>
+            </div>
+          ) : (
+            <button
+              className="program-start-btn"
+              style={{ '--program-color': program.color }}
+              onClick={() => onStartTraining(programId, todaySession)}
+            >
+              {progress && progress.started ? 'Продолжить' : 'Начать тренировку'}
+              <span className="arrow">→</span>
+            </button>
+          )}
         </div>
 
         {/* Предпросмотр тренировки */}
@@ -177,7 +303,7 @@ export default function ProgramScreen({
                 <div className="program-preview-body">
                   <div className="program-preview-title">{ex.title}</div>
                   <div className="program-preview-meta">
-                                        {ex.sectionLabel} · {ex.sets} × {ex.reps || ex.duration + ' мин'}
+                    {ex.sectionLabel} · {ex.sets} × {ex.reps || ex.duration + ' мин'}
                   </div>
                 </div>
               </div>
@@ -185,7 +311,7 @@ export default function ProgramScreen({
           </div>
         </div>
 
-        {/* Уровень / позиция */}
+        {/* Настройки */}
         <div className="program-settings-info">
           <div className="program-settings-info-row">
             <span className="program-settings-info-icon">📊</span>

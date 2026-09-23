@@ -1,194 +1,246 @@
 import { useState, useEffect } from 'react'
 import { PROGRAMS, getProgramProgress } from '../data/programs'
-import {
-  getWeekSchedule,
-  formatDate,
-  getTrainingMode,
-  getSelectedProgram,
-  getTotalCompleted,
-  getWeekCompleted,
-  canStartTraining,
-  getCompletedCount,
-} from '../data/schedule'
+import { getTotalCompleted } from '../data/schedule'
+import { isTrialUsed } from '../data/schedule'
 import TrainingCalendar from '../components/TrainingCalendar'
 
 export default function TrainingScreen({
   user,
   onOpenProgram,
   onOpenCustomProgram,
+  onOpenPro,
 }) {
   const isPro = user.plan === 'pro'
+  const trialUsed = isTrialUsed(user)
 
-  const [showWelcome, setShowWelcome] = useState(false)
+  // ============ FREE: ЗАГЛУШКА ============
+  if (!isPro) {
+    // Если пробная уже использована — блокировка
+    if (trialUsed) {
+      return (
+        <div className="training-locked">
+          <div className="training-locked-bg">
+            <svg className="training-locked-chart" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartFillGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,80 L40,65 L80,72 L120,50 L160,58 L200,35 L240,42 L280,25 L320,32 L360,15 L400,22 L400,120 L0,120 Z" fill="url(#chartFillGrad)" />
+              <path className="training-locked-chart-line" d="M0,80 L40,65 L80,72 L120,50 L160,58 L200,35 L240,42 L280,25 L320,32 L360,15 L400,22" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+              <circle cx="120" cy="50" r="3" fill="var(--accent)" />
+              <circle cx="200" cy="35" r="3" fill="var(--accent)" />
+              <circle cx="280" cy="25" r="3" fill="var(--accent)" />
+              <circle cx="360" cy="15" r="3" fill="var(--accent)" />
+            </svg>
+            <div className="training-locked-grid" />
+          </div>
+          <div className="training-locked-blur" />
 
-  useEffect(() => {
-    if (isPro) return
-    const seen = localStorage.getItem('hoop_training_welcome')
-    if (!seen) {
-      setShowWelcome(true)
+          <div className="training-locked-content">
+            <div className="training-locked-icon">🔒</div>
+            <h1 className="training-locked-title">Тренировки только в PRO</h1>
+            <p className="training-locked-sub">
+              Ты уже попробовал пробную тренировку. Оформи PRO, чтобы открыть:
+            </p>
+
+            <div className="training-locked-features">
+              <div className="training-locked-feature">
+                <span className="training-locked-feature-check">✓</span>
+                <span>Персональный план под цели</span>
+              </div>
+              <div className="training-locked-feature">
+                <span className="training-locked-feature-check">✓</span>
+                <span>Чередование категорий по дням</span>
+              </div>
+              <div className="training-locked-feature">
+                <span className="training-locked-feature-check">✓</span>
+                <span>Учёт уровня и позиции</span>
+              </div>
+              <div className="training-locked-feature">
+                <span className="training-locked-feature-check">✓</span>
+                <span>5 готовых программ</span>
+              </div>
+              <div className="training-locked-feature">
+                <span className="training-locked-feature-check">✓</span>
+                <span>Прогрессия по неделям</span>
+              </div>
+            </div>
+
+            <button className="training-locked-cta" onClick={onOpenPro}>
+              Оформить PRO
+              <span className="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      )
     }
-  }, [isPro])
 
-  function closeWelcome() {
-    setShowWelcome(false)
-    localStorage.setItem('hoop_training_welcome', 'true')
+    // Первый заход — показываем пробную
+    return (
+      <div className="training-trial-screen">
+        <div className="training-head">
+          <h1 className="training-head-title">Тренировки</h1>
+          <p className="training-head-sub">Доступно в PRO</p>
+        </div>
+
+                <div className="training-trial-card">
+          {/* Живой фон — биржа */}
+          <div className="trial-bg">
+            <svg
+              className="trial-bg-chart"
+              viewBox="0 0 400 150"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="trialChartFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+
+              {/* Заливка под графиком */}
+              <path
+                d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15 L400,150 L0,150 Z"
+                fill="url(#trialChartFill)"
+              />
+
+              {/* Линия графика — рисуется при заходе */}
+              <path
+                className="trial-bg-chart-line"
+                d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15"
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+
+              {/* Точки-пики */}
+              <circle className="trial-chart-dot" cx="90" cy="95" r="3" fill="var(--accent)" />
+              <circle className="trial-chart-dot" cx="180" cy="80" r="3" fill="var(--accent)" />
+              <circle className="trial-chart-dot" cx="270" cy="45" r="3" fill="var(--accent)" />
+              <circle className="trial-chart-dot" cx="360" cy="35" r="3" fill="var(--accent)" />
+            </svg>
+
+            {/* Сетка клеточек */}
+            <div className="trial-bg-grid" />
+          </div>
+
+          {/* Блюр поверх графика */}
+          <div className="trial-bg-blur" />
+
+          <div className="training-trial-glow" />
+
+          <div className="training-trial-icon">🎁</div>
+          <div className="training-trial-label">ПРОБНАЯ ТРЕНИРОВКА</div>
+          <h2 className="training-trial-title">
+            Попробуй 1 тренировку
+          </h2>
+          <p className="training-trial-sub">
+            Чтобы ты понял, что тебя ждёт в PRO — мы даём
+            одну полноценную тренировку бесплатно.
+          </p>
+
+          <div className="training-trial-info">
+            <div className="training-trial-info-row">
+              <span className="training-trial-info-icon">🎯</span>
+              <span>2 упражнения на бросок</span>
+            </div>
+            <div className="training-trial-info-row">
+              <span className="training-trial-info-icon">⚡</span>
+              <span>2 упражнения на дриблинг</span>
+            </div>
+            <div className="training-trial-info-row">
+              <span className="training-trial-info-icon">🚀</span>
+              <span>1 упражнение на проход</span>
+            </div>
+            <div className="training-trial-info-row">
+              <span className="training-trial-info-icon">💪</span>
+              <span>2 упражнения на атлетизм</span>
+            </div>
+          </div>
+
+          <button
+            className="training-trial-btn"
+            onClick={() => onOpenProgram('__trial__')}
+          >
+            Начать пробную
+            <span className="arrow">→</span>
+          </button>
+
+          <p className="training-trial-note">
+            💡 Одна тренировка — один раз. Потом только PRO.
+          </p>
+        </div>
+
+        <div className="training-divider">
+          <span>Или оформи PRO сразу</span>
+        </div>
+
+        <button className="training-trial-pro-btn" onClick={onOpenPro}>
+          🔒 Разблокировать все тренировки
+        </button>
+      </div>
+    )
   }
 
-  function handleStartFree() {
-    closeWelcome()
-    onOpenProgram('universal')
-  }
-
-  // Расписание
-  const today = new Date()
-  const monday = new Date(today)
-  const diff = today.getDay() === 0 ? 6 : today.getDay() - 1
-  monday.setDate(today.getDate() - diff)
-
-  const weekSchedule = getWeekSchedule(user, monday)
-  const todayStr = formatDate(today)
-  const todayData = weekSchedule[todayStr]
-
-  const todayProgram = todayData
-    ? PROGRAMS.find((p) => p.id === todayData.programId)
-    : null
-
-  const mode = getTrainingMode(user)
+  // ============ PRO: полноценные тренировки ============
   const totalCompleted = getTotalCompleted(user)
-  const weekCompleted = getWeekCompleted(user, monday)
-
-  // Сортировка программ
-  const sortedPrograms = [...PROGRAMS].sort((a, b) => {
-    if (a.plan === 'free' && b.plan === 'pro') return -1
-    if (a.plan === 'pro' && b.plan === 'free') return 1
-    return 0
-  })
-    const canTrain = canStartTraining(user)
-  const completedCount = getCompletedCount(user)
-  const trialUsed = !isPro && completedCount > 0
 
   return (
     <>
       <div className="training-program-screen">
         <div className="training-head">
           <h1 className="training-head-title">Тренировки</h1>
-          <p className="training-head-sub">Твой план на неделю</p>
+          <p className="training-head-sub">Твой план</p>
         </div>
 
         {/* Статистика */}
         <div className="training-stats-row">
           <div className="training-stat">
-            <div className="training-stat-value">{weekCompleted}</div>
-            <div className="training-stat-label">на этой неделе</div>
-          </div>
-          <div className="training-stat">
             <div className="training-stat-value">{totalCompleted}</div>
             <div className="training-stat-label">всего пройдено</div>
           </div>
           <div className="training-stat">
-            <div className="training-stat-value">
-              {mode === 'mix' ? '🔀' : '🎯'}
-            </div>
-            <div className="training-stat-label">
-              {mode === 'mix' ? 'микс' : 'одна'}
-            </div>
+            <div className="training-stat-value">✅</div>
+            <div className="training-stat-label">PRO активен</div>
+          </div>
+          <div className="training-stat">
+            <div className="training-stat-value">∞</div>
+            <div className="training-stat-label">без лимита</div>
           </div>
         </div>
 
-        {/* Календарь — всегда активен */}
-        <TrainingCalendar
-          user={user}
-          schedule={weekSchedule}
-        />
-
-               {/* Карточка «Сегодня» */}
-        {todayData && todayProgram ? (
-          <div
-            className="training-today-card"
-            style={{ '--program-color': todayProgram.color }}
-          >
-            <div className="training-today-label">
-              {todayData.done ? '✓ ПРОЙДЕНО' : 'СЕГОДНЯ'}
-            </div>
-            <div className="training-today-title">
-              {todayProgram.icon} {todayProgram.title}
-            </div>
-            <div className="training-today-reason">
-              💡 {todayData.reason}
-            </div>
-
-            {/* FREE — заблокировано после пробной */}
-            {trialUsed && !todayData.done ? (
-              <button
-                className="training-today-btn locked"
-                onClick={() => onOpenProgram('pro')}
-              >
-                🔒 Пробная пройдена — оформи PRO
-              </button>
-            ) : (
-              <button
-                className="training-today-btn"
-                onClick={() => onOpenProgram(todayData.programId)}
-              >
-                {todayData.done ? 'Перепройти' : 'Начать'}
-                <span className="arrow">→</span>
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="training-rest-card">
-            <div className="training-rest-icon">😴</div>
-            <div className="training-rest-title">Сегодня отдых</div>
-            <div className="training-rest-sub">
-              Восстановление — часть тренировки
-            </div>
-          </div>
-        )}
-
         {/* Разделитель */}
         <div className="training-divider">
-          <span>Или выбери программу</span>
+          <span>Выбери программу</span>
         </div>
 
         {/* Программы */}
         <div className="programs-list">
-          {sortedPrograms.map((program) => {
+          {PROGRAMS.filter((p) => p.id !== 'custom').map((program) => {
             const progress = getProgramProgress(program.id, user)
-            const isCustom = program.id === 'custom'
-            const isLocked = program.plan === 'pro' && !isPro
 
             return (
               <button
                 key={program.id}
-                className={`program-card ${isCustom ? 'custom' : ''} ${isLocked ? 'locked' : ''}`}
+                className="program-card"
                 style={{ '--program-color': program.color }}
-                onClick={() => {
-                  if (isLocked) {
-                    onOpenProgram('pro')
-                    return
-                  }
-                  if (isCustom) {
-                    onOpenCustomProgram()
-                  } else {
-                    onOpenProgram(program.id)
-                  }
-                }}
+                onClick={() => onOpenProgram(program.id)}
               >
                 <div className="program-card-glow" />
 
                 <div className="program-card-top">
                   <div className="program-card-icon">{program.icon}</div>
                   <div className="program-card-badge">
-                    {isLocked ? (
-                      <span className="program-card-badge-locked">🔒 PRO</span>
-                    ) : program.plan === 'free' ? (
-                      <span className="program-card-badge-free">БЕСПЛАТНО</span>
-                    ) : progress && progress.started ? (
+                    {progress && progress.started ? (
                       <span className="program-card-badge-progress">
                         {progress.percent}%
                       </span>
                     ) : (
-                      <span className="program-card-badge-new">Новое</span>
+                      <span className="program-card-badge-new">НОВОЕ</span>
                     )}
                   </div>
                 </div>
@@ -212,20 +264,14 @@ export default function TrainingScreen({
                 </div>
 
                 <div className="program-card-action">
-                  {isLocked ? (
-                    <>Разблокировать <span className="program-card-arrow">→</span></>
-                  ) : isCustom ? (
-                    <>Собрать <span className="program-card-arrow">→</span></>
-                  ) : (
-                    <>Открыть <span className="program-card-arrow">→</span></>
-                  )}
+                  Открыть <span className="program-card-arrow">→</span>
                 </div>
               </button>
             )
           })}
         </div>
 
-        {/* ============ КАК СТРОЯТСЯ ТРЕНИРОВКИ ============ */}
+        {/* Как строятся тренировки */}
         <div className="training-explainer">
           <div className="training-explainer-header">
             <span className="training-explainer-icon">💡</span>
@@ -241,11 +287,9 @@ export default function TrainingScreen({
                 </div>
                 <div className="training-explainer-item-text">
                   Новичок — 3 упражнения, любитель — 5, продвинутый — 7.
-                  Прогрессия каждую неделю.
                 </div>
               </div>
             </div>
-
             <div className="training-explainer-item">
               <span className="training-explainer-num">2</span>
               <div className="training-explainer-content">
@@ -254,93 +298,38 @@ export default function TrainingScreen({
                 </div>
                 <div className="training-explainer-item-text">
                   Упражнения заточены под PG, SG, SF, PF или C.
-                  Разыгрывающий и центровой тренируются по-разному.
                 </div>
               </div>
             </div>
-
             <div className="training-explainer-item">
               <span className="training-explainer-num">3</span>
               <div className="training-explainer-content">
                 <div className="training-explainer-item-title">
-                  Учитываем инвентарь
+                  Чередуем категории
                 </div>
                 <div className="training-explainer-item-text">
-                  Есть только мяч — план подстроится. Есть партнёр — добавим
-                  упражнения в паре.
+                  Пн — Бросок, Вт — Дриблинг, и так по кругу.
                 </div>
               </div>
             </div>
-
             <div className="training-explainer-item">
               <span className="training-explainer-num">4</span>
               <div className="training-explainer-content">
                 <div className="training-explainer-item-title">
-                  Режим «Микс» ищет слабые места
+                  Без лимитов
                 </div>
                 <div className="training-explainer-item-text">
-                  Робот анализирует твои тесты и подбирает программы, которые
-                  прокачают слабые навыки.
-                </div>
-              </div>
-            </div>
-
-            <div className="training-explainer-item">
-              <span className="training-explainer-num">5</span>
-              <div className="training-explainer-content">
-                <div className="training-explainer-item-title">
-                  Структура — всегда 3 части
-                </div>
-                <div className="training-explainer-item-text">
-                  🔥 Разминка → 🎯 Основная часть → 🧘 Заминка.
-                  Это снижает риск травм и ускоряет прогресс.
+                  Тренируйся сколько хочешь — PRO без ограничений.
                 </div>
               </div>
             </div>
           </div>
 
           <div className="training-explainer-note">
-            💪 Регулярность важнее интенсивности. Лучше 3 короткие тренировки в неделю, чем 1 длинная.
+            💪 Регулярность важнее интенсивности.
           </div>
         </div>
       </div>
-
-      {/* МОДАЛКА ПРИВЕТСТВИЯ */}
-      {showWelcome && (
-        <div className="welcome-modal-overlay" onClick={closeWelcome}>
-          <div className="welcome-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="welcome-modal-glow" />
-            <div className="welcome-modal-icon">🎁</div>
-            <h2 className="welcome-modal-title">
-              1 программа <span className="welcome-modal-highlight">бесплатно</span>
-            </h2>
-            <p className="welcome-modal-text">
-              Попробуй программу <strong className="welcome-modal-accent">«Универсал»</strong> — она доступна всем без PRO.
-              Остальные программы откроются с подпиской PRO.
-            </p>
-            <div className="welcome-modal-features">
-              <div className="welcome-modal-feature">
-                <span className="welcome-modal-feature-check">✓</span>
-                <span>Тренировки на все навыки</span>
-              </div>
-              <div className="welcome-modal-feature">
-                <span className="welcome-modal-feature-check">✓</span>
-                <span>Прогрессия по неделям</span>
-              </div>
-              <div className="welcome-modal-feature">
-                <span className="welcome-modal-feature-check">✓</span>
-                <span>Под твою позицию и уровень</span>
-              </div>
-            </div>
-            <button className="welcome-modal-btn" onClick={handleStartFree}>
-              Начать бесплатно <span className="arrow">→</span>
-            </button>
-            <button className="welcome-modal-skip" onClick={closeWelcome}>
-              Посмотреть все программы
-            </button>
-          </div>
-        </div>
-      )}
     </>
   )
 }

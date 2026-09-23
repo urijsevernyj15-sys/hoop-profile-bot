@@ -42,7 +42,7 @@ export const PROGRAMS = [
     duration: '8 недель',
     daysPerWeek: 4,
     difficulty: 'Высокая',
-        mainCategories: ['athleticism', 'defense'],
+            mainCategories: ['defense', 'athleticism'],
     plan: 'pro',
     focus: ['Атлетизм', 'Защита', 'Сила'],
   },
@@ -73,6 +73,21 @@ export const PROGRAMS = [
         mainCategories: [],
     plan: 'pro',
     focus: ['Свой выбор', 'Гибкость'],
+  },
+  
+  {
+    id: 'slasher',
+    title: 'Атакующий',
+    subtitle: 'Проходы + завершения',
+    description: 'Для тех, кто любит атаковать кольцо. Проходы, обыгрыш 1в1, мощный финиш.',
+    icon: '🚀',
+    color: '#FF6B1A',
+    duration: '5 недель',
+    daysPerWeek: 4,
+    difficulty: 'Высокая',
+    mainCategories: ['drives', 'finishing'],
+    plan: 'pro',
+    focus: ['Проходы', 'Завершения', 'Атака'],
   },
 ]
 

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import {
   GoalShootingIcon,
   GoalDribblingIcon,
+  GoalDrivesIcon,
+  GoalFinishingIcon,
   GoalAthleticismIcon,
   GoalIQIcon,
   GoalDefenseIcon,
@@ -15,7 +17,7 @@ import {
 const ALL_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
 export default function TrainingSettingsScreen({ user, onBack, onSave }) {
-    const [goals, setGoals] = useState(user.trainingGoals || [])
+  const [goals, setGoals] = useState(user.trainingGoals || [])
   const [gear, setGear] = useState(user.trainingGear || [])
   const [level, setLevel] = useState(user.trainingLevel || 'beginner')
   const [days, setDays] = useState(user.trainingDays || ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'])
@@ -25,13 +27,15 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
   const GOALS = [
     { id: 'shooting', Icon: GoalShootingIcon, label: 'Бросок' },
     { id: 'dribbling', Icon: GoalDribblingIcon, label: 'Дриблинг' },
+    { id: 'drives', Icon: GoalDrivesIcon, label: 'Проходы' },
+    { id: 'finishing', Icon: GoalFinishingIcon, label: 'Завершения' },
     { id: 'athleticism', Icon: GoalAthleticismIcon, label: 'Атлетизм' },
     { id: 'iq', Icon: GoalIQIcon, label: 'IQ' },
     { id: 'defense', Icon: GoalDefenseIcon, label: 'Защита' },
     { id: 'passing', Icon: GoalPassingIcon, label: 'Пас' },
   ]
 
-    const GEAR = [
+  const GEAR = [
     { id: 'ball', Icon: GearBallIcon, label: 'Мяч' },
     { id: 'ball2', Icon: GearTwoBallsIcon, label: 'Два мяча' },
     { id: 'partner', Icon: GearPartnerIcon, label: 'Партнёр' },
@@ -40,8 +44,8 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
 
   const LEVELS = [
     { id: 'beginner', label: 'Новичок', sub: '3 упражнения в день' },
-    { id: 'intermediate', label: 'Любитель', sub: '4 упражнения в день' },
-    { id: 'advanced', label: 'Продвинутый', sub: '5 упражнений в день' },
+    { id: 'intermediate', label: 'Любитель', sub: '5 упражнений в день' },
+    { id: 'advanced', label: 'Продвинутый', sub: '7 упражнений в день' },
   ]
 
   function toggleGoal(id) {
@@ -59,17 +63,15 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
   function toggleDay(day) {
     setDays((prev) => {
       if (prev.includes(day)) {
-        // Не даём убрать, если останется меньше 3
         if (prev.length <= 3) return prev
         return prev.filter((d) => d !== day)
       }
-      // Не даём добавить, если уже 6
       if (prev.length >= 6) return prev
       return [...prev, day]
     })
   }
 
-    function handleSave() {
+  function handleSave() {
     onSave({
       trainingGoals: goals,
       trainingGear: gear,
@@ -92,92 +94,7 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
       </div>
 
       <div className="training-screen">
-        {/* ============ ЦЕЛИ ============ */}
-        <div className="training-block">
-          <div className="training-block-head">
-            <div className="training-block-label">Что прокачать</div>
-            <h2 className="training-block-title">Твои цели</h2>
-            <p className="training-block-sub">
-              Выбери навыки — на них будем делать упор в плане недели
-            </p>
-          </div>
-          <div className="training-chips">
-            {GOALS.map((g) => {
-              const Icon = g.Icon
-              const isActive = goals.includes(g.id)
-              return (
-                <button
-                  key={g.id}
-                  className={`training-chip ${isActive ? 'active' : ''}`}
-                  onClick={() => toggleGoal(g.id)}
-                >
-                  <span className="training-chip-icon"><Icon /></span>
-                  <span className="training-chip-label">{g.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ============ ИНВЕНТАРЬ ============ */}
-        <div className="training-block">
-          <div className="training-block-head">
-            <div className="training-block-label">Что есть под рукой</div>
-            <h2 className="training-block-title">Твой инвентарь</h2>
-            <p className="training-block-sub">
-              Выбери, что у тебя есть. Упражнения подберём под это
-            </p>
-          </div>
-                    <div className="training-chips">
-            {GEAR.map((g) => {
-              const Icon = g.Icon
-              const isActive = gear.includes(g.id)
-              return (
-                <button
-                  key={g.id}
-                  className={`training-chip ${isActive ? 'active' : ''}`}
-                  onClick={() => toggleGear(g.id)}
-                >
-                  <span className="training-chip-icon">
-                    <Icon />
-                  </span>
-                  <span className="training-chip-label">{g.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ============ ДНИ ТРЕНИРОВОК ============ */}
-        <div className="training-block">
-          <div className="training-block-head">
-            <div className="training-block-label">Расписание</div>
-            <h2 className="training-block-title">Дни тренировок</h2>
-            <p className="training-block-sub">
-              Выбери 3–6 дней в неделю, когда можешь тренироваться
-            </p>
-          </div>
-          <div className="training-days">
-            {ALL_DAYS.map((day) => {
-              const isActive = days.includes(day)
-              return (
-                <button
-                  key={day}
-                  className={`training-day-chip ${isActive ? 'active' : ''}`}
-                  onClick={() => toggleDay(day)}
-                >
-                  {day}
-                </button>
-              )
-            })}
-          </div>
-          <div className="training-days-hint">
-            Выбрано: <strong>{days.length} из 7</strong>
-            {days.length < 3 && ' — минимум 3 дня'}
-            {days.length === 6 && ' — максимум 6 дней'}
-          </div>
-        </div>
-                {/* ============ РЕЖИМ ============ */}
+        {/* ============ РЕЖИМ ============ */}
         <div className="training-block">
           <div className="training-block-head">
             <div className="training-block-label">Режим</div>
@@ -219,6 +136,7 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
                   { id: 'sniper', label: '🎯 Снайпер' },
                   { id: 'playmaker', label: '⚡ Плэймейкер' },
                   { id: 'beast', label: '💪 Зверь' },
+                  { id: 'slasher', label: '🚀 Атакующий' },
                   { id: 'universal', label: '🏀 Универсал' },
                 ].map((p) => (
                   <button
@@ -232,6 +150,94 @@ export default function TrainingSettingsScreen({ user, onBack, onSave }) {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ============ ЦЕЛИ ============ */}
+        <div className="training-block">
+          <div className="training-block-head">
+            <div className="training-block-label">Что прокачать</div>
+            <h2 className="training-block-title">Твои цели</h2>
+            <p className="training-block-sub">
+              Выбери навыки — на них будем делать упор в плане недели
+            </p>
+          </div>
+          <div className="training-chips">
+            {GOALS.map((g) => {
+              const Icon = g.Icon
+              const isActive = goals.includes(g.id)
+              return (
+                <button
+                  key={g.id}
+                  className={`training-chip ${isActive ? 'active' : ''}`}
+                  onClick={() => toggleGoal(g.id)}
+                >
+                  <span className="training-chip-icon">
+                    <Icon />
+                  </span>
+                  <span className="training-chip-label">{g.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ============ ИНВЕНТАРЬ ============ */}
+        <div className="training-block">
+          <div className="training-block-head">
+            <div className="training-block-label">Что есть под рукой</div>
+            <h2 className="training-block-title">Твой инвентарь</h2>
+            <p className="training-block-sub">
+              Выбери, что у тебя есть. Упражнения подберём под это
+            </p>
+          </div>
+          <div className="training-chips">
+            {GEAR.map((g) => {
+              const Icon = g.Icon
+              const isActive = gear.includes(g.id)
+              return (
+                <button
+                  key={g.id}
+                  className={`training-chip ${isActive ? 'active' : ''}`}
+                  onClick={() => toggleGear(g.id)}
+                >
+                  <span className="training-chip-icon">
+                    <Icon />
+                  </span>
+                  <span className="training-chip-label">{g.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ============ ДНИ ============ */}
+        <div className="training-block">
+          <div className="training-block-head">
+            <div className="training-block-label">Расписание</div>
+            <h2 className="training-block-title">Дни тренировок</h2>
+            <p className="training-block-sub">
+              Выбери 3–6 дней в неделю, когда можешь тренироваться
+            </p>
+          </div>
+          <div className="training-days">
+            {ALL_DAYS.map((day) => {
+              const isActive = days.includes(day)
+              return (
+                <button
+                  key={day}
+                  className={`training-day-chip ${isActive ? 'active' : ''}`}
+                  onClick={() => toggleDay(day)}
+                >
+                  {day}
+                </button>
+              )
+            })}
+          </div>
+          <div className="training-days-hint">
+            Выбрано: <strong>{days.length} из 7</strong>
+            {days.length < 3 && ' — минимум 3 дня'}
+            {days.length === 6 && ' — максимум 6 дней'}
+          </div>
         </div>
 
         {/* ============ УРОВЕНЬ ============ */}

@@ -344,3 +344,72 @@ export function getCompletedCount(user) {
   const completed = user.completedTrainings || {}
   return Object.values(completed).filter((c) => c.done).length
 }
+
+// ============================================================
+// ПРОВЕРИТЬ — ДОСТУПНА ЛИ ПРОБНАЯ ТРЕНИРОВКА
+// FREE — только 1 тренировка
+// ============================================================
+
+// ============================================================
+// КУЛДАУН ТРЕНИРОВКИ — 96 ЧАСОВ (4 дня)
+// ============================================================
+export const TRAINING_COOLDOWN_HOURS = 96
+
+// ============================================================
+// ПОЛУЧИТЬ ПОСЛЕДНЮЮ ТРЕНИРОВКУ
+// ============================================================
+export function getLastTrainingTime(user) {
+  const completed = user.completedTrainings || {}
+  const dates = Object.values(completed)
+    .filter((c) => c.done && c.completedAt)
+    .map((c) => new Date(c.completedAt).getTime())
+
+  if (dates.length === 0) return null
+  return Math.max(...dates)
+}
+
+// ============================================================
+// МОЖНО ЛИ НАЧАТЬ ТРЕНИРОВКУ?
+// ============================================================
+// Кулдаун убран — вместо этого пробная одноразовая
+export function canStartNewTraining(user) {
+  return { canStart: true, nextAvailable: null }
+}
+
+// ============================================================
+// ПРОБНАЯ — использована ли?
+// ============================================================
+export function isTrialUsed(user) {
+  return user.trialCompleted === true
+}
+
+// ============================================================
+// ОТМЕТИТЬ ПРОБНУЮ КАК ИСПОЛЬЗОВАННУЮ
+// ============================================================
+export function markTrialCompleted(user) {
+  return { ...user, trialCompleted: true }
+}
+// ============================================================
+// ФОРМАТ ОСТАВШЕГОСЯ ВРЕМЕНИ
+// "3 дня 12 часов" / "45 мин" и т.д.
+// ============================================================
+export function formatRemainingTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000)
+  const days = Math.floor(totalSeconds / 86400)
+  const hours = Math.floor((totalSeconds % 86400) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+  if (days > 0) {
+    return `${days} ${declOfNum(days, ['день', 'дня', 'дней'])} ${hours} ч`
+  }
+  if (hours > 0) {
+    return `${hours} ${declOfNum(hours, ['час', 'часа', 'часов'])} ${minutes} мин`
+  }
+  return `${minutes} ${declOfNum(minutes, ['минута', 'минуты', 'минут'])}`
+}
+
+// Склонение
+function declOfNum(n, titles) {
+  const cases = [2, 0, 1, 1, 1, 2]
+  return titles[(n % 100 > 4 && n % 100 < 20) ? 2 : cases[(n % 10 < 5) ? n % 10 : 5]]
+}
