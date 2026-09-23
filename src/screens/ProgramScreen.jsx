@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { getProgramById, getProgramProgress } from '../data/programs'
-import { getTrainingSession, getPersonalTraining, getTrialSession } from '../data/exercisesData'
-import { canStartNewTraining, formatRemainingTime } from '../data/schedule'
+import {
+  getTrainingSession,
+  getPersonalTraining,
+  getTrialSession,
+} from '../data/exercisesData'
+import { canStartNewTraining } from '../data/schedule'
 
 export default function ProgramScreen({
   user,
@@ -9,10 +13,11 @@ export default function ProgramScreen({
   onBack,
   onStartTraining,
   onOpenSettings,
+  onOpenPro,
 }) {
   const [selectedDay, setSelectedDay] = useState(null)
 
-    let program = getProgramById(programId)
+  let program = getProgramById(programId)
 
   // Для пробной — фейковая программа
   if (!program && programId === '__trial__') {
@@ -20,10 +25,10 @@ export default function ProgramScreen({
       id: '__trial__',
       title: 'Пробная тренировка',
       subtitle: 'Знакомство с PRO',
-      description: 'Одна тренировка, чтобы понять, что тебя ждёт в PRO.',
-      icon: '🎁',
+      description: 'Полноценная тренировка, чтобы понять, что тебя ждёт в PRO.',
+      icon: '🏀',
       color: '#FF6B1A',
-      duration: '1 раз',
+      duration: '~45 минут',
       daysPerWeek: 1,
       difficulty: 'Разная',
       focus: ['Бросок', 'Дриблинг', 'Проход', 'Атлетизм'],
@@ -32,30 +37,13 @@ export default function ProgramScreen({
 
   const progress = getProgramProgress(programId, user)
 
-  // Проверка — заполнены ли настройки
+  // Проверка — заполнены ли настройки (кроме пробной)
   const hasGoals = (user.trainingGoals || []).length > 0
   const hasGear = (user.trainingGear || []).length > 0
   const hasSettings = hasGoals && hasGear
-    // Кулдаун для FREE
-  const cooldown = canStartNewTraining(user)
 
-    // Для __trial__ создаём фейковую программу
-  const displayProgram = programId === '__trial__'
-    ? {
-        id: '__trial__',
-        title: 'Пробная тренировка',
-        subtitle: 'Знакомство с PRO',
-        description: 'Одна тренировка, чтобы понять, что тебя ждёт в PRO.',
-        icon: '🎁',
-        color: 'var(--accent)',
-        duration: '1 раз',
-        daysPerWeek: 1,
-        difficulty: 'Разная',
-        focus: ['Бросок', 'Дриблинг', 'Проход', 'Атлетизм'],
-      }
-    : program
-
-  if (!displayProgram) {
+  // Если программа не найдена
+  if (!program) {
     return (
       <>
         <div className="screen-head screen-head-minimal">
@@ -68,8 +56,8 @@ export default function ProgramScreen({
     )
   }
 
-   // Если настройки не заполнены — показываем онбординг (кроме пробной)
-  if (!hasSettings && programId !== '__trial__') {
+  // Онбординг настроек — только для PRO, если настройки пусты
+  if (!hasSettings && programId !== '__trial__' && user.plan === 'pro') {
     return (
       <>
         <div className="screen-head screen-head-minimal">
@@ -130,17 +118,14 @@ export default function ProgramScreen({
   const gear = user.trainingGear || []
   const daysPerWeek = program.daysPerWeek
 
-  // Смотрим, что должно быть сегодня
   const currentDay = progress?.currentDay || 1
   const currentWeek = progress?.currentWeek || 1
 
-  // Пробная тренировка — для FREE без пройденных
   const isTrial =
     user.plan !== 'pro' &&
     (!user.completedTrainings || Object.keys(user.completedTrainings).length === 0)
 
-  // Получаем тренировку
-     // Определяем, какую сессию показывать
+  // Определяем сессию
   let todaySession
   if (programId === '__trial__') {
     todaySession = getTrialSession()
@@ -155,12 +140,15 @@ export default function ProgramScreen({
     })
   }
 
+  // Кулдаун (для FREE)
+  const cooldown = canStartNewTraining(user)
+  const showCooldown = !cooldown.canStart && user.plan !== 'pro'
+
   return (
     <>
-      
-            <div className="screen-head screen-head-minimal">
+      <div className="screen-head screen-head-minimal">
         <button className="icon-btn" onClick={onBack}>←</button>
-        {programId !== '__trial__' && (
+        {programId !== '__trial__' && user.plan === 'pro' && (
           <button className="icon-btn" onClick={onOpenSettings}>⚙️</button>
         )}
       </div>
@@ -190,7 +178,7 @@ export default function ProgramScreen({
         </div>
 
         {/* Прогресс */}
-        {progress && progress.started && (
+        {progress && progress.started && programId !== '__trial__' && (
           <div className="program-progress-card">
             <div className="program-progress-top">
               <span className="program-progress-label">Прогресс программы</span>
@@ -211,7 +199,7 @@ export default function ProgramScreen({
           </div>
         )}
 
-                {/* Описание + Фокус — объединено */}
+        {/* Описание + Фокус — объединено */}
         <div className="card intro-card">
           <div className="tag-pill">О программе</div>
           <p className="card-text">{program.description}</p>
@@ -235,9 +223,9 @@ export default function ProgramScreen({
         <div className="program-today">
           <div className="program-today-head">
             <div className="program-today-label">
-              {progress && progress.started
+              {progress && progress.started && programId !== '__trial__'
                 ? `НЕДЕЛЯ ${currentWeek} · ДЕНЬ ${currentDay}`
-                : 'ПЕРВАЯ ТРЕНИРОВКА'}
+                : 'СЕГОДНЯ'}
             </div>
             <h2 className="program-today-title">Сегодня</h2>
           </div>
@@ -263,13 +251,14 @@ export default function ProgramScreen({
                  todaySession.mainCategory === 'finishing' ? '🏀' :
                  todaySession.mainCategory === 'athleticism' ? '💪' :
                  todaySession.mainCategory === 'iq' ? '🧠' :
-                 todaySession.mainCategory === 'defense' ? '🛡️' : '🎁'}
+                 todaySession.mainCategory === 'defense' ? '🛡️' :
+                 todaySession.mainCategory === 'mixed' ? '🎁' : '🎁'}
               </span>
               <span className="program-today-stat-label">фокус</span>
             </div>
           </div>
 
-                    {!cooldown.canStart && user.plan !== 'pro' ? (
+          {showCooldown ? (
             <div className="program-cooldown-block">
               <div className="program-cooldown-icon">⏳</div>
               <div className="program-cooldown-title">Кулдаун</div>
@@ -287,7 +276,9 @@ export default function ProgramScreen({
               style={{ '--program-color': program.color }}
               onClick={() => onStartTraining(programId, todaySession)}
             >
-              {progress && progress.started ? 'Продолжить' : 'Начать тренировку'}
+              {progress && progress.started && programId !== '__trial__'
+                ? 'Продолжить'
+                : 'Начать тренировку'}
               <span className="arrow">→</span>
             </button>
           )}
@@ -311,34 +302,45 @@ export default function ProgramScreen({
           </div>
         </div>
 
-        {/* Настройки */}
-        <div className="program-settings-info">
-          <div className="program-settings-info-row">
-            <span className="program-settings-info-icon">📊</span>
-            <span className="program-settings-info-text">
-              Уровень: <strong>
-                {level === 'beginner' ? 'Новичок' :
-                 level === 'intermediate' ? 'Любитель' : 'Продвинутый'}
-              </strong>
-            </span>
-          </div>
-          <div className="program-settings-info-row">
-            <span className="program-settings-info-icon">🏀</span>
-            <span className="program-settings-info-text">
-              Позиция: <strong>{position || '—'}</strong>
-            </span>
-          </div>
-          <div className="program-settings-info-row">
-            <span className="program-settings-info-icon">🎒</span>
-            <span className="program-settings-info-text">
-              Инвентарь: <strong>{gear.length} шт.</strong>
-            </span>
-          </div>
+        {/* Настройки — видны всем, но изменить может только PRO */}
+        {programId !== '__trial__' && (
+          <div className="program-settings-info">
+            <div className="program-settings-info-row">
+              <span className="program-settings-info-icon">📊</span>
+              <span className="program-settings-info-text">
+                Уровень: <strong>
+                  {level === 'beginner' ? 'Новичок' :
+                   level === 'intermediate' ? 'Любитель' : 'Продвинутый'}
+                </strong>
+              </span>
+            </div>
+            <div className="program-settings-info-row">
+              <span className="program-settings-info-icon">🏀</span>
+              <span className="program-settings-info-text">
+                Позиция: <strong>{position || '—'}</strong>
+              </span>
+            </div>
+            <div className="program-settings-info-row">
+              <span className="program-settings-info-icon">🎒</span>
+              <span className="program-settings-info-text">
+                Инвентарь: <strong>{gear.length} шт.</strong>
+              </span>
+            </div>
 
-          <button className="program-settings-edit" onClick={onOpenSettings}>
-            Изменить настройки →
-          </button>
-        </div>
+            {user.plan === 'pro' ? (
+              <button className="program-settings-edit" onClick={onOpenSettings}>
+                Изменить настройки →
+              </button>
+            ) : (
+              <button
+                className="program-settings-edit locked"
+                onClick={() => onOpenPro && onOpenPro()}
+              >
+                🔒 Изменить — только PRO
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </>
   )

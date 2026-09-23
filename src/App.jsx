@@ -33,11 +33,9 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [runningTest, setRunningTest] = useState(null)
 
-  // Тренировки
   const [activeProgramId, setActiveProgramId] = useState(null)
   const [activeSession, setActiveSession] = useState(null)
   const [isTraining, setIsTraining] = useState(false)
-  const [showCustomProgram, setShowCustomProgram] = useState(false)
 
   const [loaded, setLoaded] = useState(false)
   const [transitionKey, setTransitionKey] = useState(0)
@@ -123,7 +121,6 @@ function App() {
     setActiveProgramId(null)
     setActiveSession(null)
     setIsTraining(false)
-    setShowCustomProgram(false)
   }
 
   function handleRegistration(data) {
@@ -258,21 +255,18 @@ function App() {
     setActiveTab('home')
   }
 
-  // Тренировки — старт
   function handleStartTraining(programId, session) {
     setActiveProgramId(programId)
     setActiveSession(session)
     setIsTraining(true)
   }
 
-  // Тренировки — завершение
-      function handleCompleteTraining(completedTrainings) {
+  function handleCompleteTraining(completedTrainings) {
     if (!activeProgramId) return
 
     setUser((prev) => {
       const newProgress = completeTraining(activeProgramId, prev)
 
-      // Если completedTrainings === null — не сохраняем (FREE не завершил)
       const newCompleted = completedTrainings === null
         ? prev.completedTrainings || {}
         : completedTrainings || prev.completedTrainings || {}
@@ -337,13 +331,6 @@ function App() {
               setActiveTab('profile')
             }}
           />
-        ) : showCard ? (
-          <CardScreen
-            user={user}
-            onBack={() => setShowCard(false)}
-            onOpenPro={() => setShowPro(true)}
-            onChangeCardTheme={handleChangeCardTheme}
-          />
         ) : isTraining && activeSession ? (
           <ActiveTrainingScreen
             user={user}
@@ -355,13 +342,14 @@ function App() {
             }}
             onComplete={handleCompleteTraining}
           />
-                ) : activeProgramId === '__trial__' ? (
+        ) : activeProgramId === '__trial__' ? (
           <ProgramScreen
             user={user}
             programId="__trial__"
             onBack={() => setActiveProgramId(null)}
             onStartTraining={handleStartTraining}
             onOpenSettings={() => setShowTrainingSettings(true)}
+            onOpenPro={() => setShowPro(true)}
           />
         ) : activeProgramId ? (
           <ProgramScreen
@@ -370,6 +358,7 @@ function App() {
             onBack={() => setActiveProgramId(null)}
             onStartTraining={handleStartTraining}
             onOpenSettings={() => setShowTrainingSettings(true)}
+            onOpenPro={() => setShowPro(true)}
           />
         ) : (
           <>
@@ -389,7 +378,7 @@ function App() {
                 onStartTest={(id) => setRunningTest(id)}
               />
             )}
-                        {activeTab === 'training' && (
+            {activeTab === 'training' && (
               <TrainingScreen
                 user={user}
                 onOpenProgram={(programId) => {
@@ -399,13 +388,10 @@ function App() {
                     setActiveProgramId(programId)
                   }
                 }}
-                onOpenCustomProgram={() => {
-                  alert('Конструктор скоро появится!')
-                }}
                 onOpenPro={() => setShowPro(true)}
               />
             )}
-                        {activeTab === 'profile' && (
+            {activeTab === 'profile' && (
               <ProfileScreen
                 user={user}
                 onOpenPro={() => setShowPro(true)}
@@ -430,9 +416,7 @@ function App() {
           }`}
           onClick={() => goToTab('training')}
         >
-          <span className="nav-icon">
-            <CalendarIcon />
-          </span>
+          <span className="nav-icon"><CalendarIcon /></span>
           <span className="nav-label">Тренировки</span>
         </button>
 
@@ -447,9 +431,7 @@ function App() {
           }`}
           onClick={() => goToTab('home')}
         >
-          <span className="nav-icon">
-            <HomeIcon />
-          </span>
+          <span className="nav-icon"><HomeIcon /></span>
           <span className="nav-label">Главная</span>
         </button>
 
@@ -464,9 +446,7 @@ function App() {
           }`}
           onClick={() => goToTab('test')}
         >
-          <span className="nav-icon">
-            <ChartIcon />
-          </span>
+          <span className="nav-icon"><ChartIcon /></span>
           <span className="nav-label">Тест</span>
         </button>
 
@@ -481,9 +461,7 @@ function App() {
           }`}
           onClick={() => goToTab('profile')}
         >
-          <span className="nav-icon">
-            <ProfileIcon />
-          </span>
+          <span className="nav-icon"><ProfileIcon /></span>
           <span className="nav-label">Профиль</span>
         </button>
       </nav>

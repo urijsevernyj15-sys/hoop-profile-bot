@@ -1,8 +1,24 @@
 import { useState, useEffect } from 'react'
 import { PROGRAMS, getProgramProgress } from '../data/programs'
-import { getTotalCompleted } from '../data/schedule'
-import { isTrialUsed } from '../data/schedule'
+import {
+  getWeekSchedule,
+  formatDate,
+  getTotalCompleted,
+  getWeekCompleted,
+  isTrialUsed,
+} from '../data/schedule'
 import TrainingCalendar from '../components/TrainingCalendar'
+
+const CATEGORY_META = {
+  shooting:    { icon: '🎯', label: 'Бросок' },
+  dribbling:   { icon: '⚡', label: 'Дриблинг' },
+  drives:      { icon: '🚀', label: 'Проходы' },
+  finishing:   { icon: '🏀', label: 'Завершения' },
+  athleticism: { icon: '💪', label: 'Атлетизм' },
+  iq:          { icon: '🧠', label: 'IQ' },
+  defense:     { icon: '🛡️', label: 'Защита' },
+  passing:     { icon: '🎁', label: 'Пас' },
+}
 
 export default function TrainingScreen({
   user,
@@ -13,9 +29,8 @@ export default function TrainingScreen({
   const isPro = user.plan === 'pro'
   const trialUsed = isTrialUsed(user)
 
-  // ============ FREE: ЗАГЛУШКА ============
+  // ============ FREE: ЗАГЛУШКА / ПРОБНАЯ ============
   if (!isPro) {
-    // Если пробная уже использована — блокировка
     if (trialUsed) {
       return (
         <div className="training-locked">
@@ -77,7 +92,7 @@ export default function TrainingScreen({
       )
     }
 
-    // Первый заход — показываем пробную
+    // Первый заход — пробная
     return (
       <div className="training-trial-screen">
         <div className="training-head">
@@ -85,59 +100,29 @@ export default function TrainingScreen({
           <p className="training-head-sub">Доступно в PRO</p>
         </div>
 
-                <div className="training-trial-card">
-          {/* Живой фон — биржа */}
+        <div className="training-trial-card">
           <div className="trial-bg">
-            <svg
-              className="trial-bg-chart"
-              viewBox="0 0 400 150"
-              preserveAspectRatio="none"
-            >
+            <svg className="trial-bg-chart" viewBox="0 0 400 150" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="trialChartFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.4" />
                   <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
                 </linearGradient>
               </defs>
-
-              {/* Заливка под графиком */}
-              <path
-                d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15 L400,150 L0,150 Z"
-                fill="url(#trialChartFill)"
-              />
-
-              {/* Линия графика — рисуется при заходе */}
-              <path
-                className="trial-bg-chart-line"
-                d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15"
-                fill="none"
-                stroke="var(--accent)"
-                strokeWidth="2.5"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-
-              {/* Точки-пики */}
+              <path d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15 L400,150 L0,150 Z" fill="url(#trialChartFill)" />
+              <path className="trial-bg-chart-line" d="M0,120 L30,110 L60,115 L90,95 L120,100 L150,75 L180,80 L210,60 L240,65 L270,45 L300,50 L330,30 L360,35 L400,15" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
               <circle className="trial-chart-dot" cx="90" cy="95" r="3" fill="var(--accent)" />
               <circle className="trial-chart-dot" cx="180" cy="80" r="3" fill="var(--accent)" />
               <circle className="trial-chart-dot" cx="270" cy="45" r="3" fill="var(--accent)" />
               <circle className="trial-chart-dot" cx="360" cy="35" r="3" fill="var(--accent)" />
             </svg>
-
-            {/* Сетка клеточек */}
             <div className="trial-bg-grid" />
           </div>
-
-          {/* Блюр поверх графика */}
           <div className="trial-bg-blur" />
-
-          <div className="training-trial-glow" />
 
           <div className="training-trial-icon">🎁</div>
           <div className="training-trial-label">ПРОБНАЯ ТРЕНИРОВКА</div>
-          <h2 className="training-trial-title">
-            Попробуй 1 тренировку
-          </h2>
+          <h2 className="training-trial-title">Попробуй 1 тренировку</h2>
           <p className="training-trial-sub">
             Чтобы ты понял, что тебя ждёт в PRO — мы даём
             одну полноценную тренировку бесплатно.
@@ -186,8 +171,30 @@ export default function TrainingScreen({
     )
   }
 
-  // ============ PRO: полноценные тренировки ============
+  // ============ PRO: полная версия ============
   const totalCompleted = getTotalCompleted(user)
+
+  const today = new Date()
+  const monday = new Date(today)
+  const diff = today.getDay() === 0 ? 6 : today.getDay() - 1
+  monday.setDate(today.getDate() - diff)
+
+  const weekSchedule = getWeekSchedule(user, monday)
+  const weekCompleted = getWeekCompleted(user, monday)
+
+  // Категория дня
+  const goals = user.trainingGoals || []
+  const categories = goals.length > 0
+    ? goals
+    : ['shooting', 'dribbling', 'drives', 'finishing', 'athleticism', 'iq', 'defense', 'passing']
+
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1
+  const mainCategory = categories[dayOfWeek % categories.length]
+  const todayFocus = CATEGORY_META[mainCategory] || { icon: '🏀', label: 'Тренировка' }
+
+  const hasSettings =
+    (user.trainingGoals || []).length > 0 &&
+    (user.trainingGear || []).length > 0
 
   return (
     <>
@@ -200,12 +207,12 @@ export default function TrainingScreen({
         {/* Статистика */}
         <div className="training-stats-row">
           <div className="training-stat">
-            <div className="training-stat-value">{totalCompleted}</div>
-            <div className="training-stat-label">всего пройдено</div>
+            <div className="training-stat-value">{weekCompleted}</div>
+            <div className="training-stat-label">на этой неделе</div>
           </div>
           <div className="training-stat">
-            <div className="training-stat-value">✅</div>
-            <div className="training-stat-label">PRO активен</div>
+            <div className="training-stat-value">{totalCompleted}</div>
+            <div className="training-stat-label">всего пройдено</div>
           </div>
           <div className="training-stat">
             <div className="training-stat-value">∞</div>
@@ -213,12 +220,47 @@ export default function TrainingScreen({
           </div>
         </div>
 
-        {/* Разделитель */}
-        <div className="training-divider">
-          <span>Выбери программу</span>
+        {/* Календарь */}
+        <TrainingCalendar
+          user={user}
+          schedule={weekSchedule}
+        />
+
+        {/* МОЯ ТРЕНИРОВКА */}
+        <div className="single-training-card">
+          <div className="single-training-glow" />
+
+          <div className="single-training-icon">🏀</div>
+          <div className="single-training-label">
+            СЕГОДНЯ · {todayFocus.icon} {todayFocus.label.toUpperCase()}
+          </div>
+          <h2 className="single-training-title">Моя тренировка</h2>
+          <p className="single-training-sub">
+            {hasSettings
+              ? `Персональный план: ${todayFocus.label}`
+              : 'Сначала настрой цели и инвентарь'}
+          </p>
+
+          {!hasSettings && (
+            <div className="single-training-warning">
+              ⚠️ Настрой тренировку — выбери цели, инвентарь, уровень
+            </div>
+          )}
+
+          <button
+            className="single-training-btn"
+            onClick={() => onOpenProgram('universal')}
+          >
+            {hasSettings ? 'Начать тренировку' : 'Настроить и начать'}
+            <span className="arrow">→</span>
+          </button>
         </div>
 
         {/* Программы */}
+        <div className="training-divider">
+          <span>Или выбери программу</span>
+        </div>
+
         <div className="programs-list">
           {PROGRAMS.filter((p) => p.id !== 'custom').map((program) => {
             const progress = getProgramProgress(program.id, user)
@@ -305,10 +347,10 @@ export default function TrainingScreen({
               <span className="training-explainer-num">3</span>
               <div className="training-explainer-content">
                 <div className="training-explainer-item-title">
-                  Чередуем категории
+                  Чередуем категории по дням
                 </div>
                 <div className="training-explainer-item-text">
-                  Пн — Бросок, Вт — Дриблинг, и так по кругу.
+                  Пн — Бросок, Вт — Дриблинг, Ср — Проходы, и так по кругу.
                 </div>
               </div>
             </div>
@@ -319,7 +361,18 @@ export default function TrainingScreen({
                   Без лимитов
                 </div>
                 <div className="training-explainer-item-text">
-                  Тренируйся сколько хочешь — PRO без ограничений.
+                  В PRO — тренируйся сколько хочешь. Никаких кулдаунов.
+                </div>
+              </div>
+            </div>
+            <div className="training-explainer-item">
+              <span className="training-explainer-num">5</span>
+              <div className="training-explainer-content">
+                <div className="training-explainer-item-title">
+                  Структура — 3 части
+                </div>
+                <div className="training-explainer-item-text">
+                  🔥 Разминка → 🎯 Основная часть → 🧘 Заминка.
                 </div>
               </div>
             </div>

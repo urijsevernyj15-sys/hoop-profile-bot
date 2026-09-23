@@ -53,7 +53,7 @@ export function calculateOVR(categories, positions) {
   })
 
   if (totalWeight === 0) return null
-  // 🎯 Кап на 99 — идеал недостижим
+  // Кап на 99
   return Math.min(99, Math.round(weightedSum / totalWeight))
 }
 
@@ -73,6 +73,6 @@ export function calculateFinalScore(blockScores, blocks) {
     })
   })
   if (totalWeight === 0) return 0
-  // 🎯 Кап на 99 — идеал недостижим
+  // Кап на 99
   return Math.min(99, Math.round((totalWeighted / totalWeight) * 100))
 }

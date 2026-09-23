@@ -305,7 +305,7 @@ export default function TestRunScreen({
         return Math.round(100 - (losses / t.norm) * 50)
       })
 
-      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      const avg = Math.min(99, Math.round(scores.reduce((a, b) => a + b, 0) / scores.length))
 
       setFinalResult({
         score: avg,
@@ -366,7 +366,7 @@ export default function TestRunScreen({
         if (t.direction === 'higher') return Math.min(100, Math.round((value / t.norm) * 100))
         else return Math.min(100, Math.round((t.norm / value) * 100))
       })
-      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      const avg = Math.min(99, Math.round(scores.reduce((a, b) => a + b, 0) / scores.length))
 
       setFinalResult({
         score: avg,
@@ -403,7 +403,7 @@ export default function TestRunScreen({
     } else {
       const maxPossible = iqQuestions.length * 10
       const sum = newAnswers.reduce((a, w) => a + w, 0)
-      const score = Math.round((sum / maxPossible) * 100)
+            const score = Math.min(99, Math.round((sum / maxPossible) * 100))
 
       setFinalResult({
         score,

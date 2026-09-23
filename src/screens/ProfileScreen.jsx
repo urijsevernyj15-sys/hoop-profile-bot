@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import ConfirmModal from '../components/ConfirmModal'
 
 export default function ProfileScreen({
   user,
@@ -10,7 +9,6 @@ export default function ProfileScreen({
 }) {
   const [tapCount, setTapCount] = useState(0)
   const [showTapHint, setShowTapHint] = useState(false)
-    const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const allTests = user.categories.flatMap((c) => c.tests)
   const totalDone = allTests.filter((t) => t.status === 'done').length
@@ -18,35 +16,18 @@ export default function ProfileScreen({
   const positionText = user.positions.length > 0 ? user.positions.join(' · ') : '—'
   const progressPercent = totalFree > 0 ? (totalDone / totalFree) * 100 : 0
 
-  // 🎯 Скрытая активация PRO — 5 тапов
+  // 5 тапов → переключение FREE ↔ PRO
   function handlePlanTap() {
-    if (user.plan === 'pro') {
-      // Если PRO — считаем тапы для отключения
-      const next = tapCount + 1
-      setTapCount(next)
-      setShowTapHint(true)
-
-      if (next >= 5) {
-        onSaveProfile({ plan: 'free' })
-        setTapCount(0)
-        setShowTapHint(false)
-        return
-      }
-
-      setTimeout(() => {
-        setTapCount(0)
-        setShowTapHint(false)
-      }, 2000)
-      return
-    }
-
-    // Если FREE — считаем тапы для активации PRO
     const next = tapCount + 1
     setTapCount(next)
     setShowTapHint(true)
 
     if (next >= 5) {
-      onSaveProfile({ plan: 'pro' })
+      if (user.plan === 'pro') {
+        onSaveProfile({ plan: 'free' })
+      } else {
+        onSaveProfile({ plan: 'pro' })
+      }
       setTapCount(0)
       setShowTapHint(false)
       return
@@ -55,14 +36,7 @@ export default function ProfileScreen({
     setTimeout(() => {
       setTapCount(0)
       setShowTapHint(false)
-    }, 2000)
-  }
-
-  function handlePlanClick() {
-    // При обычном клике (1 тап) — открываем PRO-экран только если план FREE
-    if (user.plan === 'free' && tapCount === 0) {
-      onOpenPro()
-    }
+    }, 3000)
   }
 
   return (
@@ -82,23 +56,17 @@ export default function ProfileScreen({
             <button
               className="head-plan-pill clickable"
               onClick={handlePlanTap}
-              onDoubleClick={handlePlanClick}
               title="5 тапов для активации PRO"
             >
               FREE
             </button>
           )}
-          <button
-            className="icon-btn"
-            onClick={onOpenSettings}
-            title="Настройки"
-          >
+          <button className="icon-btn" onClick={onOpenSettings} title="Настройки">
             ⚙️
           </button>
         </div>
       </div>
 
-      {/* Подсказка при тапах */}
       {showTapHint && (
         <div className="tap-hint">
           {user.plan === 'pro'
@@ -204,29 +172,35 @@ export default function ProfileScreen({
 
       <div
         className={`training-card ${user.plan === 'pro' ? 'unlocked' : 'locked'}`}
-        onClick={onOpenTrainingSettings}
+        onClick={user.plan === 'pro' ? onOpenTrainingSettings : onOpenPro}
       >
         <div className="training-card-glow" />
         <div className="training-card-top">
           <div className="training-card-icon">
             <span>⚙️</span>
           </div>
-                    <div className="training-card-badge">
+          <div className="training-card-badge">
             {user.plan === 'pro' ? (
               <span className="training-card-pill pro">PRO</span>
             ) : (
-              <span className="training-card-pill">Настройки</span>
+              <span className="training-card-pill locked">🔒 PRO</span>
             )}
           </div>
         </div>
 
         <div className="training-card-title">Настройки тренировок</div>
-                <div className="training-card-desc">
-          Выбери цели, инвентарь и уровень — план соберётся под тебя
+        <div className="training-card-desc">
+          {user.plan === 'pro'
+            ? 'Цели, инвентарь и уровень — план собирается под тебя'
+            : 'Выбери цели, инвентарь и уровень. Доступно в PRO-версии'}
         </div>
 
-                <div className="training-card-action">
-          Открыть <span className="training-card-arrow">→</span>
+        <div className="training-card-action">
+          {user.plan === 'pro' ? (
+            <>Открыть <span className="training-card-arrow">→</span></>
+          ) : (
+            <>Разблокировать <span className="training-card-arrow">→</span></>
+          )}
         </div>
       </div>
     </div>
