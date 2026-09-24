@@ -1,25 +1,41 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getMixWeekPlan, getMixTraining, getPersonalTraining } from '../data/exercisesData'
 import { formatDate, isTrainingCompleted } from '../data/schedule'
+import { getActiveTraining, clearActiveTraining } from '../utils/trainingProgress'
+import {
+  IconShooting,
+  IconDribbling,
+  IconDrives,
+  IconFinishing,
+  IconAthleticism,
+  IconIQ,
+  IconDefense,
+  IconPassing,
+  IconRobot,
+  IconMoon,
+  IconFire,
+  IconCooldown,
+  IconTrophy,
+} from '../components/Icons'
 
 const CATEGORY_META = {
-  shooting:    { icon: '🎯', label: 'Бросок' },
-  dribbling:   { icon: '⚡', label: 'Дриблинг' },
-  drives:      { icon: '🚀', label: 'Проходы' },
-  finishing:   { icon: '🏀', label: 'Завершения' },
-  athleticism: { icon: '💪', label: 'Атлетизм' },
-  iq:          { icon: '🧠', label: 'IQ' },
-  defense:     { icon: '🛡️', label: 'Защита' },
-  passing:     { icon: '🎁', label: 'Пас' },
+  shooting:    { label: 'Бросок',     Icon: IconShooting },
+  dribbling:   { label: 'Дриблинг',   Icon: IconDribbling },
+  drives:      { label: 'Проходы',    Icon: IconDrives },
+  finishing:   { label: 'Завершения', Icon: IconFinishing },
+  athleticism: { label: 'Атлетизм',   Icon: IconAthleticism },
+  iq:          { label: 'IQ',         Icon: IconIQ },
+  defense:     { label: 'Защита',     Icon: IconDefense },
+  passing:     { label: 'Пас',        Icon: IconPassing },
 }
 
 const ALL_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
 // ============================================================
-// 🤖 КАРТОЧКА ОТДЫХА — с таймером до следующей тренировки
+// 🤖 КАРТОЧКА ОТДЫХА
 // ============================================================
 
 function MixRestCard({ user, weekPlan, todayName }) {
-  // Находим следующую тренировку
   const todayIdx = ALL_DAYS.indexOf(todayName)
   let nextTraining = null
   let daysAhead = 0
@@ -35,14 +51,12 @@ function MixRestCard({ user, weekPlan, todayName }) {
     }
   }
 
-  // Формируем текст «через N дней»
   function getDaysText(n) {
     if (n === 1) return 'завтра'
     if (n === 2) return 'послезавтра'
     return `через ${n} ${n === 3 || n === 4 ? 'дня' : 'дней'}`
   }
 
-  // Мотивашки для отдыха
   const TIPS = [
     { icon: '💧', text: 'Пей больше воды — восстановление начинается с гидратации' },
     { icon: '🛌', text: 'Спи 7–9 часов — мышцы растут во сне' },
@@ -51,7 +65,6 @@ function MixRestCard({ user, weekPlan, todayName }) {
     { icon: '🚶', text: 'Прогулка 20 минут — кровь разгонится' },
   ]
 
-  // Выбираем 2 случайных совета (но стабильно для сессии)
   const tip1 = TIPS[todayIdx % TIPS.length]
   const tip2 = TIPS[(todayIdx + 2) % TIPS.length]
 
@@ -61,7 +74,9 @@ function MixRestCard({ user, weekPlan, todayName }) {
 
       <div className="mix-rest-icon-wrap">
         <div className="mix-rest-icon-bg" />
-        <div className="mix-rest-icon">🌙</div>
+        <div className="mix-rest-icon">
+          <IconMoon size={52} />
+        </div>
       </div>
 
       <div className="mix-rest-label">ВОССТАНОВЛЕНИЕ</div>
@@ -79,9 +94,11 @@ function MixRestCard({ user, weekPlan, todayName }) {
           <div className="mix-rest-next-cats">
             {nextTraining.categories.map((cat, i) => {
               const meta = CATEGORY_META[cat]
+              const IconComp = meta?.Icon
               return (
                 <span key={i} className="mix-rest-next-cat">
-                  {meta?.icon} {meta?.label}
+                  {IconComp ? <IconComp size={14} /> : null}
+                  <span>{meta?.label || cat}</span>
                 </span>
               )
             })}
@@ -103,6 +120,86 @@ function MixRestCard({ user, weekPlan, todayName }) {
   )
 }
 
+// ============================================================
+// 📋 СВОРАЧИВАЕМЫЙ ПРЕДПРОСМОТР ТРЕНИРОВКИ
+// ============================================================
+
+function PreviewCollapse({ session, isDone }) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const groupedExercises = {
+    warmup: session.exercises.filter((ex) => ex.section === 'warmup'),
+    main: session.exercises.filter((ex) => ex.section === 'main'),
+    cooldown: session.exercises.filter((ex) => ex.section === 'cooldown'),
+  }
+
+  const SECTION_META = {
+    warmup:   { label: 'Разминка',       Icon: IconFire },
+    main:     { label: 'Основная часть', Icon: IconShooting },
+    cooldown: { label: 'Заминка',        Icon: IconCooldown },
+  }
+
+  return (
+    <div className={`card intro-card preview-collapse ${isOpen ? 'open' : ''}`}>
+      <button
+        className="preview-collapse-head"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="preview-collapse-title-row">
+          <span className="preview-collapse-pill">Что в тренировке</span>
+          <span className="preview-collapse-count">
+            {session.totalExercises} упражнений
+          </span>
+        </div>
+        <span className={`preview-collapse-arrow ${isOpen ? 'open' : ''}`}>
+          ▾
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="preview-collapse-body">
+          {['warmup', 'main', 'cooldown'].map((sectionKey) => {
+            const sectionExercises = groupedExercises[sectionKey]
+            if (sectionExercises.length === 0) return null
+
+            const meta = SECTION_META[sectionKey]
+            const SectionIcon = meta.Icon
+
+            return (
+              <div key={sectionKey} className="preview-section">
+                <div className="preview-section-title">
+                  <span className="preview-section-title-left">
+                    {SectionIcon && <SectionIcon size={16} />}
+                    <span>{meta.label}</span>
+                  </span>
+                  <span className="preview-section-count">
+                    {sectionExercises.length}
+                  </span>
+                </div>
+                {sectionExercises.map((ex, i) => (
+                  <div key={ex.id} className="program-preview-item">
+                    <div className="program-preview-num">{i + 1}</div>
+                    <div className="program-preview-body">
+                      <div className="program-preview-title">{ex.title}</div>
+                      <div className="program-preview-meta">
+                        {ex.sets} × {ex.reps || ex.duration + ' мин'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
+// 🎯 ОСНОВНОЙ КОМПОНЕНТ
+// ============================================================
+
 export default function MixTrainingScreen({
   user,
   onOpenSettings,
@@ -115,22 +212,44 @@ export default function MixTrainingScreen({
   const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
   const todayName = dayNames[today.getDay()]
 
-  // Находим план на сегодня
   const todayPlan = weekPlan.find((p) => p.day === todayName)
-
-  // Собираем тренировку
   const todaySession = getMixTraining(user, today)
-    // Проверяем, пройдена ли тренировка сегодня
+
+  const hasGoals = (user.trainingGoals || []).length > 0
+  const hasGear = (user.trainingGear || []).length > 0
+
+  const trainingDaysCount = weekPlan.length
+
+  // Проверяем, пройдена ли тренировка сегодня
   const todayStr = formatDate(today)
   const isTodayDone = isTrainingCompleted(user, todayStr)
   const todayCompletion = user.completedTrainings?.[todayStr] || null
 
-  // Проверка — заполнены ли цели
-  const hasGoals = (user.trainingGoals || []).length > 0
-  const hasGear = (user.trainingGear || []).length > 0
+  // Активная незавершённая тренировка
+  const [activeTraining, setActiveTraining] = useState(null)
 
-  // Статистика недели: сколько дней с целями / сколько всего тренировочных
-  const trainingDaysCount = weekPlan.length
+  useEffect(() => {
+    const active = getActiveTraining()
+    if (active && active.programId === '__mix__') {
+      setActiveTraining(active)
+    } else {
+      setActiveTraining(null)
+    }
+  }, [user])
+
+  function handleResume() {
+    if (!activeTraining) return
+    onStartMixTraining({
+      exercises: activeTraining.exercises,
+      totalExercises: activeTraining.exercises.length,
+      totalDuration: activeTraining.exercises.reduce(
+        (sum, ex) => sum + (ex.duration || 5),
+        0
+      ),
+      categoriesToday: [],
+      isRestDay: false,
+    })
+  }
 
   // ========== ЗАГЛУШКА: НЕТ ЦЕЛЕЙ ИЛИ ИНВЕНТАРЯ ==========
   if (!hasGoals || !hasGear) {
@@ -178,10 +297,10 @@ export default function MixTrainingScreen({
         </div>
 
         <div className="mix-hero">
-          <div className="mix-hero-icon">🤖</div>
-                  <div className="mix-hero-particles">
-          <span /><span /><span /><span /><span />
-        </div>
+          <div className="mix-hero-glow" />
+          <div className="mix-hero-icon">
+            <IconRobot size={56} />
+          </div>
           <div className="mix-hero-label">МИКС</div>
           <h2 className="mix-hero-title">Робот собирает под тебя</h2>
           <p className="mix-hero-sub">
@@ -197,7 +316,7 @@ export default function MixTrainingScreen({
           </div>
         </div>
 
-                <MixRestCard
+        <MixRestCard
           user={user}
           weekPlan={weekPlan}
           todayName={todayName}
@@ -215,24 +334,22 @@ export default function MixTrainingScreen({
                   className={`mix-week-item ${isToday ? 'today' : ''}`}
                 >
                   <span className="mix-week-day">{dayPlan.day}</span>
-                  <div className="mix-week-categories">
-                    {dayPlan.categories.length > 0 ? (
-                      dayPlan.categories.map((cat, ci) => {
-                        const meta = CATEGORY_META[cat]
-                        return (
-                          <span
-                            key={ci}
-                            className="mix-week-cat"
-                            title={meta?.label}
-                          >
-                            {meta?.icon}
-                          </span>
-                        )
-                      })
-                    ) : (
-                      <span className="mix-week-rest">отдых</span>
-                    )}
-                  </div>
+      <div className="mix-week-categories">
+  {dayPlan.categories.length > 0 ? (
+    dayPlan.categories.map((cat, ci) => {
+      const meta = CATEGORY_META[cat]
+      const IconComp = meta?.Icon
+      return (
+        <span key={ci} className="mix-week-cat">
+          {IconComp ? <IconComp size={14} /> : null}
+          <span className="mix-week-cat-label">{meta?.label || cat}</span>
+        </span>
+      )
+    })
+  ) : (
+    <span className="mix-week-rest">отдых</span>
+  )}
+</div>
                 </div>
               )
             })}
@@ -258,9 +375,9 @@ export default function MixTrainingScreen({
 
       {/* Hero */}
       <div className="mix-hero">
-        <div className="mix-hero-icon">🤖</div>
-        <div className="mix-hero-particles">
-          <span /><span /><span /><span /><span />
+        <div className="mix-hero-glow" />
+        <div className="mix-hero-icon">
+          <IconRobot size={56} />
         </div>
         <div className="mix-hero-label">МИКС</div>
         <h2 className="mix-hero-title">Робот собрал тренировку</h2>
@@ -282,11 +399,14 @@ export default function MixTrainingScreen({
         <div className="tag-pill">Сегодня качаем</div>
         <div className="mix-today-categories">
           {categoriesToday.map((cat, i) => {
-            const meta = CATEGORY_META[cat] || { icon: '🏀', label: cat }
+            const meta = CATEGORY_META[cat]
+            const IconComp = meta?.Icon
             return (
               <div key={i} className="mix-today-cat">
-                <span className="mix-today-cat-icon">{meta.icon}</span>
-                <span className="mix-today-cat-label">{meta.label}</span>
+                <span className="mix-today-cat-icon">
+                  {IconComp ? <IconComp size={18} /> : null}
+                </span>
+                <span className="mix-today-cat-label">{meta?.label || cat}</span>
               </div>
             )
           })}
@@ -339,6 +459,13 @@ export default function MixTrainingScreen({
             <span className="mix-done-check">✓</span>
             <span>Отличная работа! Отдыхай</span>
           </div>
+        ) : activeTraining ? (
+          <button
+            className="program-start-btn mix-resume-btn"
+            onClick={handleResume}
+          >
+            Продолжить тренировку <span className="arrow">→</span>
+          </button>
         ) : (
           <button
             className="program-start-btn mix-start-btn"
@@ -349,7 +476,7 @@ export default function MixTrainingScreen({
         )}
       </div>
 
-      {/* Предпросмотр — сворачиваемый */}
+      {/* Предпросмотр */}
       <PreviewCollapse
         session={todaySession}
         isDone={isTodayDone}
@@ -357,7 +484,7 @@ export default function MixTrainingScreen({
 
       {/* Расписание недели */}
       <div className="card intro-card">
-        <div className="tag-pill">Расписание на неделю</div>
+        <div className="tag-pill mix-week-pill">Расписание на неделю</div>
         <div className="mix-week-list">
           {weekPlan.map((dayPlan, i) => {
             const isToday = dayPlan.day === todayName
@@ -367,20 +494,22 @@ export default function MixTrainingScreen({
                 className={`mix-week-item ${isToday ? 'today' : ''}`}
               >
                 <span className="mix-week-day">{dayPlan.day}</span>
-                <div className="mix-week-categories">
-                  {dayPlan.categories.length > 0 ? (
-                    dayPlan.categories.map((cat, ci) => {
-                      const meta = CATEGORY_META[cat]
-                      return (
-                        <span key={ci} className="mix-week-cat">
-                          {meta?.icon}
-                        </span>
-                      )
-                    })
-                  ) : (
-                    <span className="mix-week-rest">отдых</span>
-                  )}
-                </div>
+<div className="mix-week-categories">
+  {dayPlan.categories.length > 0 ? (
+    dayPlan.categories.map((cat, ci) => {
+      const meta = CATEGORY_META[cat]
+      const IconComp = meta?.Icon
+      return (
+        <span key={ci} className="mix-week-cat">
+          {IconComp ? <IconComp size={14} /> : null}
+          <span className="mix-week-cat-label">{meta?.label || cat}</span>
+        </span>
+      )
+    })
+  ) : (
+    <span className="mix-week-rest">отдых</span>
+  )}
+</div>
               </div>
             )
           })}
@@ -416,74 +545,5 @@ export default function MixTrainingScreen({
         </button>
       </div>
     </>
-  )
-}
-// ============================================================
-// 📋 СВОРАЧИВАЕМЫЙ ПРЕДПРОСМОТР ТРЕНИРОВКИ
-// ============================================================
-
-function PreviewCollapse({ session, isDone }) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  const groupedExercises = {
-    warmup: session.exercises.filter((ex) => ex.section === 'warmup'),
-    main: session.exercises.filter((ex) => ex.section === 'main'),
-    cooldown: session.exercises.filter((ex) => ex.section === 'cooldown'),
-  }
-
-  const SECTION_META = {
-    warmup:   { label: '🔥 Разминка' },
-    main:     { label: '🎯 Основная часть' },
-    cooldown: { label: '🧘 Заминка' },
-  }
-
-  return (
-    <div className={`card intro-card preview-collapse ${isOpen ? 'open' : ''}`}>
-      <button
-        className="preview-collapse-head"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="preview-collapse-title-row">
-          <span className="preview-collapse-pill">Что в тренировке</span>
-          <span className="preview-collapse-count">
-            {session.totalExercises} упражнений
-          </span>
-        </div>
-        <span className={`preview-collapse-arrow ${isOpen ? 'open' : ''}`}>
-          ▾
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="preview-collapse-body">
-          {['warmup', 'main', 'cooldown'].map((sectionKey) => {
-            const sectionExercises = groupedExercises[sectionKey]
-            if (sectionExercises.length === 0) return null
-
-            return (
-              <div key={sectionKey} className="preview-section">
-                <div className="preview-section-title">
-                  <span>{SECTION_META[sectionKey].label}</span>
-                  <span className="preview-section-count">
-                    {sectionExercises.length}
-                  </span>
-                </div>
-                {sectionExercises.map((ex, i) => (
-                  <div key={ex.id} className="program-preview-item">
-                    <div className="program-preview-num">{i + 1}</div>
-                    <div className="program-preview-body">
-                      <div className="program-preview-title">{ex.title}</div>
-                      <div className="program-preview-meta">
-                        {ex.sets} × {ex.reps || ex.duration + ' мин'}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
   )
 }

@@ -1,4 +1,22 @@
 import { useState } from 'react'
+import {
+  IconShooting,
+  IconDribbling,
+  IconAthleticism,
+  IconIQ,
+  IconFire,
+} from '../components/Icons'
+
+// Иконка по ID категории
+function getCategoryIcon(categoryId, size = 20) {
+  switch (categoryId) {
+    case 'b-iq':         return <IconIQ size={size} />
+    case 'shooting':     return <IconShooting size={size} />
+    case 'dribbling':    return <IconDribbling size={size} />
+    case 'athleticism':  return <IconAthleticism size={size} />
+    default:             return <IconFire size={size} />
+  }
+}
 
 export default function TestsScreen({ user, onOpenPro, onStartTest }) {
   const [expanded, setExpanded] = useState({})
@@ -61,6 +79,9 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
                 onClick={() => toggleCategory(cat.id)}
               >
                 <div className="category-header-left">
+                  <div className="category-icon">
+                    {getCategoryIcon(cat.id, 22)}
+                  </div>
                   <div className="category-info">
                     <div className="category-title">{cat.title}</div>
                     <div className="category-progress">
@@ -82,18 +103,17 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
                 </div>
               </button>
 
-                              {isOpen && (
-                  <div className="category-tests">
-                    {cat.tests.map((t) => {
-                      const isLocked = t.plan === 'pro' && user.plan !== 'pro'
-                      return (
+              {isOpen && (
+                <div className="category-tests">
+                  {cat.tests.map((t) => {
+                    const isLocked = t.plan === 'pro' && user.plan !== 'pro'
+                    return (
                       <button
                         key={t.id}
                         className={`test-item ${t.status} ${isLocked ? 'locked' : ''}`}
-                                                onClick={() => {
+                        onClick={() => {
                           if (isLocked) return onOpenPro()
                           if (t.status === 'locked') {
-                            // PRO-тест, у юзера PRO → разблокируем
                             if (user.plan === 'pro') {
                               onStartTest(t.id)
                               return
@@ -132,10 +152,13 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
             </div>
           )
         })}
-                {/* ============ КАК СТРОЯТСЯ ТРЕНИРОВКИ ============ */}
+
+        {/* ============ КАК СТРОЯТСЯ ТРЕНИРОВКИ ============ */}
         <div className="training-explainer">
           <div className="training-explainer-header">
-            <span className="training-explainer-icon">💡</span>
+            <span className="training-explainer-icon">
+              <IconFire size={22} />
+            </span>
             <h3 className="training-explainer-title">Как строятся тренировки</h3>
           </div>
 
@@ -186,8 +209,8 @@ export default function TestsScreen({ user, onOpenPro, onStartTest }) {
                   Режим «Микс» ищет слабые места
                 </div>
                 <div className="training-explainer-item-text">
-                  Робот анализирует твои тесты и подбирает программы, которые
-                  прокачают слабые навыки.
+                  Робот анализирует твои цели и подбирает программы, которые
+                  прокачают нужные навыки.
                 </div>
               </div>
             </div>

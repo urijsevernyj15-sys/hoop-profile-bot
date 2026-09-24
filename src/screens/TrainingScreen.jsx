@@ -6,20 +6,36 @@ import {
   getTotalCompleted,
   getWeekCompleted,
   isTrialUsed,
+  isTrainingCompleted,
 } from '../data/schedule'
 import TrainingCalendar from '../components/TrainingCalendar'
-import { getActiveTraining, clearActiveTraining } from '../utils/trainingProgress'
+import TrainingOnboarding from '../components/TrainingOnboarding'
 import MixTrainingScreen from './MixTrainingScreen'
+import { getActiveTraining, clearActiveTraining } from '../utils/trainingProgress'
+import {
+  IconShooting,
+  IconDribbling,
+  IconDrives,
+  IconFinishing,
+  IconAthleticism,
+  IconIQ,
+  IconDefense,
+  IconPassing,
+  IconRobot,
+  IconMoon,
+  IconTrophy,
+} from '../components/Icons'
 
-const CATEGORY_META = {
-  shooting:    { icon: '🎯', label: 'Бросок' },
-  dribbling:   { icon: '⚡', label: 'Дриблинг' },
-  drives:      { icon: '🚀', label: 'Проходы' },
-  finishing:   { icon: '🏀', label: 'Завершения' },
-  athleticism: { icon: '💪', label: 'Атлетизм' },
-  iq:          { icon: '🧠', label: 'IQ' },
-  defense:     { icon: '🛡️', label: 'Защита' },
-  passing:     { icon: '🎁', label: 'Пас' },
+// Функция — какая SVG-иконка соответствует программе
+function getProgramIcon(programId, size = 28) {
+  switch (programId) {
+    case 'sniper':    return <IconShooting size={size} />
+    case 'playmaker': return <IconDribbling size={size} />
+    case 'beast':     return <IconAthleticism size={size} />
+    case 'slasher':   return <IconDrives size={size} />
+    case 'universal': return <IconFinishing size={size} />
+    default:          return <IconTrophy size={size} />
+  }
 }
 
 export default function TrainingScreen({
@@ -28,14 +44,13 @@ export default function TrainingScreen({
   onOpenCustomProgram,
   onOpenPro,
   onOpenSettings,
+  onSaveProfile,
 }) {
   const isPro = user.plan === 'pro'
   const trialUsed = isTrialUsed(user)
 
-  // Состояние активной (незавершённой) тренировки
   const [activeTraining, setActiveTraining] = useState(null)
 
-  // Проверяем активную тренировку при монтировании и при возврате на экран
   useEffect(() => {
     const active = getActiveTraining()
     setActiveTraining(active || null)
@@ -43,7 +58,6 @@ export default function TrainingScreen({
 
   function handleResumeTraining() {
     if (!activeTraining) return
-    // Восстанавливаем тренировку через onOpenProgram
     onOpenProgram(activeTraining.programId, {
       exercises: activeTraining.exercises,
       totalExercises: activeTraining.exercises.length,
@@ -53,6 +67,21 @@ export default function TrainingScreen({
       ),
       mainCategory: 'resumed',
     })
+  }
+
+  // ============ ОНБОРДИНГ ПРИ ПЕРВОМ ЗАХОДЕ ============
+  if (isPro && !user.trainingOnboarded) {
+    return (
+      <TrainingOnboarding
+        onComplete={() => {
+          onSaveProfile({ trainingOnboarded: true })
+        }}
+        onOpenSettings={() => {
+          onSaveProfile({ trainingOnboarded: true })
+          onOpenSettings()
+        }}
+      />
+    )
   }
 
   // ============ FREE: ЗАГЛУШКА / ПРОБНАЯ ============
@@ -196,20 +225,20 @@ export default function TrainingScreen({
       </div>
     )
   }
-    // ============ РЕЖИМ МИКС ============
-if (user.trainingMode === 'mix') {
-  return (
-    <MixTrainingScreen
-      user={user}
-      onOpenSettings={onOpenSettings}
-      onStartMixTraining={(session) => onOpenProgram('__mix__', session)}
-      onOpenPro={onOpenPro}
-    />
-  )
-}
 
+  // ============ РЕЖИМ МИКС ============
+  if (user.trainingMode === 'mix') {
+    return (
+      <MixTrainingScreen
+        user={user}
+        onOpenSettings={onOpenSettings}
+        onStartMixTraining={(session) => onOpenProgram('__mix__', session)}
+        onOpenPro={onOpenPro}
+      />
+    )
+  }
 
-   // ============ PRO: полная версия ============
+  // ============ PRO: полная версия ============
   const totalCompleted = getTotalCompleted(user)
 
   const today = new Date()
@@ -220,7 +249,6 @@ if (user.trainingMode === 'mix') {
   const weekSchedule = getWeekSchedule(user, monday)
   const weekCompleted = getWeekCompleted(user, monday)
 
-  // Сегодняшняя программа (из расписания)
   const todayStr = formatDate(today)
   const todayData = weekSchedule[todayStr]
   const todayProgramId = todayData?.programId || null
@@ -228,11 +256,7 @@ if (user.trainingMode === 'mix') {
     ? PROGRAMS.find((p) => p.id === todayProgramId) || null
     : null
 
-  const hasSettings =
-    (user.trainingGoals || []).length > 0 &&
-    (user.trainingGear || []).length > 0
-
-  const isTrainingToday = !!todayData
+  const isTodayDone = isTrainingCompleted(user, todayStr)
 
   return (
     <>
@@ -242,7 +266,6 @@ if (user.trainingMode === 'mix') {
           <p className="training-head-sub">Твой план</p>
         </div>
 
-        {/* Статистика */}
         <div className="training-stats-row">
           <div className="training-stat">
             <div className="training-stat-value">{weekCompleted}</div>
@@ -258,30 +281,43 @@ if (user.trainingMode === 'mix') {
           </div>
         </div>
 
-        {/* Календарь */}
         <TrainingCalendar
           user={user}
           schedule={weekSchedule}
         />
 
-        {/* СЕГОДНЯ: ТРЕНИРОВКА ИЛИ ОТДЫХ */}
         {todayProgram ? (
           <div
-            className="single-training-card"
+            className={`single-training-card ${isTodayDone ? 'done' : ''}`}
             style={{ '--program-color': todayProgram.color }}
           >
             <div className="single-training-glow" />
 
-            <div className="single-training-icon">{todayProgram.icon}</div>
-            <div className="single-training-label">
-              СЕГОДНЯ · {todayProgram.title.toUpperCase()}
+            <div className="single-training-icon">
+              {isTodayDone
+                ? <IconTrophy size={48} />
+                : getProgramIcon(todayProgram.id, 48)}
             </div>
-            <h2 className="single-training-title">Моя тренировка</h2>
+            <div className="single-training-label">
+              {isTodayDone
+                ? 'СЕГОДНЯ · ВЫПОЛНЕНО'
+                : `СЕГОДНЯ · ${todayProgram.title.toUpperCase()}`}
+            </div>
+            <h2 className="single-training-title">
+              {isTodayDone ? 'Тренировка пройдена!' : 'Моя тренировка'}
+            </h2>
             <p className="single-training-sub">
-              {todayData.reason || `Программа «${todayProgram.title}»`}
+              {isTodayDone
+                ? 'Отдыхай — мышцы растут во время отдыха'
+                : todayData.reason || `Программа «${todayProgram.title}»`}
             </p>
 
-            {activeTraining && activeTraining.programId === todayProgram.id ? (
+            {isTodayDone ? (
+              <div className="single-training-done-badge">
+                <span className="single-training-done-check">✓</span>
+                <span>Возвращайся завтра</span>
+              </div>
+            ) : activeTraining && activeTraining.programId === todayProgram.id ? (
               <button
                 className="single-training-btn mix-resume-btn"
                 onClick={handleResumeTraining}
@@ -304,7 +340,9 @@ if (user.trainingMode === 'mix') {
           <div className="single-training-card rest">
             <div className="single-training-glow" />
 
-            <div className="single-training-icon">😴</div>
+            <div className="single-training-icon">
+              <IconMoon size={48} />
+            </div>
             <div className="single-training-label">СЕГОДНЯ · ОТДЫХ</div>
             <h2 className="single-training-title">Восстановление</h2>
             <p className="single-training-sub">
@@ -335,7 +373,6 @@ if (user.trainingMode === 'mix') {
           </div>
         )}
 
-        {/* Программы */}
         <div className="training-divider">
           <span>Или выбери программу</span>
         </div>
@@ -354,7 +391,9 @@ if (user.trainingMode === 'mix') {
                 <div className="program-card-glow" />
 
                 <div className="program-card-top">
-                  <div className="program-card-icon">{program.icon}</div>
+                  <div className="program-card-icon">
+                    {getProgramIcon(program.id, 26)}
+                  </div>
                   <div className="program-card-badge">
                     {progress && progress.started ? (
                       <span className="program-card-badge-progress">
@@ -392,7 +431,6 @@ if (user.trainingMode === 'mix') {
           })}
         </div>
 
-        {/* Как строятся тренировки */}
         <div className="training-explainer">
           <div className="training-explainer-header">
             <span className="training-explainer-icon">💡</span>

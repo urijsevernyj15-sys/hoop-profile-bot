@@ -1,6 +1,29 @@
 import { useState } from 'react'
 import { THEMES, POSITIONS } from '../data/themes'
 import ConfirmModal from '../components/ConfirmModal'
+import {
+  IconShooting,
+  IconAthleticism,
+  IconIQ,
+  IconRobot,
+  IconDefense,
+  IconFire,
+  IconTrophy,
+} from '../components/Icons'
+
+// Иконки секций настроек
+function SectionIcon({ type, size = 22 }) {
+  switch (type) {
+    case 'theme':    return <IconFire size={size} />
+    case 'position': return <IconShooting size={size} />
+    case 'personal': return <IconAthleticism size={size} />
+    case 'about':    return <IconIQ size={size} />
+    case 'team':     return <IconTrophy size={size} />
+    case 'support':  return <IconRobot size={size} />
+    case 'danger':   return <IconDefense size={size} />
+    default:         return null
+  }
+}
 
 export default function SettingsScreen({
   user,
@@ -61,7 +84,9 @@ export default function SettingsScreen({
         {/* ============ ТЕМА ============ */}
         <div className="settings-section">
           <div className="settings-section-head">
-            <span className="settings-section-icon">🎨</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="theme" />
+            </span>
             <div>
               <div className="settings-section-title">Тема приложения</div>
               <div className="settings-section-sub">Меняет цвета всего интерфейса</div>
@@ -94,7 +119,9 @@ export default function SettingsScreen({
         {/* ============ ПОЗИЦИИ ============ */}
         <div className="settings-section">
           <div className="settings-section-head">
-            <span className="settings-section-icon">🏀</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="position" />
+            </span>
             <div>
               <div className="settings-section-title">Игровые позиции</div>
               <div className="settings-section-sub">
@@ -136,7 +163,9 @@ export default function SettingsScreen({
         {/* ============ ЛИЧНЫЕ ДАННЫЕ ============ */}
         <div className="settings-section">
           <div className="settings-section-head">
-            <span className="settings-section-icon">📏</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="personal" />
+            </span>
             <div>
               <div className="settings-section-title">Личные данные</div>
               <div className="settings-section-sub">Рост, вес, возраст</div>
@@ -188,7 +217,9 @@ export default function SettingsScreen({
         {/* ============ О ПРИЛОЖЕНИИ ============ */}
         <div className="settings-section">
           <div className="settings-section-head">
-            <span className="settings-section-icon">ℹ️</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="about" />
+            </span>
             <div>
               <div className="settings-section-title">О приложении</div>
               <div className="settings-section-sub">Snake Basketball · v1.45</div>
@@ -205,7 +236,9 @@ export default function SettingsScreen({
             className="settings-collapse-head"
             onClick={() => setAboutExpanded(!aboutExpanded)}
           >
-            <span className="settings-section-icon">👥</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="team" />
+            </span>
             <div className="settings-collapse-info">
               <div className="settings-section-title">О нас</div>
               <div className="settings-section-sub">Команда Snake Basketball</div>
@@ -268,7 +301,9 @@ export default function SettingsScreen({
             className="settings-collapse-head"
             onClick={() => setSupportExpanded(!supportExpanded)}
           >
-            <span className="settings-section-icon">💬</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="support" />
+            </span>
             <div className="settings-collapse-info">
               <div className="settings-section-title">Поддержка</div>
               <div className="settings-section-sub">Свяжись с нами</div>
@@ -337,7 +372,9 @@ export default function SettingsScreen({
         {/* ============ СБРОС ============ */}
         <div className="settings-section settings-section-danger">
           <div className="settings-section-head">
-            <span className="settings-section-icon">⚠️</span>
+            <span className="settings-section-icon">
+              <SectionIcon type="danger" />
+            </span>
             <div>
               <div className="settings-section-title">Сбросить всё</div>
               <div className="settings-section-sub">

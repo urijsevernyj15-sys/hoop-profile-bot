@@ -15,7 +15,13 @@ export const DEFAULT_USER = {
   trainingGear: [],
   trainingLevel: 'beginner',
   trainingDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'],
+  trainingMode: 'manual',
+  selectedProgramId: 'universal',
+  trainingOnboarded: false,
   calendarDone: 0,
+  completedTrainings: {},
+  trainingProgress: {},
+  trialCompleted: false,
 }
 
 export const INITIAL_CATEGORIES = [

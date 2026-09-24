@@ -3,6 +3,7 @@ import './App.css'
 
 import { DEFAULT_USER, freshCategories } from './data/categories'
 import { completeTraining } from './data/programs'
+import { clearActiveTraining } from './utils/trainingProgress'
 import RegistrationScreen from './screens/RegistrationScreen'
 import HomeScreen from './screens/HomeScreen'
 import TestsScreen from './screens/TestsScreen'
@@ -107,9 +108,58 @@ function App() {
     }
   }, [user, registered, loaded])
 
-  useEffect(() => {
-    document.body.setAttribute('data-theme', user.theme || 'classic')
-  }, [user.theme])
+useEffect(() => {
+  document.body.setAttribute('data-theme', user.theme || 'classic')
+}, [user.theme])
+
+// Определяем редкость по OVR и ставим на body
+useEffect(() => {
+  if (!user.categories) return
+
+  const allTests = user.categories.flatMap((c) => c.tests)
+  const freeTests = allTests.filter((t) => t.plan === 'free')
+  const doneTests = freeTests.filter((t) => t.status === 'done' && t.score !== null)
+
+  // Если не все тесты пройдены — редкость "none"
+  let rarity = 'none'
+
+  if (doneTests.length === freeTests.length && freeTests.length > 0) {
+    // Считаем OVR (упрощённо — как веса по первой позиции)
+    const main = user.positions?.[0] || 'default'
+    const OVR_WEIGHTS = {
+      PG: { 'b-iq-base': 25, 'sht-base': 15, 'drbl-base': 35, 'atl-base': 25 },
+      SG: { 'b-iq-base': 20, 'sht-base': 30, 'drbl-base': 25, 'atl-base': 25 },
+      SF: { 'b-iq-base': 25, 'sht-base': 25, 'drbl-base': 25, 'atl-base': 25 },
+      PF: { 'b-iq-base': 25, 'sht-base': 25, 'drbl-base': 15, 'atl-base': 35 },
+      C:  { 'b-iq-base': 25, 'sht-base': 20, 'drbl-base': 10, 'atl-base': 45 },
+      default: { 'b-iq-base': 25, 'sht-base': 25, 'drbl-base': 25, 'atl-base': 25 },
+    }
+    const weights = OVR_WEIGHTS[main] || OVR_WEIGHTS.default
+
+    let weightedSum = 0
+    let totalWeight = 0
+    freeTests.forEach((t) => {
+      const w = weights[t.id] || 0
+      weightedSum += (t.score || 0) * w
+      totalWeight += w
+    })
+
+    const ovr = totalWeight > 0 ? Math.min(99, Math.round(weightedSum / totalWeight)) : 0
+
+    if (ovr >= 95) rarity = 'legend'
+    else if (ovr >= 85) rarity = 'elite'
+    else if (ovr >= 70) rarity = 'gold'
+    else if (ovr >= 50) rarity = 'silver'
+    else rarity = 'bronze'
+  }
+
+  // Если пользователь выбрал свою редкость в карточке — уважаем её
+  if (user.cardRarity) {
+    rarity = user.cardRarity
+  }
+
+  document.body.setAttribute('data-rarity', rarity)
+}, [user.categories, user.positions, user.cardRarity])
 
   function goToTab(tab) {
     setActiveTab(tab)
@@ -187,15 +237,26 @@ function App() {
     setUser((prev) => ({ ...prev, theme: themeId }))
   }
 
-  function handleChangeCardTheme(themeId) {
-    setUser((prev) => ({ ...prev, cardTheme: themeId }))
-  }
-
   function handleSaveProfile(data) {
     setUser((prev) => ({ ...prev, ...data }))
   }
 
   function handleSaveTrainingSettings(data) {
+    const programChanged =
+      data.selectedProgramId !== undefined &&
+      data.selectedProgramId !== user.selectedProgramId
+
+    const modeChanged =
+      data.trainingMode !== undefined &&
+      data.trainingMode !== user.trainingMode
+
+    if (programChanged || modeChanged) {
+      clearActiveTraining()
+      setActiveSession(null)
+      setIsTraining(false)
+      setActiveProgramId(null)
+    }
+
     setUser((prev) => ({ ...prev, ...data }))
     setShowTrainingSettings(false)
   }
@@ -299,14 +360,6 @@ function App() {
 
   const runningTestInfo = runningTest ? findTest(runningTest) : null
 
-  console.log('🔍 STATE App.jsx:', {
-    isTraining,
-    activeProgramId,
-    hasSession: !!activeSession,
-    activeTab,
-    showCard,
-  })
-
   return (
     <div className="app">
       <div className="screen-transition" key={transitionKey}>
@@ -334,7 +387,7 @@ function App() {
               setShowCard(false)
               setShowPro(true)
             }}
-            onChangeCardTheme={handleChangeCardTheme}
+            onSaveProfile={handleSaveProfile}
           />
         ) : runningTestInfo ? (
           <TestRunScreen
@@ -403,21 +456,20 @@ function App() {
             {activeTab === 'training' && (
               <TrainingScreen
                 user={user}
-onOpenProgram={(programId, session) => {
-  if (programId === 'pro') {
-    setShowPro(true)
-  } else if (session) {
-    // Если передана session — сразу запускаем тренировку
-    setActiveProgramId(programId)
-    setActiveSession(session)
-    setIsTraining(true)
-  } else {
-    // Иначе — открываем экран программы
-    setActiveProgramId(programId)
-  }
-}}
+                onOpenProgram={(programId, session) => {
+                  if (programId === 'pro') {
+                    setShowPro(true)
+                  } else if (session) {
+                    setActiveProgramId(programId)
+                    setActiveSession(session)
+                    setIsTraining(true)
+                  } else {
+                    setActiveProgramId(programId)
+                  }
+                }}
                 onOpenPro={() => setShowPro(true)}
                 onOpenSettings={() => setShowTrainingSettings(true)}
+                onSaveProfile={handleSaveProfile}
               />
             )}
             {activeTab === 'profile' && (

@@ -1,9 +1,10 @@
 import { calculateOVR } from '../data/ovr'
 import {
-  ShootingIcon,
-  DribblingIcon,
-  AthleticismIcon,
-  IQIcon,
+  IconShooting,
+  IconDribbling,
+  IconAthleticism,
+  IconIQ,
+  IconTrophy,
 } from '../components/Icons'
 
 export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, onOpenTests }) {
@@ -15,10 +16,10 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
   const ovr = calculateOVR(user.categories, user.positions)
 
   const homeMetrics = [
-    { code: 'B-IQ', testId: 'b-iq-base', value: allTests.find((t) => t.id === 'b-iq-base')?.score ?? null, Icon: IQIcon },
-    { code: 'SHT', testId: 'sht-base', value: allTests.find((t) => t.id === 'sht-base')?.score ?? null, Icon: ShootingIcon },
-    { code: 'DRBL', testId: 'drbl-base', value: allTests.find((t) => t.id === 'drbl-base')?.score ?? null, Icon: DribblingIcon },
-    { code: 'ATL', testId: 'atl-base', value: allTests.find((t) => t.id === 'atl-base')?.score ?? null, Icon: AthleticismIcon },
+    { code: 'B-IQ', testId: 'b-iq-base', value: allTests.find((t) => t.id === 'b-iq-base')?.score ?? null, Icon: IconIQ },
+    { code: 'SHT', testId: 'sht-base', value: allTests.find((t) => t.id === 'sht-base')?.score ?? null, Icon: IconShooting },
+    { code: 'DRBL', testId: 'drbl-base', value: allTests.find((t) => t.id === 'drbl-base')?.score ?? null, Icon: IconDribbling },
+    { code: 'ATL', testId: 'atl-base', value: allTests.find((t) => t.id === 'atl-base')?.score ?? null, Icon: IconAthleticism },
   ]
 
   return (
@@ -102,7 +103,7 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
 
         <div className="metrics">
           {homeMetrics.map((m) => {
-            const Icon = m.Icon
+            const MetricIcon = m.Icon
             return (
               <button
                 key={m.code}
@@ -110,7 +111,9 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
                 onClick={() => onStartTest(m.testId)}
               >
                 {m.value !== null && <span className="check">✓</span>}
-                <Icon />
+                <span className="metric-icon">
+                  <MetricIcon size={18} />
+                </span>
                 <span className="metric-code">{m.code}</span>
                 <span className="metric-value">{m.value !== null ? m.value : '—'}</span>
               </button>
@@ -153,7 +156,9 @@ export default function HomeScreen({ user, onOpenCard, onOpenPro, onStartTest, o
 
       {user.plan === 'free' && (
         <div className="pro-promo" onClick={onOpenPro}>
-          <div className="pro-promo-icon">✨</div>
+          <div className="pro-promo-icon">
+            <IconTrophy size={24} />
+          </div>
           <div className="pro-promo-text">
             <div className="pro-promo-title">С PRO-карточкой результаты точнее</div>
             <div className="pro-promo-sub">Больше тестов, история и тренировки</div>

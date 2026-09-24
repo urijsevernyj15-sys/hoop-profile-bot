@@ -1,4 +1,26 @@
 import { useState } from 'react'
+import {
+  IconShooting,
+  IconFire,
+  IconTrophy,
+  IconDefense,
+  IconAthleticism,
+  IconRobot,
+  IconTrophy as TrophyIcon,
+} from '../components/Icons'
+
+// Иконки достижений (SVG, размер 22)
+function AchIcon({ type, size = 22 }) {
+  switch (type) {
+    case 'first':   return <IconShooting size={size} />
+    case 'two':     return <IconFire size={size} />
+    case 'all':     return <IconTrophy size={size} />
+    case 'speed':   return <IconAthleticism size={size} />
+    case 'diamond': return <IconDefense size={size} />
+    case 'pro':     return <IconRobot size={size} />
+    default:        return null
+  }
+}
 
 export default function ProfileScreen({
   user,
@@ -144,27 +166,39 @@ export default function ProfileScreen({
         </div>
         <div className="profile-achievements-grid">
           <div className={`achievement ${totalDone >= 1 ? 'unlocked' : ''}`}>
-            <span className="achievement-icon">🎯</span>
+            <span className="achievement-icon">
+              <AchIcon type="first" size={26} />
+            </span>
             <span className="achievement-label">Первый замер</span>
           </div>
           <div className={`achievement ${totalDone >= 2 ? 'unlocked' : ''}`}>
-            <span className="achievement-icon">🔥</span>
+            <span className="achievement-icon">
+              <AchIcon type="two" size={26} />
+            </span>
             <span className="achievement-label">2 теста</span>
           </div>
           <div className={`achievement ${totalDone >= 4 ? 'unlocked' : ''}`}>
-            <span className="achievement-icon">🏆</span>
+            <span className="achievement-icon">
+              <AchIcon type="all" size={26} />
+            </span>
             <span className="achievement-label">Все free</span>
           </div>
           <div className="achievement">
-            <span className="achievement-icon">⚡</span>
+            <span className="achievement-icon">
+              <AchIcon type="speed" size={26} />
+            </span>
             <span className="achievement-label">Скорость</span>
           </div>
           <div className="achievement">
-            <span className="achievement-icon">💎</span>
+            <span className="achievement-icon">
+              <AchIcon type="diamond" size={26} />
+            </span>
             <span className="achievement-label">100 OVR</span>
           </div>
           <div className="achievement">
-            <span className="achievement-icon">👑</span>
+            <span className="achievement-icon">
+              <AchIcon type="pro" size={26} />
+            </span>
             <span className="achievement-label">PRO</span>
           </div>
         </div>

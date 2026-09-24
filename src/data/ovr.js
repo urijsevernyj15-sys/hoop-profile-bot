@@ -76,3 +76,46 @@ export function calculateFinalScore(blockScores, blocks) {
   // Кап на 99
   return Math.min(99, Math.round((totalWeighted / totalWeight) * 100))
 }
+// ============================================================
+// ДЕТАЛЬНАЯ СТАТИСТИКА — 3PT, 2PT, FIN из sht-base
+// ============================================================
+
+export function calculateDetailedStats(categories, positions) {
+  const allTests = categories.flatMap((c) => c.tests)
+  const main = positions && positions[0] ? positions[0] : 'default'
+
+  const getScore = (testId) => {
+    const t = allTests.find((x) => x.id === testId)
+    return t && t.status === 'done' && t.score !== null ? t.score : null
+  }
+
+  const shtBase = getScore('sht-base')
+  const bIq = getScore('b-iq-base')
+  const drbl = getScore('drbl-base')
+  const atl = getScore('atl-base')
+
+  // Модификаторы для разбивки броска по позициям
+  // (из общего sht-base выделяем 3PT / 2PT / FIN)
+  const SHOOTING_SPLIT = {
+    PG: { threePt: 0.95, twoPt: 1.05, fin: 0.95 },
+    SG: { threePt: 1.10, twoPt: 1.00, fin: 0.90 },
+    SF: { threePt: 1.00, twoPt: 1.00, fin: 1.00 },
+    PF: { threePt: 0.85, twoPt: 1.05, fin: 1.10 },
+    C:  { threePt: 0.70, twoPt: 1.10, fin: 1.20 },
+    default: { threePt: 1.00, twoPt: 1.00, fin: 1.00 },
+  }
+
+  const mods = SHOOTING_SPLIT[main] || SHOOTING_SPLIT.default
+
+  const clamp = (v) => (v === null ? null : Math.min(99, Math.max(0, Math.round(v))))
+
+  return {
+    'b-iq': bIq,
+    sht: shtBase,
+    threePt: shtBase !== null ? clamp(shtBase * mods.threePt) : null,
+    twoPt: shtBase !== null ? clamp(shtBase * mods.twoPt) : null,
+    fin: shtBase !== null ? clamp(shtBase * mods.fin) : null,
+    drbl,
+    atl,
+  }
+}
